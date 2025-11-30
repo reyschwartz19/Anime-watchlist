@@ -14,7 +14,7 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
-  refreshUserData: async () => {},
+  refreshUserData: async () => { },
 });
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -36,13 +36,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(true);
       if (firebaseUser) {
         setUser(firebaseUser);
-        // Check if user exists in DB, if not create basic profile
-        let data = await getUserData(firebaseUser.uid);
-        if (!data) {
+        try {
+          // Check if user exists in DB, if not create basic profile
+          let data = await getUserData(firebaseUser.uid);
+          if (!data) {
             await createUserProfile(firebaseUser);
             data = await getUserData(firebaseUser.uid);
+          }
+          setUserData(data);
+        } catch (error: any) {
+          console.error("Error fetching/creating user profile:", error);
+          if (error.code === 'permission-denied') {
+            console.error("CRITICAL: Firestore Security Rules are blocking access. Please update your Firestore rules in the Firebase Console.");
+          }
+          // Fallback: Set basic user data from Auth object so app doesn't hang
+          setUserData({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: firebaseUser.displayName || 'User',
+            photoURL: firebaseUser.photoURL || '',
+            interests: [],
+            favoriteAnimes: [],
+            onboarded: false,
+            watchlist: {}
+          });
         }
-        setUserData(data);
       } else {
         setUser(null);
         setUserData(null);
@@ -55,7 +73,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const refreshUserData = async () => {
     if (user) {
-        await fetchUserData(user.uid);
+      await fetchUserData(user.uid);
     }
   };
 

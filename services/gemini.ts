@@ -14,17 +14,13 @@ export const getGeminiRecommendations = async (
     recentHistory: string[]
 ): Promise<RecommendationResult[]> => {
     if (!ENV.GEMINI_API_KEY) {
-        console.warn("Gemini API Key is missing. Returning mock data.");
-        return [
-            { title: "Cowboy Bebop", reason: "Classic sci-fi noir that matches your interest in action." },
-            { title: "Fullmetal Alchemist: Brotherhood", reason: "Top tier adventure and deep story." },
-            { title: "Steins;Gate", reason: "Excellent thriller with time travel elements." }
-        ];
+        console.warn("Gemini API Key is missing.");
+        return [];
     }
 
     const genreString = userProfile.interests.join(", ");
-    const historyString = recentHistory.length > 0 
-        ? `I have recently watched or plan to watch: ${recentHistory.join(", ")}.` 
+    const historyString = recentHistory.length > 0
+        ? `I have recently watched or plan to watch: ${recentHistory.join(", ")}.`
         : "I am new to anime.";
 
     const prompt = `
@@ -59,7 +55,7 @@ export const getGeminiRecommendations = async (
 
         // Defensive parsing: remove any markdown code block syntax if present
         const jsonStr = response.text?.replace(/```json/g, '').replace(/```/g, '').trim();
-        
+
         if (!jsonStr) return [];
         return JSON.parse(jsonStr) as RecommendationResult[];
 

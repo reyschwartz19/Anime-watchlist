@@ -9,7 +9,7 @@ import { Anime } from '../types';
 
 export const RecommendationsPage: React.FC = () => {
     const { user, userData, refreshUserData } = useContext(AuthContext);
-    const [recommendations, setRecommendations] = useState<{anime: Anime, reason: string}[]>([]);
+    const [recommendations, setRecommendations] = useState<{ anime: Anime, reason: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -70,17 +70,17 @@ export const RecommendationsPage: React.FC = () => {
                 </div>
                 <h1 className="text-4xl font-bold text-white mb-4">AI Curator</h1>
                 <p className="text-slate-400 max-w-2xl mx-auto mb-8">
-                    Gemini analyzes your interests ({userData?.interests.join(', ')}) and watch history 
+                    Gemini analyzes your interests ({userData?.interests.join(', ')}) and watch history
                     to hand-pick the perfect series for you.
                 </p>
-                
+
                 <button
                     onClick={generateRecommendations}
                     disabled={loading}
                     className={`
                         inline-flex items-center space-x-2 px-8 py-4 rounded-xl text-lg font-bold shadow-xl transition transform active:scale-95
-                        ${loading 
-                            ? 'bg-slate-700 text-slate-400 cursor-not-allowed' 
+                        ${loading
+                            ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                             : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-500/30'
                         }
                     `}
@@ -97,13 +97,6 @@ export const RecommendationsPage: React.FC = () => {
                         </>
                     )}
                 </button>
-
-                {!process.env.API_KEY && !loading && (
-                    <div className="mt-4 text-xs text-yellow-500 flex items-center justify-center gap-1">
-                        <AlertTriangle size={14} />
-                        <span>Running in Demo Mode (Mock Data) because API_KEY is missing.</span>
-                    </div>
-                )}
             </div>
 
             {error && (
@@ -117,8 +110,8 @@ export const RecommendationsPage: React.FC = () => {
                     <h2 className="text-2xl font-semibold text-white mb-6 border-l-4 border-indigo-500 pl-4">Top Picks for You</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {recommendations.map(({ anime, reason }) => {
-                             const existing = userData?.watchlist[anime.mal_id];
-                             return (
+                            const existing = userData?.watchlist[anime.mal_id];
+                            return (
                                 <AnimeCard
                                     key={anime.mal_id}
                                     anime={anime}
@@ -126,7 +119,7 @@ export const RecommendationsPage: React.FC = () => {
                                     onUpdateStatus={handleAddToList}
                                     recommendationReason={reason}
                                 />
-                             );
+                            );
                         })}
                     </div>
                 </div>

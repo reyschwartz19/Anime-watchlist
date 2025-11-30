@@ -1,10 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { UserData } from "../types";
+import { ENV } from "../config/env";
 
-// NOTE: Uses process.env.API_KEY as per instructions
-const apiKey = process.env.API_KEY || '';
-
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({ apiKey: ENV.GEMINI_API_KEY });
 
 export interface RecommendationResult {
     title: string;
@@ -15,7 +13,7 @@ export const getGeminiRecommendations = async (
     userProfile: UserData,
     recentHistory: string[]
 ): Promise<RecommendationResult[]> => {
-    if (!apiKey) {
+    if (!ENV.GEMINI_API_KEY) {
         console.warn("Gemini API Key is missing. Returning mock data.");
         return [
             { title: "Cowboy Bebop", reason: "Classic sci-fi noir that matches your interest in action." },

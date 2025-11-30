@@ -1,35 +1,51 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import * as firebaseApp from 'firebase/app';
+import { 
+    getAuth, 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    signOut, 
+    onAuthStateChanged, 
+    User,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendEmailVerification,
+    updateEmail,
+    updatePassword,
+    updateProfile
+} from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { UserData, UserAnime, AnimeStatus } from '../types';
+import { ENV } from '../config/env';
 
-// NOTE: In a real app, these would come from process.env
-// For this demo environment where users might not have keys immediately,
-// We will implement a "Mock" mode if config is missing, to ensure the UI is reviewable.
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-};
-
-// Check if config is present
-const isFirebaseConfigured = !!firebaseConfig.apiKey;
+// Initialize based on ENV
+const isFirebaseConfigured = !ENV.IS_DEMO_MODE;
 
 let auth: any;
 let db: any;
 let googleProvider: any;
 
 if (isFirebaseConfigured) {
-  const app = initializeApp(firebaseConfig);
+  const app = firebaseApp.initializeApp(ENV.FIREBASE);
   auth = getAuth(app);
   db = getFirestore(app);
   googleProvider = new GoogleAuthProvider();
 }
 
 // --- Auth Services ---
+
+// Error mapping for better user experience
+const mapAuthError = (error: any): string => {
+    const code = error.code || '';
+    switch (code) {
+        case 'auth/email-already-in-use': return 'Email is already in use.';
+        case 'auth/invalid-email': return 'Invalid email address.';
+        case 'auth/weak-password': return 'Password should be at least 6 characters.';
+        case 'auth/user-not-found': return 'No account found with this email.';
+        case 'auth/wrong-password': return 'Incorrect password.';
+        case 'auth/requires-recent-login': return 'Please re-login to perform this security action.';
+        default: return error.message || 'An authentication error occurred.';
+    }
+};
 
 export const loginWithGoogle = async () => {
   if (isFirebaseConfigured) {
@@ -41,11 +57,80 @@ export const loginWithGoogle = async () => {
       displayName: 'Demo User',
       email: 'demo@example.com',
       photoURL: 'https://picsum.photos/200',
+      emailVerified: true
     };
     localStorage.setItem('mock_user', JSON.stringify(mockUser));
-    window.location.reload(); // Force reload to pick up state
+    window.location.reload(); 
     return { user: mockUser };
   }
+};
+
+export const registerWithEmail = async (email: string, pass: string, name: string) => {
+    if (isFirebaseConfigured) {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateProfile(userCredential.user, { displayName: name });
+            await sendEmailVerification(userCredential.user);
+            return userCredential.user;
+        } catch (error) {
+            throw new Error(mapAuthError(error));
+        }
+    } else {
+        const mockUser = { uid: 'mock-' + Date.now(), email, displayName: name, photoURL: null, emailVerified: false };
+        localStorage.setItem('mock_user', JSON.stringify(mockUser));
+        window.location.reload();
+        return mockUser;
+    }
+};
+
+export const loginWithEmail = async (email: string, pass: string) => {
+    if (isFirebaseConfigured) {
+        try {
+            const result = await signInWithEmailAndPassword(auth, email, pass);
+            return result.user;
+        } catch (error) {
+            throw new Error(mapAuthError(error));
+        }
+    } else {
+        // Mock Login
+        const mockUser = { uid: 'mock-user-123', displayName: 'Demo User', email, photoURL: null, emailVerified: true };
+        localStorage.setItem('mock_user', JSON.stringify(mockUser));
+        window.location.reload();
+        return mockUser;
+    }
+};
+
+export const resendVerificationEmail = async (user: User) => {
+    if (isFirebaseConfigured && user) {
+        await sendEmailVerification(user);
+    } else {
+        console.log("Mock verification email sent to " + user.email);
+    }
+};
+
+export const updateUserEmailAddress = async (user: User, newEmail: string) => {
+    if (isFirebaseConfigured) {
+        try {
+            await updateEmail(user, newEmail);
+            await sendEmailVerification(user);
+        } catch (error) {
+            throw new Error(mapAuthError(error));
+        }
+    } else {
+        console.log("Mock email updated to " + newEmail);
+    }
+};
+
+export const updateUserPasswordString = async (user: User, newPass: string) => {
+    if (isFirebaseConfigured) {
+        try {
+            await updatePassword(user, newPass);
+        } catch (error) {
+            throw new Error(mapAuthError(error));
+        }
+    } else {
+        console.log("Mock password updated");
+    }
 };
 
 export const logout = async () => {
@@ -170,8 +255,6 @@ export const updateAnimeStatus = async (uid: string, anime: UserAnime, status: A
         const userRef = doc(db, 'users', uid);
         const animePayload = { ...anime, status, addedAt: Date.now() };
         
-        // Use setDoc with merge to ensure we don't overwrite other fields,
-        // and specifically target the watchlist map key.
         await setDoc(userRef, {
             watchlist: {
                 [anime.mal_id]: animePayload
@@ -192,7 +275,6 @@ export const updateAnimeStatus = async (uid: string, anime: UserAnime, status: A
 export const removeAnime = async (uid: string, animeId: number) => {
      if (isFirebaseConfigured) {
          const userRef = doc(db, 'users', uid);
-         // Use deleteField for atomic removal from the map
          await updateDoc(userRef, {
              [`watchlist.${animeId}`]: deleteField()
          });

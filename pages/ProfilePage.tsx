@@ -1,16 +1,26 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { updateUserProfile } from '../services/firebase';
+import { updateUserProfile, updateUserEmailAddress, updateUserPasswordString, resendVerificationEmail } from '../services/firebase';
 import { GENRES } from '../types';
-import { User, Save, Check, X, Tag } from 'lucide-react';
+import { User, Save, Check, X, Tag, Shield, AlertTriangle, Loader } from 'lucide-react';
 
 export const ProfilePage: React.FC = () => {
     const { user, userData, refreshUserData } = useContext(AuthContext);
+    
+    // Profile Data
     const [displayName, setDisplayName] = useState('');
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
     const [favorites, setFavorites] = useState<string[]>([]);
     const [favoriteInput, setFavoriteInput] = useState('');
+    
+    // Security Data
+    const [newEmail, setNewEmail] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    
+    // UI State
     const [saving, setSaving] = useState(false);
+    const [securityLoading, setSecurityLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
@@ -19,7 +29,10 @@ export const ProfilePage: React.FC = () => {
             setSelectedGenres(userData.interests || []);
             setFavorites(userData.favoriteAnimes || []);
         }
-    }, [userData]);
+        if (user) {
+            setNewEmail(user.email || '');
+        }
+    }, [userData, user]);
 
     const toggleGenre = (genre: string) => {
         if (selectedGenres.includes(genre)) {
@@ -41,7 +54,7 @@ export const ProfilePage: React.FC = () => {
         setFavorites(favorites.filter(f => f !== fav));
     };
 
-    const handleSave = async () => {
+    const handleProfileSave = async () => {
         if (!user) return;
         setSaving(true);
         setMessage(null);
@@ -62,8 +75,48 @@ export const ProfilePage: React.FC = () => {
         }
     };
 
+    const handleSecurityUpdate = async () => {
+        if (!user) return;
+        setMessage(null);
+        setSecurityLoading(true);
+
+        try {
+            // Update Email if changed
+            if (newEmail !== user.email) {
+                await updateUserEmailAddress(user, newEmail);
+                setMessage({ type: 'success', text: 'Email updated! Verification sent to new address.' });
+            }
+
+            // Update Password if provided
+            if (newPassword) {
+                if (newPassword.length < 6) throw new Error("Password must be at least 6 characters.");
+                if (newPassword !== confirmPassword) throw new Error("Passwords do not match.");
+                
+                await updateUserPasswordString(user, newPassword);
+                setMessage({ type: 'success', text: 'Password updated successfully.' });
+                setNewPassword('');
+                setConfirmPassword('');
+            }
+        } catch (error: any) {
+            console.error(error);
+            setMessage({ type: 'error', text: error.message || 'Security update failed. You may need to re-login.' });
+        } finally {
+            setSecurityLoading(false);
+        }
+    };
+
+    const handleResendVerification = async () => {
+        if (!user) return;
+        try {
+            await resendVerificationEmail(user);
+            setMessage({ type: 'success', text: 'Verification email sent!' });
+        } catch (error: any) {
+            setMessage({ type: 'error', text: error.message });
+        }
+    };
+
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto pb-10">
             <h1 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
                 <div className="bg-indigo-600 p-2 rounded-lg">
                     <User className="w-8 h-8 text-white" />
@@ -93,12 +146,12 @@ export const ProfilePage: React.FC = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                            <label className="block text-sm font-medium text-slate-400 mb-1">User ID</label>
                             <input
                                 type="text"
-                                value={userData?.email || ''}
+                                value={user?.uid || ''}
                                 disabled
-                                className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-500 cursor-not-allowed"
+                                className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-500 cursor-not-allowed font-mono text-sm"
                             />
                         </div>
                     </div>
@@ -155,25 +208,97 @@ export const ProfilePage: React.FC = () => {
                             </button>
                         </form>
                     </div>
+
+                    {/* Save Button */}
+                    <div className="flex justify-end pt-6 border-t border-slate-700 mt-6">
+                        <button
+                            onClick={handleProfileSave}
+                            disabled={saving}
+                            className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold py-3 px-8 rounded-lg shadow-lg shadow-indigo-600/20 transition flex items-center space-x-2"
+                        >
+                            {saving ? (
+                                <Loader className="animate-spin" />
+                            ) : (
+                                <Save size={20} />
+                            )}
+                            <span>Save Preferences</span>
+                        </button>
+                    </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex justify-end pt-4">
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold py-3 px-8 rounded-lg shadow-lg shadow-indigo-600/20 transition flex items-center space-x-2"
-                    >
-                        {saving ? (
-                            <span>Saving...</span>
-                        ) : (
-                            <>
-                                <Save size={20} />
-                                <span>Save Changes</span>
-                            </>
-                        )}
-                    </button>
+                {/* Security Settings */}
+                <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+                    <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                        <Shield className="text-emerald-400" size={24} />
+                        Security Settings
+                    </h2>
+
+                    <div className="space-y-6">
+                        {/* Email Update */}
+                        <div>
+                             <label className="block text-sm font-medium text-slate-400 mb-1">Email Address</label>
+                             <div className="flex gap-2">
+                                <input
+                                    type="email"
+                                    value={newEmail}
+                                    onChange={(e) => setNewEmail(e.target.value)}
+                                    className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition"
+                                />
+                                {user && !user.emailVerified && (
+                                    <button 
+                                        onClick={handleResendVerification}
+                                        className="bg-yellow-600/20 text-yellow-500 hover:bg-yellow-600/30 px-4 rounded-lg text-sm font-medium border border-yellow-600/50"
+                                        title="Send Verification Email"
+                                    >
+                                        Verify
+                                    </button>
+                                )}
+                             </div>
+                             {user && !user.emailVerified && (
+                                 <p className="text-xs text-yellow-500 mt-1 flex items-center gap-1">
+                                    <AlertTriangle size={12} /> Email not verified.
+                                 </p>
+                             )}
+                        </div>
+
+                        {/* Password Update */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">New Password</label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="Leave blank to keep current"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Confirm Password</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Confirm new password"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Security Save */}
+                        <div className="flex justify-end pt-4">
+                            <button
+                                onClick={handleSecurityUpdate}
+                                disabled={securityLoading}
+                                className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-emerald-600/20 transition flex items-center space-x-2"
+                            >
+                                {securityLoading ? <Loader className="animate-spin" size={18} /> : <Check size={18} />}
+                                <span>Update Security</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
     );

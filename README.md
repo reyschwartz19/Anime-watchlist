@@ -1,20 +1,47 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Anime Checklist App
 
-# Run and deploy your AI Studio app
+A smart anime tracker powered by Gemini AI and Firebase.
 
-This contains everything you need to run your app locally.
+## Setup Instructions
 
-View your app in AI Studio: https://ai.studio/apps/drive/1KkPl5h5HMSxghcMx2WkeTXZCpcmnsQCv
+### 1. Prerequisites
+- Node.js (v16+)
+- npm or yarn
 
-## Run Locally
+### 2. Installation
+```bash
+npm install
+```
 
-**Prerequisites:**  Node.js
+### 3. Environment Configuration
+This application requires Firebase for authentication/database and Google Gemini for AI recommendations.
 
+1.  Open the `.env` file in the root directory.
+2.  Fill in the values using your actual keys:
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```env
+# Gemini API Key (https://aistudio.google.com/)
+API_KEY=your_gemini_key
+
+# Firebase Config (Firebase Console -> Project Settings)
+REACT_APP_FIREBASE_API_KEY=your_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+```
+
+### 4. Running the App
+```bash
+npm start
+```
+
+## Features
+- **Auth**: Email/Password and Google Sign-in via Firebase.
+- **Database**: Firestore for user profiles and watchlists.
+- **AI**: Google Gemini 2.5 Flash for personalized anime recommendations.
+- **API**: Jikan (MyAnimeList) API for anime data.
+
+## Deployment
+Set the environment variables in your deployment provider (e.g., Vercel, Netlify) matching the keys in `.env`.

@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { checkConfig } from './config/env';
+
+// Run environment check on startup to warn developers if keys are missing
+checkConfig();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

@@ -43,13 +43,40 @@ if (ENV.FIREBASE.apiKey) {
 const mapAuthError = (error: any): string => {
     const code = error.code || '';
     switch (code) {
-        case 'auth/email-already-in-use': return 'Email is already in use.';
-        case 'auth/invalid-email': return 'Invalid email address.';
-        case 'auth/weak-password': return 'Password should be at least 6 characters.';
-        case 'auth/user-not-found': return 'No account found with this email.';
-        case 'auth/wrong-password': return 'Incorrect password.';
-        case 'auth/requires-recent-login': return 'Please re-login to perform this security action.';
-        default: return error.message || 'An authentication error occurred.';
+        // Email/Password Auth
+        case 'auth/email-already-in-use':
+            return 'This email address is already associated with an account. Please sign in instead.';
+        case 'auth/invalid-email':
+            return 'Please enter a valid email address (e.g., name@example.com).';
+        case 'auth/weak-password':
+            return 'Your password is too weak. Please use at least 6 characters.';
+        case 'auth/user-not-found':
+            return 'No account found with this email address. Please check your spelling or register.';
+        case 'auth/wrong-password':
+            return 'Incorrect password. Please try again or reset your password.';
+
+        // Security & Session
+        case 'auth/requires-recent-login':
+            return 'For your security, please sign out and sign back in to perform this sensitive action.';
+        case 'auth/too-many-requests':
+            return 'Too many failed attempts. Please wait a few minutes before trying again.';
+        case 'auth/network-request-failed':
+            return 'Network error. Please check your internet connection and try again.';
+        case 'auth/popup-closed-by-user':
+            return 'Sign-in cancelled. You closed the popup before signing in.';
+        case 'auth/popup-blocked':
+            return 'The sign-in popup was blocked by your browser. Please allow popups for this site.';
+        case 'auth/invalid-credential':
+            return 'Invalid credentials provided. Please try again.';
+        case 'auth/operation-not-allowed':
+            return 'This sign-in method is currently disabled. Please contact support.';
+
+        // Firestore Permissions
+        case 'permission-denied':
+            return 'You do not have permission to perform this action.';
+
+        default:
+            return error.message || 'An unexpected error occurred. Please try again later.';
     }
 };
 

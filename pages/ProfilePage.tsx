@@ -6,21 +6,22 @@ import { User, Save, Check, X, Tag, Shield, AlertTriangle, Loader } from 'lucide
 
 export const ProfilePage: React.FC = () => {
     const { user, userData, refreshUserData } = useContext(AuthContext);
-    
+
     // Profile Data
     const [displayName, setDisplayName] = useState('');
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
     const [favorites, setFavorites] = useState<string[]>([]);
     const [favoriteInput, setFavoriteInput] = useState('');
-    
+
     // Security Data
     const [newEmail, setNewEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    
+
     // UI State
     const [saving, setSaving] = useState(false);
     const [securityLoading, setSecurityLoading] = useState(false);
+    const [verificationLoading, setVerificationLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
@@ -91,7 +92,7 @@ export const ProfilePage: React.FC = () => {
             if (newPassword) {
                 if (newPassword.length < 6) throw new Error("Password must be at least 6 characters.");
                 if (newPassword !== confirmPassword) throw new Error("Passwords do not match.");
-                
+
                 await updateUserPasswordString(user, newPassword);
                 setMessage({ type: 'success', text: 'Password updated successfully.' });
                 setNewPassword('');
@@ -107,11 +108,15 @@ export const ProfilePage: React.FC = () => {
 
     const handleResendVerification = async () => {
         if (!user) return;
+        setVerificationLoading(true);
+        setMessage(null);
         try {
             await resendVerificationEmail(user);
-            setMessage({ type: 'success', text: 'Verification email sent!' });
+            setMessage({ type: 'success', text: '✉️ Verification email sent! Please check your inbox and spam folder.' });
         } catch (error: any) {
-            setMessage({ type: 'error', text: error.message });
+            setMessage({ type: 'error', text: error.message || 'Failed to send verification email.' });
+        } finally {
+            setVerificationLoading(false);
         }
     };
 
@@ -125,9 +130,9 @@ export const ProfilePage: React.FC = () => {
             </h1>
 
             {message && (
-                <div className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-900/50 text-green-200 border border-green-700' : 'bg-red-900/50 text-red-200 border border-red-700'}`}>
-                    {message.type === 'success' ? <Check size={20} /> : <X size={20} />}
-                    {message.text}
+                <div className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${message.type === 'success' ? 'bg-green-900/50 text-green-200 border border-green-700' : 'bg-red-900/50 text-red-200 border border-red-700'}`}>
+                    {message.type === 'success' ? <Check size={20} className="shrink-0 mt-0.5" /> : <X size={20} className="shrink-0 mt-0.5" />}
+                    <span className="text-sm md:text-base leading-relaxed">{message.text}</span>
                 </div>
             )}
 
@@ -160,7 +165,7 @@ export const ProfilePage: React.FC = () => {
                 {/* Anime Preferences */}
                 <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
                     <h2 className="text-xl font-semibold text-white mb-4">Anime Preferences</h2>
-                    
+
                     {/* Genres */}
                     <div className="mb-8">
                         <label className="block text-sm font-medium text-slate-400 mb-3">Favorite Genres</label>
@@ -169,11 +174,10 @@ export const ProfilePage: React.FC = () => {
                                 <button
                                     key={genre}
                                     onClick={() => toggleGenre(genre)}
-                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
-                                        selectedGenres.includes(genre)
-                                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-800'
-                                            : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                                    }`}
+                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${selectedGenres.includes(genre)
+                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-800'
+                                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                        }`}
                                 >
                                     {genre}
                                 </button>
@@ -236,8 +240,8 @@ export const ProfilePage: React.FC = () => {
                     <div className="space-y-6">
                         {/* Email Update */}
                         <div>
-                             <label className="block text-sm font-medium text-slate-400 mb-1">Email Address</label>
-                             <div className="flex gap-2">
+                            <label className="block text-sm font-medium text-slate-400 mb-1">Email Address</label>
+                            <div className="flex gap-2">
                                 <input
                                     type="email"
                                     value={newEmail}
@@ -245,20 +249,28 @@ export const ProfilePage: React.FC = () => {
                                     className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition"
                                 />
                                 {user && !user.emailVerified && (
-                                    <button 
+                                    <button
                                         onClick={handleResendVerification}
-                                        className="bg-yellow-600/20 text-yellow-500 hover:bg-yellow-600/30 px-4 rounded-lg text-sm font-medium border border-yellow-600/50"
+                                        disabled={verificationLoading}
+                                        className="bg-yellow-600/20 text-yellow-500 hover:bg-yellow-600/30 disabled:opacity-50 disabled:cursor-not-allowed px-4 rounded-lg text-sm font-medium border border-yellow-600/50 transition flex items-center gap-2"
                                         title="Send Verification Email"
                                     >
-                                        Verify
+                                        {verificationLoading ? (
+                                            <>
+                                                <Loader className="animate-spin" size={14} />
+                                                <span>Sending...</span>
+                                            </>
+                                        ) : (
+                                            'Verify'
+                                        )}
                                     </button>
                                 )}
-                             </div>
-                             {user && !user.emailVerified && (
-                                 <p className="text-xs text-yellow-500 mt-1 flex items-center gap-1">
+                            </div>
+                            {user && !user.emailVerified && (
+                                <p className="text-xs text-yellow-500 mt-1 flex items-center gap-1">
                                     <AlertTriangle size={12} /> Email not verified.
-                                 </p>
-                             )}
+                                </p>
+                            )}
                         </div>
 
                         {/* Password Update */}

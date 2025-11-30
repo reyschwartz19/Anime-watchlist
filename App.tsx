@@ -59,11 +59,16 @@ const AppContent: React.FC = () => {
 
             {/* Global Warning for Unverified Email */}
             {showVerificationWarning && !isAuthPage && (
-                <div className="bg-yellow-600/90 text-white text-center text-sm py-1 px-4 flex justify-center items-center gap-2">
-                    <AlertTriangle size={14} />
-                    <span>Your email is not verified. Please check your inbox or go to </span>
-                    <Link to="/profile" className="underline hover:text-white font-semibold">Profile</Link>
-                    <span> to resend.</span>
+                <div className="bg-yellow-600/90 text-white text-sm py-2 px-4 flex flex-col md:flex-row justify-center items-center gap-2 text-center">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle size={16} className="shrink-0" />
+                        <span>Your email is not verified.</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span>Please check your inbox or go to </span>
+                        <Link to="/profile" className="underline hover:text-white font-semibold whitespace-nowrap">Profile</Link>
+                        <span> to resend.</span>
+                    </div>
                 </div>
             )}
 

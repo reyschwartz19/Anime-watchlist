@@ -1,0 +1,20 @@
+{
+  "uid": "firebase-second-user",
+  "email": "second-fixture@example.invalid",
+  "displayName": "Second Fixture",
+  "photoURL": null,
+  "interests": ["Drama"],
+  "favoriteAnimes": [],
+  "onboarded": false,
+  "watchlist": {
+    "457": {
+      "mal_id": 457,
+      "title": "Mushi-Shi",
+      "images": { "jpg": { "image_url": "https://example.invalid/457.jpg", "large_image_url": "https://example.invalid/457.jpg" } },
+      "synopsis": "Another user's synthetic copy of the same anime.",
+      "status": "completed",
+      "addedAt": 1600000000000,
+      "progress": 26
+    }
+  }
+}

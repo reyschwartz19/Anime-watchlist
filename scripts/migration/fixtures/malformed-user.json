@@ -1,0 +1,14 @@
+{
+  "uid": "firebase-malformed-user",
+  "email": "malformed-fixture@example.invalid",
+  "displayName": "Malformed Fixture",
+  "interests": ["Drama", 17],
+  "favoriteAnimes": ["Mushi-Shi"],
+  "onboarded": "yes",
+  "watchlist": {
+    "457": { "mal_id": 457, "title": "Mushi-Shi", "status": "finished", "addedAt": "sometime last year" },
+    "20": null,
+    "30": { "mal_id": 31, "status": "watching" },
+    "40": { "mal_id": 40, "status": "plan_to_watch", "addedAt": "not a timestamp", "progress": { "unmapped": true } }
+  }
+}

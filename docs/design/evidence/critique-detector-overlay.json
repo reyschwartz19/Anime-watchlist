@@ -1,0 +1,238 @@
+{
+  "injected": {
+    "loaded": true,
+    "src": "http://localhost:8400/detect.js"
+  },
+  "page": {
+    "title": "[Human] Discover study · Anime Watchlist",
+    "url": "http://127.0.0.1:4173/docs/design/discover-mockup.html",
+    "scripts": [
+      {
+        "id": "",
+        "src": "http://127.0.0.1:4173/docs/design/discover-mockup.js"
+      },
+      {
+        "id": "critique-detector-preflight",
+        "src": ""
+      },
+      {
+        "id": "critique-detector-overlay",
+        "src": "http://localhost:8400/detect.js"
+      }
+    ],
+    "overlayElements": [
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "impeccable-overlay impeccable-banner",
+        "text": "OVERUSED FONT\nPrimary font: arial (100% of text)\n◉\n×"
+      }
+    ],
+    "bodyText": "Skip to recommendation\nInteractive design study Sample taste profile\nAnime watchlist.\nDiscover\nMy List\n0\nDiscover\n\nGood stories. A reason to watch.\n\nA pick for your taste\n01 / 01\nOriginal poster study · No official artwork reproduced\n\nSupernatural / Slice of life\n\nMushi-Shi\n\n2005 · Series · 26 episodes\n\nA wandering specialist explores the quiet, strange ways that people and the natural world intertwine.\n\nWhy this might be for you\n\nBecause you liked Natsume’s Book of Friends. Both find warmth in encounters with the supernatural. Mushi-Shi takes a quieter, more contemplative path.\n\nBased on an example preference\n\n+\nPlan to watch\nAnime details\n↗\n(opens a new tab)\n\nDoes this feel like your kind of story?\n\nMore like this\nNot for me\n\nTry saving a title or giving feedback.\n\nYour taste, a little clearer.\n\nSave what interests you. Tell us what doesn’t. Make room for something unexpected.\n\nProvisional direction · Reference screenshots pending\n\nOne sample recommendation. Actions reset when you reload.\n\nOVERUSED FONT\nPrimary font: arial (100% of text)\n◉\n×"
+  },
+  "messages": [
+    {
+      "method": "Log.entryAdded",
+      "params": {
+        "entry": {
+          "source": "network",
+          "level": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+          "timestamp": 1793831361568.439,
+          "url": "http://127.0.0.1:4173/favicon.ico",
+          "networkRequestId": "41630.8"
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "startGroup",
+        "args": [
+          {
+            "type": "string",
+            "value": "%c[impeccable] 1 anti-pattern found"
+          },
+          {
+            "type": "string",
+            "value": "color: oklch(84% 0.19 80.46); font-weight: bold"
+          }
+        ],
+        "executionContextId": 2,
+        "timestamp": 1793831364879.199,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "printSummary",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4215,
+              "columnNumber": 12
+            },
+            {
+              "functionName": "renderBrowserFindings",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4439,
+              "columnNumber": 25
+            },
+            {
+              "functionName": "scan",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4461,
+              "columnNumber": 24
+            },
+            {
+              "functionName": "runAutoScan",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4534,
+              "columnNumber": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "log",
+        "args": [
+          {
+            "type": "string",
+            "value": "%coverused-font%c Primary font: arial (100% of text)"
+          },
+          {
+            "type": "string",
+            "value": "color: oklch(84% 0.19 80.46); font-weight: bold"
+          },
+          {
+            "type": "string",
+            "value": "color: inherit"
+          },
+          {
+            "type": "object",
+            "subtype": "node",
+            "className": "HTMLBodyElement",
+            "description": "body",
+            "objectId": "-5003337356247877167.2.1",
+            "preview": {
+              "type": "object",
+              "subtype": "node",
+              "description": "body",
+              "overflow": true,
+              "properties": [
+                {
+                  "name": "text",
+                  "type": "string",
+                  "value": ""
+                },
+                {
+                  "name": "link",
+                  "type": "string",
+                  "value": ""
+                },
+                {
+                  "name": "vLink",
+                  "type": "string",
+                  "value": ""
+                },
+                {
+                  "name": "aLink",
+                  "type": "string",
+                  "value": ""
+                },
+                {
+                  "name": "bgColor",
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        ],
+        "executionContextId": 2,
+        "timestamp": 1793831364886.477,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "printSummary",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4221,
+              "columnNumber": 16
+            },
+            {
+              "functionName": "renderBrowserFindings",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4439,
+              "columnNumber": 25
+            },
+            {
+              "functionName": "scan",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4461,
+              "columnNumber": 24
+            },
+            {
+              "functionName": "runAutoScan",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4534,
+              "columnNumber": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "Runtime.consoleAPICalled",
+      "params": {
+        "type": "endGroup",
+        "args": [
+          {
+            "type": "string",
+            "value": "console.groupEnd"
+          }
+        ],
+        "executionContextId": 2,
+        "timestamp": 1793831364886.702,
+        "stackTrace": {
+          "callFrames": [
+            {
+              "functionName": "printSummary",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4225,
+              "columnNumber": 12
+            },
+            {
+              "functionName": "renderBrowserFindings",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4439,
+              "columnNumber": 25
+            },
+            {
+              "functionName": "scan",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4461,
+              "columnNumber": 24
+            },
+            {
+              "functionName": "runAutoScan",
+              "scriptId": "9",
+              "url": "http://localhost:8400/detect.js",
+              "lineNumber": 4534,
+              "columnNumber": 10
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,252 @@
+{
+  "testedAt": "2026-11-04T23:24:52.838Z",
+  "configuration": "synthetic auth URL, no DB URL, migration downloads disabled; no login submissions",
+  "checks": [
+    {
+      "name": "anonymous /library requires sign-in",
+      "pass": true,
+      "details": {
+        "status": 200,
+        "redirect": "/auth?returnTo=%2Flibrary",
+        "mechanism": "Next.js streaming redirect"
+      }
+    },
+    {
+      "name": "anonymous /search?q=Mushi-Shi requires sign-in",
+      "pass": true,
+      "details": {
+        "status": 200,
+        "redirect": "/auth?returnTo=%2Fsearch%3Fq%3DMushi-Shi",
+        "mechanism": "Next.js streaming redirect"
+      }
+    },
+    {
+      "name": "anonymous /profile requires sign-in",
+      "pass": true,
+      "details": {
+        "status": 200,
+        "redirect": "/auth?returnTo=%2Fprofile",
+        "mechanism": "Next.js streaming redirect"
+      }
+    },
+    {
+      "name": "anonymous /recommendations requires sign-in",
+      "pass": true,
+      "details": {
+        "status": 200,
+        "redirect": "/auth?returnTo=%2Frecommendations",
+        "mechanism": "Next.js streaming redirect"
+      }
+    },
+    {
+      "name": "anonymous /onboarding requires sign-in",
+      "pass": true,
+      "details": {
+        "status": 200,
+        "redirect": "/auth?returnTo=%2Fonboarding",
+        "mechanism": "Next.js streaming redirect"
+      }
+    },
+    {
+      "name": "absent cannot read private identity",
+      "pass": true,
+      "details": {
+        "status": 401,
+        "body": {
+          "error": "Sign in first."
+        }
+      }
+    },
+    {
+      "name": "forged local snapshot cannot read private identity",
+      "pass": true,
+      "details": {
+        "status": 401,
+        "body": {
+          "error": "Sign in first."
+        }
+      }
+    },
+    {
+      "name": "migration identity download disabled by default",
+      "pass": true,
+      "details": {
+        "status": 404
+      }
+    },
+    {
+      "name": "phone login UI renders",
+      "pass": true
+    },
+    {
+      "name": "phone no horizontal overflow",
+      "pass": true,
+      "details": {
+        "url": "http://127.0.0.1:3067/auth/sign-in?returnTo=%2Fsearch%3Fq%3DMushi-Shi",
+        "width": 390,
+        "scroll": 390,
+        "title": "Sign in",
+        "inputs": [
+          {
+            "name": "email",
+            "type": "email",
+            "label": "Email address",
+            "autocomplete": "email"
+          },
+          {
+            "name": "password",
+            "type": "password",
+            "label": "Password",
+            "autocomplete": "current-password"
+          }
+        ],
+        "buttons": [
+          {
+            "text": "Sign in",
+            "height": 44
+          },
+          {
+            "text": "Continue with Google",
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "phone labeled inputs and touch buttons",
+      "pass": true,
+      "details": {
+        "url": "http://127.0.0.1:3067/auth/sign-in?returnTo=%2Fsearch%3Fq%3DMushi-Shi",
+        "width": 390,
+        "scroll": 390,
+        "title": "Sign in",
+        "inputs": [
+          {
+            "name": "email",
+            "type": "email",
+            "label": "Email address",
+            "autocomplete": "email"
+          },
+          {
+            "name": "password",
+            "type": "password",
+            "label": "Password",
+            "autocomplete": "current-password"
+          }
+        ],
+        "buttons": [
+          {
+            "text": "Sign in",
+            "height": 44
+          },
+          {
+            "text": "Continue with Google",
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "old hash query survives browser handoff and login redirects",
+      "pass": true,
+      "details": "http://127.0.0.1:3067/auth/sign-in?returnTo=%2Fsearch%3Fq%3DMushi-Shi"
+    },
+    {
+      "name": "phone keyboard focus visible",
+      "pass": true,
+      "details": {
+        "tag": "INPUT",
+        "outline": "3px"
+      }
+    },
+    {
+      "name": "desktop login UI renders",
+      "pass": true
+    },
+    {
+      "name": "desktop no horizontal overflow",
+      "pass": true,
+      "details": {
+        "url": "http://127.0.0.1:3067/auth/sign-up",
+        "width": 1440,
+        "scroll": 1440,
+        "title": "Create your new login",
+        "inputs": [
+          {
+            "name": "name",
+            "type": "text",
+            "label": "Display name",
+            "autocomplete": "name"
+          },
+          {
+            "name": "email",
+            "type": "email",
+            "label": "Email address",
+            "autocomplete": "email"
+          },
+          {
+            "name": "password",
+            "type": "password",
+            "label": "Password",
+            "autocomplete": "new-password"
+          }
+        ],
+        "buttons": [
+          {
+            "text": "Create login",
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "desktop labeled inputs and touch buttons",
+      "pass": true,
+      "details": {
+        "url": "http://127.0.0.1:3067/auth/sign-up",
+        "width": 1440,
+        "scroll": 1440,
+        "title": "Create your new login",
+        "inputs": [
+          {
+            "name": "name",
+            "type": "text",
+            "label": "Display name",
+            "autocomplete": "name"
+          },
+          {
+            "name": "email",
+            "type": "email",
+            "label": "Email address",
+            "autocomplete": "email"
+          },
+          {
+            "name": "password",
+            "type": "password",
+            "label": "Password",
+            "autocomplete": "new-password"
+          }
+        ],
+        "buttons": [
+          {
+            "text": "Create login",
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "desktop keyboard focus visible",
+      "pass": true,
+      "details": {
+        "tag": "INPUT",
+        "outline": "3px"
+      }
+    },
+    {
+      "name": "no live auth/catalog requests during browser checks",
+      "pass": true,
+      "details": []
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+[
+  {
+    "path": "docs/design/evidence/discover-mockup-desktop.png",
+    "width": 1440,
+    "height": 1000,
+    "scheme": "light",
+    "state": {
+      "save": "false",
+      "label": "Plan to watch",
+      "count": "0",
+      "list": "Your list is empty. Save the recommendation below to try it.",
+      "more": "false",
+      "less": "false",
+      "expanded": "false",
+      "hidden": true,
+      "focus": "list-toggle",
+      "query": "",
+      "status": "Try saving a title or giving feedback."
+    }
+  },
+  {
+    "path": "docs/design/evidence/discover-mockup-phone.png",
+    "width": 390,
+    "height": 844,
+    "scheme": "light",
+    "state": {
+      "save": "false",
+      "label": "Plan to watch",
+      "count": "0",
+      "list": "Your list is empty. Save the recommendation below to try it.",
+      "more": "false",
+      "less": "false",
+      "expanded": "false",
+      "hidden": true,
+      "focus": "list-toggle",
+      "query": "",
+      "status": "Try saving a title or giving feedback."
+    }
+  },
+  {
+    "path": "docs/design/evidence/discover-mockup-dark.png",
+    "width": 1440,
+    "height": 1000,
+    "scheme": "dark",
+    "state": {
+      "save": "false",
+      "label": "Plan to watch",
+      "count": "0",
+      "list": "Your list is empty. Save the recommendation below to try it.",
+      "more": "false",
+      "less": "false",
+      "expanded": "false",
+      "hidden": true,
+      "focus": "list-toggle",
+      "query": "",
+      "status": "Try saving a title or giving feedback."
+    }
+  },
+  {
+    "path": "docs/design/evidence/discover-mockup-dark-phone.png",
+    "width": 390,
+    "height": 844,
+    "scheme": "dark",
+    "state": {
+      "save": "false",
+      "label": "Plan to watch",
+      "count": "0",
+      "list": "Your list is empty. Save the recommendation below to try it.",
+      "more": "false",
+      "less": "false",
+      "expanded": "false",
+      "hidden": true,
+      "focus": "list-toggle",
+      "query": "",
+      "status": "Try saving a title or giving feedback."
+    }
+  },
+  {
+    "path": "docs/design/evidence/discover-mockup-saved.png",
+    "width": 1440,
+    "height": 1000,
+    "scheme": "light",
+    "state": {
+      "save": "true",
+      "label": "Saved · Undo",
+      "count": "1",
+      "list": "Mushi-Shi · Plan to watch",
+      "more": "true",
+      "less": "false",
+      "expanded": "false",
+      "hidden": true,
+      "focus": "feedback-button",
+      "query": "",
+      "status": "Sample feedback selected: more stories like Mushi-Shi. Select again to undo."
+    }
+  }
+]

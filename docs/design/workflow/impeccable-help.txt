@@ -1,0 +1,18 @@
+Usage: impeccable <command> [options]
+
+Commands:
+  detect [file-or-dir-or-url...]   Scan for UI anti-patterns and design quality issues
+  ignores                          Manage detector ignore rules, files, and values
+  help                             List all available skills and commands
+  install                          Install impeccable skills into your project or global harness
+  link                             Symlink skills from a local checkout or submodule
+  update                           Update skills to the latest version
+  check                            Check if skill updates are available
+  telemetry off|on|status          Turn the roll API's anonymous usage data off or on, or show it
+
+Options:
+  --help       Show this help message
+  --version    Show version number
+
+Compatibility:
+  impeccable skills <command>       Legacy namespace; still supported.

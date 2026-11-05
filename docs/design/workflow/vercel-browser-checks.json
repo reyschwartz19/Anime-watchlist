@@ -1,0 +1,671 @@
+{
+  "sourceHashes": {
+    "docs/design/discover-mockup.html": "cde80a36edaaccf0cda22c0599624c00b1143255bcdd325fc339ccab6b144a4e",
+    "docs/design/discover-mockup.css": "d43a88def4b02363996712ab33fdfea9aa565bde89270cea40a1901819314ce1",
+    "docs/design/discover-mockup.js": "838190d749fd1deae28011d3e843280712e0e6aa5ed12bbbdf6a2e442d372f4d"
+  },
+  "url": "http://127.0.0.1:4174/docs/design/discover-mockup.html",
+  "browser": "Chrome via CDP; fresh independent tab",
+  "checks": [
+    {
+      "name": "Initial empty collection and no feedback",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "",
+        "query": "",
+        "status": "Try saving a title or giving feedback."
+      }
+    },
+    {
+      "name": "Save updates button, count, content, and live message",
+      "pass": true,
+      "details": {
+        "save": "true",
+        "label": "Saved · Undo",
+        "count": "1",
+        "list": "Mushi-Shi · Plan to watch",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "save-button",
+        "query": "",
+        "status": "Mushi-Shi added to your sample list. Select Saved · Undo to remove it."
+      }
+    },
+    {
+      "name": "Positive feedback independent of saved state",
+      "pass": true,
+      "details": {
+        "save": "true",
+        "label": "Saved · Undo",
+        "count": "1",
+        "list": "Mushi-Shi · Plan to watch",
+        "more": "true",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "feedback-button",
+        "query": "",
+        "status": "Sample feedback selected: more stories like Mushi-Shi. Select again to undo."
+      }
+    },
+    {
+      "name": "Negative switches positive off without changing save",
+      "pass": true,
+      "details": {
+        "save": "true",
+        "label": "Saved · Undo",
+        "count": "1",
+        "list": "Mushi-Shi · Plan to watch",
+        "more": "false",
+        "less": "true",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "feedback-button",
+        "query": "",
+        "status": "Sample feedback selected: Mushi-Shi is not for you. Select again to undo."
+      }
+    },
+    {
+      "name": "Negative feedback toggles off",
+      "pass": true,
+      "details": {
+        "save": "true",
+        "label": "Saved · Undo",
+        "count": "1",
+        "list": "Mushi-Shi · Plan to watch",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "feedback-button",
+        "query": "",
+        "status": "Sample feedback cleared."
+      }
+    },
+    {
+      "name": "Undo updates count and empty list without changing feedback",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "true",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "save-button",
+        "query": "",
+        "status": "Mushi-Shi removed from your sample list."
+      }
+    },
+    {
+      "name": "Positive feedback toggles off",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "feedback-button",
+        "query": "",
+        "status": "Sample feedback cleared."
+      }
+    },
+    {
+      "name": "My List opens and exposes expanded state",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "true",
+        "hidden": false,
+        "focus": "text-button close-list",
+        "query": "?panel=list",
+        "status": "Sample feedback cleared."
+      }
+    },
+    {
+      "name": "Escape immediately after opening closes panel and restores opener focus",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "list-toggle",
+        "query": "",
+        "status": "Sample feedback cleared."
+      }
+    },
+    {
+      "name": "Escape from inside panel closes and restores focus",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "list-toggle",
+        "query": "",
+        "status": "Sample feedback cleared."
+      }
+    },
+    {
+      "name": "Keyboard Enter activates save",
+      "pass": true,
+      "details": {
+        "save": "true",
+        "label": "Saved · Undo",
+        "count": "1",
+        "list": "Mushi-Shi · Plan to watch",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "save-button",
+        "query": "",
+        "status": "Mushi-Shi added to your sample list. Select Saved · Undo to remove it."
+      }
+    },
+    {
+      "name": "Keyboard Space activates undo",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "save-button",
+        "query": "",
+        "status": "Mushi-Shi removed from your sample list."
+      }
+    },
+    {
+      "name": "Keyboard Enter opens disclosure and focuses Close",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "true",
+        "hidden": false,
+        "focus": "text-button close-list",
+        "query": "?panel=list",
+        "status": "Mushi-Shi removed from your sample list."
+      }
+    },
+    {
+      "name": "Keyboard Tab moves from Close to next visible action",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "true",
+        "hidden": false,
+        "focus": "save-button",
+        "query": "?panel=list",
+        "status": "Mushi-Shi removed from your sample list."
+      }
+    },
+    {
+      "name": "Keyboard Shift Tab returns to Close",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "true",
+        "hidden": false,
+        "focus": "text-button close-list",
+        "query": "?panel=list",
+        "status": "Mushi-Shi removed from your sample list."
+      }
+    },
+    {
+      "name": "Keyboard Space closes panel and returns focus",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "list-toggle",
+        "query": "",
+        "status": "Mushi-Shi removed from your sample list."
+      }
+    },
+    {
+      "name": "No horizontal overflow at 320px",
+      "pass": true,
+      "details": {
+        "width": 320,
+        "client": 320,
+        "scroll": 320,
+        "body": 320,
+        "poster": true,
+        "posterNatural": 600,
+        "saveTop": 741.296875,
+        "saveBottom": 789.296875,
+        "targets": [
+          {
+            "text": "My List 0",
+            "width": 66.34375,
+            "height": 44
+          },
+          {
+            "text": "Plan to watch",
+            "width": 160,
+            "height": 48
+          },
+          {
+            "text": "Fits my taste",
+            "width": 105.6875,
+            "height": 44
+          },
+          {
+            "text": "Not for me",
+            "width": 92.6875,
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "Visible buttons meet 44px target height at 320px",
+      "pass": true,
+      "details": [
+        {
+          "text": "My List 0",
+          "width": 66.34375,
+          "height": 44
+        },
+        {
+          "text": "Plan to watch",
+          "width": 160,
+          "height": 48
+        },
+        {
+          "text": "Fits my taste",
+          "width": 105.6875,
+          "height": 44
+        },
+        {
+          "text": "Not for me",
+          "width": 92.6875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "No horizontal overflow at 390px",
+      "pass": true,
+      "details": {
+        "width": 390,
+        "client": 390,
+        "scroll": 390,
+        "body": 390,
+        "poster": true,
+        "posterNatural": 600,
+        "saveTop": 729.5,
+        "saveBottom": 777.5,
+        "targets": [
+          {
+            "text": "My List 0",
+            "width": 70.34375,
+            "height": 44
+          },
+          {
+            "text": "Plan to watch",
+            "width": 174,
+            "height": 48
+          },
+          {
+            "text": "Fits my taste",
+            "width": 105.6875,
+            "height": 44
+          },
+          {
+            "text": "Not for me",
+            "width": 92.6875,
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "Visible buttons meet 44px target height at 390px",
+      "pass": true,
+      "details": [
+        {
+          "text": "My List 0",
+          "width": 70.34375,
+          "height": 44
+        },
+        {
+          "text": "Plan to watch",
+          "width": 174,
+          "height": 48
+        },
+        {
+          "text": "Fits my taste",
+          "width": 105.6875,
+          "height": 44
+        },
+        {
+          "text": "Not for me",
+          "width": 92.6875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "Phone save control entirely visible within first 844px",
+      "pass": true,
+      "details": {
+        "top": 729.5,
+        "bottom": 777.5
+      }
+    },
+    {
+      "name": "No horizontal overflow at 1440px",
+      "pass": true,
+      "details": {
+        "width": 1440,
+        "client": 1425,
+        "scroll": 1425,
+        "body": 1425,
+        "poster": true,
+        "posterNatural": 600,
+        "saveTop": 792.765625,
+        "saveBottom": 840.765625,
+        "targets": [
+          {
+            "text": "My List 0",
+            "width": 81.234375,
+            "height": 44
+          },
+          {
+            "text": "Plan to watch",
+            "width": 184,
+            "height": 48
+          },
+          {
+            "text": "Fits my taste",
+            "width": 105.6875,
+            "height": 44
+          },
+          {
+            "text": "Not for me",
+            "width": 92.6875,
+            "height": 44
+          }
+        ]
+      }
+    },
+    {
+      "name": "Visible buttons meet 44px target height at 1440px",
+      "pass": true,
+      "details": [
+        {
+          "text": "My List 0",
+          "width": 81.234375,
+          "height": 44
+        },
+        {
+          "text": "Plan to watch",
+          "width": 184,
+          "height": 48
+        },
+        {
+          "text": "Fits my taste",
+          "width": 105.6875,
+          "height": 44
+        },
+        {
+          "text": "Not for me",
+          "width": 92.6875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "Theme responds to light scheme",
+      "pass": true,
+      "details": {
+        "background": "rgb(246, 247, 243)",
+        "text": "rgb(32, 40, 33)",
+        "colorScheme": "light dark",
+        "themeMetas": [
+          {
+            "content": "#f6f7f3",
+            "media": "(prefers-color-scheme: light)",
+            "matches": true
+          },
+          {
+            "content": "#171e19",
+            "media": "(prefers-color-scheme: dark)",
+            "matches": false
+          }
+        ],
+        "focusStyle": {
+          "style": "solid",
+          "width": "3px",
+          "color": "rgb(40, 106, 71)"
+        }
+      }
+    },
+    {
+      "name": "Browser chrome theme-color matches light background",
+      "pass": true,
+      "details": {
+        "background": "rgb(246, 247, 243)",
+        "text": "rgb(32, 40, 33)",
+        "colorScheme": "light dark",
+        "themeMetas": [
+          {
+            "content": "#f6f7f3",
+            "media": "(prefers-color-scheme: light)",
+            "matches": true
+          },
+          {
+            "content": "#171e19",
+            "media": "(prefers-color-scheme: dark)",
+            "matches": false
+          }
+        ],
+        "focusStyle": {
+          "style": "solid",
+          "width": "3px",
+          "color": "rgb(40, 106, 71)"
+        }
+      }
+    },
+    {
+      "name": "Keyboard focus visibly outlined in light scheme",
+      "pass": true,
+      "details": {
+        "style": "solid",
+        "width": "3px",
+        "color": "rgb(40, 106, 71)"
+      }
+    },
+    {
+      "name": "Theme responds to dark scheme",
+      "pass": true,
+      "details": {
+        "background": "rgb(23, 30, 25)",
+        "text": "rgb(232, 237, 229)",
+        "colorScheme": "light dark",
+        "themeMetas": [
+          {
+            "content": "#f6f7f3",
+            "media": "(prefers-color-scheme: light)",
+            "matches": false
+          },
+          {
+            "content": "#171e19",
+            "media": "(prefers-color-scheme: dark)",
+            "matches": true
+          }
+        ],
+        "focusStyle": {
+          "style": "solid",
+          "width": "3px",
+          "color": "rgb(197, 231, 171)"
+        }
+      }
+    },
+    {
+      "name": "Browser chrome theme-color matches dark background",
+      "pass": true,
+      "details": {
+        "background": "rgb(23, 30, 25)",
+        "text": "rgb(232, 237, 229)",
+        "colorScheme": "light dark",
+        "themeMetas": [
+          {
+            "content": "#f6f7f3",
+            "media": "(prefers-color-scheme: light)",
+            "matches": false
+          },
+          {
+            "content": "#171e19",
+            "media": "(prefers-color-scheme: dark)",
+            "matches": true
+          }
+        ],
+        "focusStyle": {
+          "style": "solid",
+          "width": "3px",
+          "color": "rgb(197, 231, 171)"
+        }
+      }
+    },
+    {
+      "name": "Keyboard focus visibly outlined in dark scheme",
+      "pass": true,
+      "details": {
+        "style": "solid",
+        "width": "3px",
+        "color": "rgb(197, 231, 171)"
+      }
+    },
+    {
+      "name": "Reduced motion disables button transition",
+      "pass": true,
+      "details": "0s"
+    },
+    {
+      "name": "Direct panel link loads visible expanded collection",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "true",
+        "hidden": false,
+        "focus": "",
+        "query": "?panel=list",
+        "status": "Try saving a title or giving feedback."
+      }
+    },
+    {
+      "name": "Direct plain link loads closed collection",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "false",
+        "hidden": true,
+        "focus": "",
+        "query": "",
+        "status": "Try saving a title or giving feedback."
+      }
+    },
+    {
+      "name": "Browser Back restores collection deep link and panel visibility",
+      "pass": true,
+      "details": {
+        "save": "false",
+        "label": "Plan to watch",
+        "count": "0",
+        "list": "Your list is empty. Save the recommendation below to try it.",
+        "more": "false",
+        "less": "false",
+        "expanded": "true",
+        "hidden": false,
+        "focus": "",
+        "query": "?panel=list",
+        "status": "Try saving a title or giving feedback."
+      }
+    },
+    {
+      "name": "Source bytes stable throughout browser audit",
+      "pass": true,
+      "details": {
+        "before": {
+          "docs/design/discover-mockup.html": "cde80a36edaaccf0cda22c0599624c00b1143255bcdd325fc339ccab6b144a4e",
+          "docs/design/discover-mockup.css": "d43a88def4b02363996712ab33fdfea9aa565bde89270cea40a1901819314ce1",
+          "docs/design/discover-mockup.js": "838190d749fd1deae28011d3e843280712e0e6aa5ed12bbbdf6a2e442d372f4d"
+        },
+        "after": {
+          "docs/design/discover-mockup.html": "cde80a36edaaccf0cda22c0599624c00b1143255bcdd325fc339ccab6b144a4e",
+          "docs/design/discover-mockup.css": "d43a88def4b02363996712ab33fdfea9aa565bde89270cea40a1901819314ce1",
+          "docs/design/discover-mockup.js": "838190d749fd1deae28011d3e843280712e0e6aa5ed12bbbdf6a2e442d372f4d"
+        }
+      }
+    }
+  ]
+}

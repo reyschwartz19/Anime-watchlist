@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f7f3" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#171e19" media="(prefers-color-scheme: dark)">
+    <link rel="icon" href="data:,">
+    <meta name="description" content="An isolated, interactive Discover design study for Anime Watchlist, featuring Mushi-Shi.">
+    <title>Discover study · Anime Watchlist</title>
+    <link rel="stylesheet" href="./discover-mockup.css">
+    <script type="module" src="./discover-mockup.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#recommendation">Skip to recommendation</a>
+    <div class="study-banner">Interactive design study <span>Sample taste profile</span></div>
+    <header class="site-header wrap">
+      <a class="wordmark" href="#discover" translate="no">Anime watchlist</a>
+      <nav aria-label="Study navigation">
+        <a href="#discover" aria-current="page">Discover</a>
+        <button class="list-toggle" type="button" aria-expanded="false" aria-controls="sample-list">My List <span class="list-count" aria-label="0 saved titles">0</span></button>
+      </nav>
+    </header>
+    <section class="sample-list wrap" id="sample-list" aria-labelledby="list-heading" hidden>
+      <div class="list-heading"><h2 id="list-heading">Your sample list</h2><button class="text-button close-list" type="button">Close</button></div>
+      <p id="list-content">Your list is empty. Save the recommendation below to try it.</p>
+      <p class="fine-print">Preview only. Your account is not connected.</p>
+    </section>
+    <main class="wrap" id="discover" tabindex="-1">
+      <div class="page-intro">
+        <h1>Discover</h1>
+        <p>Good stories. A reason to watch.</p>
+      </div>
+      <div class="section-heading"><h2>A pick for your taste</h2><span>01 / 01</span></div>
+      <article class="recommendation" id="recommendation" tabindex="-1" aria-labelledby="anime-title">
+        <figure class="poster">
+          <img src="./assets/mushishi-poster-study.svg" width="600" height="900" fetchpriority="high" alt="Original Mushi-Shi poster study: geometric green hills and an ivory moon. Not official artwork.">
+          <figcaption>Original poster study</figcaption>
+        </figure>
+        <div class="recommendation-copy">
+          <div class="anime-heading">
+            <p class="genre">Supernatural <span aria-hidden="true">/</span> Slice of life</p>
+            <h3 id="anime-title" translate="no">Mushi-Shi</h3>
+            <p class="metadata">2005 <span aria-hidden="true">·</span> Series <span aria-hidden="true">·</span> 26 episodes</p>
+          </div>
+          <p class="synopsis">A wandering specialist explores the quiet, strange ways that people and the natural world intertwine.</p>
+          <div class="recommendation-reason">
+            <p class="reason-label">Why this might be for you</p>
+            <p>Because you liked <strong translate="no">Natsume’s Book of Friends.</strong> Try another gentle supernatural anthology, with quieter, self-contained stories.</p>
+            <p class="sample-label">Sample preferences · Choices reset on reload</p>
+          </div>
+          <div class="collection-actions">
+            <button class="save-button" type="button" aria-pressed="false"><span class="save-label">Plan to watch</span></button>
+            <a class="catalog-link" href="https://myanimelist.net/anime/457/Mushishi" target="_blank" rel="noopener noreferrer">Anime details <span class="new-tab-label">(new tab)</span></a>
+          </div>
+          <div class="feedback" role="group" aria-labelledby="feedback-label">
+            <p id="feedback-label">Try the feedback controls. What fits your taste?</p>
+            <div class="feedback-buttons">
+              <button class="feedback-button" type="button" data-feedback="more" aria-pressed="false">Fits my taste</button>
+              <button class="feedback-button" type="button" data-feedback="less" aria-pressed="false">Not for me</button>
+            </div>
+          </div>
+          <p class="status-message" role="status" aria-live="polite" aria-atomic="true">Try saving a title or giving feedback.</p>
+        </div>
+      </article>
+      <aside class="taste-note" aria-labelledby="taste-heading">
+        <h2 id="taste-heading">Your taste, a little clearer.</h2>
+        <p>Save what interests you. Tell us what doesn’t. Make room for something unexpected.</p>
+      </aside>
+    </main>
+    <footer class="wrap study-footer"><p>Provisional direction · Reference screenshots pending</p><p>One sample recommendation. Actions reset when you reload.</p></footer>
+  </body>
+</html>

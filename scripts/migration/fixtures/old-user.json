@@ -1,0 +1,30 @@
+{
+  "uid": "firebase-old-user",
+  "email": "old-fixture@example.invalid",
+  "displayName": "Old Fixture",
+  "photoURL": null,
+  "interests": ["Supernatural", "Mystery"],
+  "favoriteAnimes": ["Mushi-Shi", "Cowboy Bebop", "Mushi-Shi"],
+  "onboarded": true,
+  "legacyUnmapped": { "theme": "old-purple", "ratingStyle": "private-note" },
+  "watchlist": {
+    "457": {
+      "mal_id": 457,
+      "title": "Mushi-Shi",
+      "images": { "jpg": { "image_url": "https://example.invalid/457.jpg", "large_image_url": "https://example.invalid/457-large.jpg" } },
+      "synopsis": "Synthetic migration fixture.",
+      "episodes": 26,
+      "status": "watching",
+      "addedAt": 1700000000123,
+      "progress": 7,
+      "legacyNote": { "original": true }
+    },
+    "20": {
+      "title": "Naruto",
+      "images": { "jpg": { "image_url": "https://example.invalid/20.jpg", "large_image_url": "https://example.invalid/20.jpg" } },
+      "synopsis": "An old record with no payload ID and no timestamp.",
+      "status": "dropped",
+      "progress": "unknown old value"
+    }
+  }
+}

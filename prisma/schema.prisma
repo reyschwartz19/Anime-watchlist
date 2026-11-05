@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LibraryStatus {
+  watching
+  completed
+  plan_to_watch
+  dropped
+}
+
+enum FeedbackValue {
+  like
+  dislike
+}
+
+// Application identity stays stable if the managed auth identity changes.
+// The managed neon_auth schema belongs to Neon, never to this migration.
+model AppUser {
+  id               String   @id @default(uuid()) @db.Uuid
+  authProviderId   String   @unique
+  email            String?
+  displayName      String?
+  photoURL         String?
+  interests        String[] @default([])
+  favoriteAnimes   String[] @default([])
+  onboarded        Boolean  @default(false)
+  profileEditedAt  DateTime? @db.Timestamptz(3)
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
+  library          LibraryEntry[]
+  feedback         Feedback[]
+  migrationBinding MigrationBinding?
+}
+
+model LibraryEntry {
+  userId             String        @db.Uuid
+  animeId            Int
+  status             LibraryStatus
+  anime              Json
+  // This is the recorded source value, never a fabricated import-time history.
+  // The exact original representation remains in legacyRaw.
+  addedAt            DateTime?     @db.Timestamptz(3)
+  editedAt           DateTime?     @db.Timestamptz(3)
+  // Tombstones prevent a repeated import from resurrecting a user deletion.
+  deletedAt          DateTime?     @db.Timestamptz(3)
+  legacyRaw          Json?
+  legacyProgress     Json?
+  importSourceDigest String?
+  user               AppUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, animeId])
+  @@index([userId, deletedAt, status])
+}
+
+model Feedback {
+  userId    String        @db.Uuid
+  animeId   Int
+  value     FeedbackValue
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime      @updatedAt @db.Timestamptz(3)
+  user      AppUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, animeId])
+}
+
+// One Firebase source user can be bound to exactly one application user.
+// Neither source UID nor destination may be silently reassigned on a retry.
+model MigrationBinding {
+  id              String              @id @default(uuid()) @db.Uuid
+  sourceUid       String              @unique
+  sourceProjectId String
+  sourcePath      String
+  userId          String              @unique @db.Uuid
+  createdAt       DateTime            @default(now()) @db.Timestamptz(3)
+  user            AppUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snapshots       MigrationSnapshot[]
+}
+
+// Every accepted source revision survives intact, including unrecognized fields
+// and malformed entries. exportedAt/createdAt are audit times, not watch history.
+model MigrationSnapshot {
+  bindingId       String           @db.Uuid
+  sourceDigest    String
+  sourceDocument  Json
+  report          Json
+  exportedAt      DateTime         @db.Timestamptz(3)
+  sourceReadTime  Json?
+  sourceUpdateTime Json?
+  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
+  binding         MigrationBinding @relation(fields: [bindingId], references: [id], onDelete: Cascade)
+
+  @@id([bindingId, sourceDigest])
+}

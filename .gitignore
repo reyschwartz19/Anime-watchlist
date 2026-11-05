@@ -31,3 +31,14 @@ dist-ssr
 .env.production.local
 *.env
 *.env.*
+!.env.example
+
+# Framework output and local compiler cache
+.next/
+*.tsbuildinfo
+
+# Real migration artifacts must be stored outside this checkout.
+backups/
+migration-backups/
+*.firebase-export.json
+*service-account*.json

@@ -1,0 +1,148 @@
+{
+  "url": "http://127.0.0.1:4173/docs/design/discover-mockup.html",
+  "title": "Discover study · Anime Watchlist",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "scrollWidth": 390,
+    "scrollHeight": 1600
+  },
+  "fonts": [
+    {
+      "tag": "DIV",
+      "className": "study-banner",
+      "text": "Interactive design study Sample taste profile",
+      "fontSize": "10px"
+    },
+    {
+      "tag": "SPAN",
+      "className": "",
+      "text": "Sample taste profile",
+      "fontSize": "10px"
+    },
+    {
+      "tag": "FIGCAPTION",
+      "className": "",
+      "text": "Original poster study · No official artwork reproduced",
+      "fontSize": "10px"
+    },
+    {
+      "tag": "P",
+      "className": "genre",
+      "text": "Supernatural / Slice of life",
+      "fontSize": "12px"
+    },
+    {
+      "tag": "P",
+      "className": "metadata",
+      "text": "2005 · Series · 26 episodes",
+      "fontSize": "13px"
+    },
+    {
+      "tag": "P",
+      "className": "sample-label",
+      "text": "Based on an example preference",
+      "fontSize": "11px"
+    },
+    {
+      "tag": "P",
+      "className": "status-message",
+      "text": "Try saving a title or giving feedback.",
+      "fontSize": "12px"
+    },
+    {
+      "tag": "P",
+      "className": "",
+      "text": "Provisional direction · Reference screenshots pending",
+      "fontSize": "11px"
+    },
+    {
+      "tag": "P",
+      "className": "",
+      "text": "One sample recommendation. Actions reset when you reload.",
+      "fontSize": "11px"
+    }
+  ],
+  "rects": {
+    "poster": {
+      "top": 327.4375,
+      "bottom": 744.4375,
+      "width": 260,
+      "height": 417
+    },
+    "title": {
+      "top": 798.4375,
+      "bottom": 847.9375,
+      "width": 350,
+      "height": 49.5
+    },
+    "saveButton": {
+      "top": 1136.5,
+      "bottom": 1186.5,
+      "width": 174,
+      "height": 50
+    },
+    "feedback": {
+      "top": 1209.5,
+      "bottom": 1302.5,
+      "width": 350,
+      "height": 93
+    }
+  },
+  "controls": [
+    {
+      "tag": "A",
+      "text": "Skip to recommendation",
+      "width": 196.53125,
+      "height": 42
+    },
+    {
+      "tag": "A",
+      "text": "Anime watchlist.",
+      "width": 130.84375,
+      "height": 21
+    },
+    {
+      "tag": "A",
+      "text": "Discover",
+      "width": 50.703125,
+      "height": 50
+    },
+    {
+      "tag": "BUTTON",
+      "text": "My List\n0",
+      "width": 70.34375,
+      "height": 44
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Close",
+      "width": 0,
+      "height": 0
+    },
+    {
+      "tag": "BUTTON",
+      "text": "+\nPlan to watch",
+      "width": 174,
+      "height": 50
+    },
+    {
+      "tag": "A",
+      "text": "Anime details\n↗\n(opens a new tab)",
+      "width": 94.09375,
+      "height": 44
+    },
+    {
+      "tag": "BUTTON",
+      "text": "More like this",
+      "width": 108.578125,
+      "height": 44
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Not for me",
+      "width": 92.6875,
+      "height": 44
+    }
+  ]
+}

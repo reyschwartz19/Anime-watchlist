@@ -1,0 +1,58 @@
+[
+  {
+    "cmd": [
+      "node",
+      "/tmp/critique-detector-browser.mjs",
+      "preflight"
+    ],
+    "exit": 0,
+    "stdout": "{\"title\":\"[Human] Discover study \u00b7 Anime Watchlist\",\"scriptAppended\":true,\"scriptExecuted\":true,\"url\":\"http://127.0.0.1:4173/docs/design/discover-mockup.html\"}\n",
+    "stderr": ""
+  },
+  {
+    "cmd": [
+      ".agents/skills/impeccable/scripts/impeccable",
+      "live-server",
+      "--background"
+    ],
+    "exit": 0,
+    "stdout": "{\"pid\":41736,\"port\":8400,\"token\":\"8bbcedd0-97f6-4df6-816c-502ef29a6208\"}\n",
+    "stderr": ""
+  },
+  {
+    "cmd": [
+      "node",
+      "/tmp/critique-detector-browser.mjs",
+      "inject",
+      "8400"
+    ],
+    "exit": 0,
+    "stdout": "{\"injected\":{\"loaded\":true,\"src\":\"http://localhost:8400/detect.js\"},\"page\":{\"title\":\"[Human] Discover study \u00b7 Anime Watchlist\",\"url\":\"http://127.0.0.1:4173/docs/design/discover-mockup.html\",\"scripts\":[{\"id\":\"\",\"src\":\"http://127.0.0.1:4173/docs/design/discover-mockup.js\"},{\"id\":\"critique-detector-preflight\",\"src\":\"\"},{\"id\":\"critique-detector-overlay\",\"src\":\"http://localhost:8400/detect.js\"}],\"overlayElements\":[{\"tag\":\"DIV\",\"id\":\"\",\"className\":\"impeccable-overlay impeccable-banner\",\"text\":\"OVERUSED FONT\\nPrimary font: arial (100% of text)\\n\u25c9\\n\u00d7\"}],\"bodyText\":\"Skip to recommendation\\nInteractive design study Sample taste profile\\nAnime watchlist.\\nDiscover\\nMy List\\n0\\nDiscover\\n\\nGood stories. A reason to watch.\\n\\nA pick for your taste\\n01 / 01\\nOriginal poster study \u00b7 No official artwork reproduced\\n\\nSupernatural / Slice of life\\n\\nMushi-Shi\\n\\n2005 \u00b7 Series \u00b7 26 episodes\\n\\nA wandering specialist explores the quiet, strange ways that people and the natural world intertwine.\\n\\nWhy this might be for you\\n\\nBecause you liked Natsume\u2019s Book of Friends. Both find warmth in encounters with the supernatural. Mushi-Shi takes a quieter, more contemplative path.\\n\\nBased on an example preference\\n\\n+\\nPlan to watch\\nAnime details\\n\u2197\\n(opens a new tab)\\n\\nDoes this feel like your kind of story?\\n\\nMore like this\\nNot for me\\n\\nTry saving a title or giving feedback.\\n\\nYour taste, a little clearer.\\n\\nSave what interests you. Tell us what doesn\u2019t. Make room for something unexpected.\\n\\nProvisional direction \u00b7 Reference screenshots pending\\n\\nOne sample recommendation. Actions reset when you reload.\\n\\nOVERUSED FONT\\nPrimary font: arial (100% of text)\\n\u25c9\\n\u00d7\"},\"messages\":[{\"method\":\"Log.entryAdded\",\"params\":{\"entry\":{\"source\":\"network\",\"level\":\"error\",\"text\":\"Failed to load resource: the server responded with a status of 404 (File not found)\",\"timestamp\":1793831361568.439,\"url\":\"http://127.0.0.1:4173/favicon.ico\",\"networkRequestId\":\"41630.8\"}}},{\"method\":\"Runtime.consoleAPICalled\",\"params\":{\"type\":\"startGroup\",\"args\":[{\"type\":\"string\",\"value\":\"%c[impeccable] 1 anti-pattern found\"},{\"type\":\"string\",\"value\":\"color: oklch(84% 0.19 80.46); font-weight: bold\"}],\"executionContextId\":2,\"timestamp\":1793831364879.199,\"stackTrace\":{\"callFrames\":[{\"functionName\":\"printSummary\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4215,\"columnNumber\":12},{\"functionName\":\"renderBrowserFindings\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4439,\"columnNumber\":25},{\"functionName\":\"scan\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4461,\"columnNumber\":24},{\"functionName\":\"runAutoScan\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4534,\"columnNumber\":10}]}}},{\"method\":\"Runtime.consoleAPICalled\",\"params\":{\"type\":\"log\",\"args\":[{\"type\":\"string\",\"value\":\"%coverused-font%c Primary font: arial (100% of text)\"},{\"type\":\"string\",\"value\":\"color: oklch(84% 0.19 80.46); font-weight: bold\"},{\"type\":\"string\",\"value\":\"color: inherit\"},{\"type\":\"object\",\"subtype\":\"node\",\"className\":\"HTMLBodyElement\",\"description\":\"body\",\"objectId\":\"-5003337356247877167.2.1\",\"preview\":{\"type\":\"object\",\"subtype\":\"node\",\"description\":\"body\",\"overflow\":true,\"properties\":[{\"name\":\"text\",\"type\":\"string\",\"value\":\"\"},{\"name\":\"link\",\"type\":\"string\",\"value\":\"\"},{\"name\":\"vLink\",\"type\":\"string\",\"value\":\"\"},{\"name\":\"aLink\",\"type\":\"string\",\"value\":\"\"},{\"name\":\"bgColor\",\"type\":\"string\",\"value\":\"\"}]}}],\"executionContextId\":2,\"timestamp\":1793831364886.477,\"stackTrace\":{\"callFrames\":[{\"functionName\":\"printSummary\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4221,\"columnNumber\":16},{\"functionName\":\"renderBrowserFindings\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4439,\"columnNumber\":25},{\"functionName\":\"scan\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4461,\"columnNumber\":24},{\"functionName\":\"runAutoScan\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4534,\"columnNumber\":10}]}}},{\"method\":\"Runtime.consoleAPICalled\",\"params\":{\"type\":\"endGroup\",\"args\":[{\"type\":\"string\",\"value\":\"console.groupEnd\"}],\"executionContextId\":2,\"timestamp\":1793831364886.702,\"stackTrace\":{\"callFrames\":[{\"functionName\":\"printSummary\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4225,\"columnNumber\":12},{\"functionName\":\"renderBrowserFindings\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4439,\"columnNumber\":25},{\"functionName\":\"scan\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4461,\"columnNumber\":24},{\"functionName\":\"runAutoScan\",\"scriptId\":\"9\",\"url\":\"http://localhost:8400/detect.js\",\"lineNumber\":4534,\"columnNumber\":10}]}}}]}\n",
+    "stderr": ""
+  },
+  {
+    "cmd": [
+      "node",
+      "/tmp/critique-detector-browser.mjs",
+      "phone"
+    ],
+    "exit": 0,
+    "stdout": "{\"url\":\"http://127.0.0.1:4173/docs/design/discover-mockup.html\",\"title\":\"Discover study \u00b7 Anime Watchlist\",\"viewport\":{\"width\":390,\"height\":844,\"scrollWidth\":390,\"scrollHeight\":1600},\"fonts\":[{\"tag\":\"DIV\",\"className\":\"study-banner\",\"text\":\"Interactive design study Sample taste profile\",\"fontSize\":\"10px\"},{\"tag\":\"SPAN\",\"className\":\"\",\"text\":\"Sample taste profile\",\"fontSize\":\"10px\"},{\"tag\":\"FIGCAPTION\",\"className\":\"\",\"text\":\"Original poster study \u00b7 No official artwork reproduced\",\"fontSize\":\"10px\"},{\"tag\":\"P\",\"className\":\"genre\",\"text\":\"Supernatural / Slice of life\",\"fontSize\":\"12px\"},{\"tag\":\"P\",\"className\":\"metadata\",\"text\":\"2005 \u00b7 Series \u00b7 26 episodes\",\"fontSize\":\"13px\"},{\"tag\":\"P\",\"className\":\"sample-label\",\"text\":\"Based on an example preference\",\"fontSize\":\"11px\"},{\"tag\":\"P\",\"className\":\"status-message\",\"text\":\"Try saving a title or giving feedback.\",\"fontSize\":\"12px\"},{\"tag\":\"P\",\"className\":\"\",\"text\":\"Provisional direction \u00b7 Reference screenshots pending\",\"fontSize\":\"11px\"},{\"tag\":\"P\",\"className\":\"\",\"text\":\"One sample recommendation. Actions reset when you reload.\",\"fontSize\":\"11px\"}],\"rects\":{\"poster\":{\"top\":327.4375,\"bottom\":744.4375,\"width\":260,\"height\":417},\"title\":{\"top\":798.4375,\"bottom\":847.9375,\"width\":350,\"height\":49.5},\"saveButton\":{\"top\":1136.5,\"bottom\":1186.5,\"width\":174,\"height\":50},\"feedback\":{\"top\":1209.5,\"bottom\":1302.5,\"width\":350,\"height\":93}},\"controls\":[{\"tag\":\"A\",\"text\":\"Skip to recommendation\",\"width\":196.53125,\"height\":42},{\"tag\":\"A\",\"text\":\"Anime watchlist.\",\"width\":130.84375,\"height\":21},{\"tag\":\"A\",\"text\":\"Discover\",\"width\":50.703125,\"height\":50},{\"tag\":\"BUTTON\",\"text\":\"My List\\n0\",\"width\":70.34375,\"height\":44},{\"tag\":\"BUTTON\",\"text\":\"Close\",\"width\":0,\"height\":0},{\"tag\":\"BUTTON\",\"text\":\"+\\nPlan to watch\",\"width\":174,\"height\":50},{\"tag\":\"A\",\"text\":\"Anime details\\n\u2197\\n(opens a new tab)\",\"width\":94.09375,\"height\":44},{\"tag\":\"BUTTON\",\"text\":\"More like this\",\"width\":108.578125,\"height\":44},{\"tag\":\"BUTTON\",\"text\":\"Not for me\",\"width\":92.6875,\"height\":44}]}\n",
+    "stderr": ""
+  },
+  {
+    "cmd": [
+      ".agents/skills/impeccable/scripts/impeccable",
+      "live-server",
+      "stop",
+      "--keep-inject"
+    ],
+    "exit": 0,
+    "stdout": "Stopped live server on port 8400.\n",
+    "stderr": ""
+  },
+  {
+    "chromePID": 41524,
+    "chromeExit": 0
+  }
+]

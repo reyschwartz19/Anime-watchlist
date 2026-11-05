@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">
+  <title>Mushi-Shi: original typographic poster study</title>
+  <desc>Original geometric landscape in green and ivory. This is not official anime artwork.</desc>
+  <rect width="600" height="900" fill="#183e30"/>
+  <circle cx="420" cy="370" r="118" fill="#e5e9dc"/>
+  <path d="M0 450 180 365 355 475 600 350V900H0Z" fill="#285440"/>
+  <path d="M0 570 210 455 445 590 600 505V900H0Z" fill="#37634b"/>
+  <path d="M0 700 205 585 385 720 600 615V900H0Z" fill="#48735a"/>
+  <g stroke="#97ae8a" stroke-width="2" fill="none" opacity=".7">
+    <path d="M65 740V540m0 80-18-25m18 60 21-31M108 800V625m0 70-22-30m22 65 18-28M490 790V570m0 75-18-30m18 70 22-33M535 740V530m0 72 21-28m-21 63-16-22"/>
+  </g>
+  <text x="47" y="80" fill="#e5e9dc" font-family="Arial, sans-serif" font-size="17" letter-spacing="3">A QUIET SUPERNATURAL ANTHOLOGY</text>
+  <text x="44" y="194" fill="#e5e9dc" font-family="Arial, sans-serif" font-size="88" font-weight="700" letter-spacing="-3">MUSHI-SHI</text>
+  <text x="48" y="237" fill="#e5e9dc" font-family="Arial, sans-serif" font-size="19" letter-spacing="5">2005 / JAPAN / 26 EPISODES</text>
+  <text x="47" y="845" fill="#e5e9dc" font-family="Arial, sans-serif" font-size="15" letter-spacing="1">ORIGINAL POSTER STUDY · NOT OFFICIAL ARTWORK</text>
+</svg>

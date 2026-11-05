@@ -1,0 +1,30 @@
+
+│
+●   codex  Agent detected — installing non-interactively
+│
+◇  Source: https://github.com/vercel-labs/agent-skills.git
+│
+│
+●  Selected 1 skill: web-design-guidelines
+
+│
+◇  Installation Summary ────────────────────────────────────────────╮
+│                                                                   │
+│  ~/Projects/Anime-watchlist/.agents/skills/web-design-guidelines  │
+│    copy → Codex                                                   │
+│                                                                   │
+├───────────────────────────────────────────────────────────────────╯
+│
+◇  Installation complete
+
+│
+◇  Installed 1 skill ───────────────────────────────────────────────────╮
+│                                                                       │
+│  ✓ web-design-guidelines (copied)                                     │
+│    → ~/Projects/Anime-watchlist/.agents/skills/web-design-guidelines  │
+│                                                                       │
+├───────────────────────────────────────────────────────────────────────╯
+
+│
+└  Done!  Review skills before use; they run with full agent permissions.
+

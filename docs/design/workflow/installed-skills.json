@@ -1,0 +1,49 @@
+{
+  "verifiedAt": "2026-11-04",
+  "scope": "project",
+  "provider": "codex",
+  "preInstallTrackedChanges": [],
+  "preInstallUntrackedChanges": [],
+  "upstreams": [
+    {
+      "name": "Impeccable",
+      "repository": "https://github.com/pbakaus/impeccable",
+      "readme": "https://github.com/pbakaus/impeccable/blob/5af4319c4e7a7ee3e5e2b9fe899bcfb21c6190cb/README.md",
+      "upstreamCommit": "5af4319c4e7a7ee3e5e2b9fe899bcfb21c6190cb",
+      "command": "npx impeccable install --providers=codex --scope=project --no-hooks",
+      "exitCode": 0,
+      "npmPackage": "impeccable",
+      "npmVersion": "4.8.0",
+      "skillVersion": "4.8.0",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "skillSha256": "fab04b31f946573b00a8559db1fc070f8ea5825254d491c2b13156e5661a86d7",
+      "skillMatchesPinnedUpstreamBytes": true,
+      "engineVersion": "0.1.18",
+      "enginePath": ".agents/skills/impeccable/scripts/bin/linux-x64/impeccable",
+      "engineSha256": "736ed785e74ae2344d3036127f614ddde5ab520a527d8bc82a891612ef71f648",
+      "hooksInstalled": false
+    },
+    {
+      "name": "web-design-guidelines",
+      "repository": "https://github.com/vercel-labs/agent-skills",
+      "readme": "https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/README.md",
+      "upstreamCommit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "command": "npx skills add vercel-labs/agent-skills --skill web-design-guidelines --agent codex",
+      "exitCode": 0,
+      "npmPackage": "skills",
+      "npmVersion": "1.7.6",
+      "skillVersion": "1.0.0",
+      "skillPath": ".agents/skills/web-design-guidelines/SKILL.md",
+      "skillSha256": "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f",
+      "skillMatchesPinnedUpstreamBytes": true,
+      "lockfile": "skills-lock.json",
+      "lockfileComputedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
+    }
+  ],
+  "notes": [
+    "The Impeccable npm wrapper version and native engine version are separate release versions.",
+    "The initial optional binary download was unavailable; the matching published @impeccable/cli-linux-x64@0.1.18 npm package was installed under /tmp and passed as IMPECCABLE_BIN to the exact requested command. The installer then verified and installed its own engine in the project.",
+    "Codex project skill folder is .agents/skills. No global skill or hook configuration was installed.",
+    "Upstream commit comparison proves the installed SKILL.md bytes match those files at the recorded commits; it is not a claim that every distribution file was built from that commit."
+  ]
+}

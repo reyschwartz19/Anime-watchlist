@@ -1,25 +1,54 @@
 {
-  "name": "copy-of-anime-checklist",
+  "name": "anime-watchlist",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev --hostname localhost",
+    "build": "prisma generate && next build",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx scripts/test.ts",
+    "test:migration": "node --import tsx scripts/test.ts --migration-only",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "migration": "node --import tsx scripts/migration/cli.ts",
+    "legacy:dev": "vite legacy/firebase --config legacy/firebase/vite.config.ts --host 127.0.0.1",
+    "legacy:build": "vite build legacy/firebase --config legacy/firebase/vite.config.ts",
+    "test:postgres": "node --import tsx scripts/migration/run-postgres-fixtures.ts"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.6",
-    "lucide-react": "^0.554.0",
+    "@google/genai": "^1.30.0",
+    "@neon/auth": "0.8.2",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
     "firebase": "^12.6.0",
-    "@google/genai": "^1.30.0"
+    "firebase-admin": "14.5.0",
+    "lucide-react": "^0.554.0",
+    "next": "16.4.5",
+    "pg": "8.23.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router-dom": "^7.9.6",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "dotenv": "18.0.9",
+    "prisma": "7.10.1",
+    "tsx": "4.23.15",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
+  },
+  "engines": {
+    "node": "^22.12.0 || >=24.0.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.7"
   }
 }

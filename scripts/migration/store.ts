@@ -73,8 +73,10 @@ export async function backupDestination(db: PrismaClient, snapshot: UserExport, 
     await tx.$executeRawUnsafe('SET TRANSACTION READ ONLY');
     const state = await destinationState(tx, snapshot, identity);
     const feedback = await tx.feedback.findMany({ where: { userId: identity.userId } });
+    const recommendationBatches = await tx.recommendationBatch.findMany({ where: { userId: identity.userId } });
+    const recommendationEvents = await tx.recommendationEvent.findMany({ where: { userId: identity.userId } });
     const snapshots = state.binding ? await tx.migrationSnapshot.findMany({ where: { bindingId: state.binding.id } }) : [];
-    return { format: 'anime-watchlist-destination-backup', version: 1, capturedAt: new Date().toISOString(), sourceUid: snapshot.source.uid, destinationUserId: identity.userId, user: state.user, library: state.entries, feedback, binding: state.binding, snapshots };
+    return { format: 'anime-watchlist-destination-backup', version: 1, capturedAt: new Date().toISOString(), sourceUid: snapshot.source.uid, destinationUserId: identity.userId, user: state.user, library: state.entries, feedback, recommendationBatches, recommendationEvents, binding: state.binding, snapshots };
   }, { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead });
 }
 

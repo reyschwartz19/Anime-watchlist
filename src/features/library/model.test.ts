@@ -23,9 +23,9 @@ test('feedback and profile mutations reject ownership and invalid URL payloads',
 test('old malformed anime displays safely without changing its original stored fields', () => {
   const raw = { title: '', progress: 7, unexpected: { kept: true }, images: { jpg: { image_url: 'javascript:alert(1)' } } };
   const before = structuredClone(raw);
-  assert.deepEqual(toAnimeView(raw, 457), { mal_id: 457, title: 'Anime #457', imageUrl: null, synopsis: '' });
+  assert.deepEqual(toAnimeView(raw, 457), { mal_id: 457, title: 'Anime #457', imageUrl: null, synopsis: '', year: null, type: null, episodes: null, genres: [] });
   assert.deepEqual(raw, before);
-  assert.deepEqual(toAnimeView(null, 42), { mal_id: 42, title: 'Anime #42', imageUrl: null, synopsis: '' });
+  assert.deepEqual(toAnimeView(null, 42), { mal_id: 42, title: 'Anime #42', imageUrl: null, synopsis: '', year: null, type: null, episodes: null, genres: [] });
 });
 
 test('catalog records with an unavailable synopsis remain searchable', () => {

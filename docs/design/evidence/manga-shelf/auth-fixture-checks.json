@@ -1,0 +1,57 @@
+{
+  "testedAt": "2026-11-05T11:12:53.092Z",
+  "configuration": "Browser-intercepted synthetic Better Auth responses and isolated server fixture identities. No real signup, email delivery, OTP, OAuth exchange, or live cookie/session establishment verified.",
+  "checks": [
+    {
+      "name": "mocked email signup automatically advances with address and resend cooldown",
+      "pass": true
+    },
+    {
+      "name": "mocked invalid OTP keeps address and offers retry",
+      "pass": true
+    },
+    {
+      "name": "mocked expired OTP distinguishes expiry and retains resend recovery",
+      "pass": true
+    },
+    {
+      "name": "mocked valid OTP resolves actual fixture server profile to onboarding",
+      "pass": true
+    },
+    {
+      "name": "mocked Google new-user response uses same-origin callback then server onboarding",
+      "pass": true
+    },
+    {
+      "name": "mocked Google onboarded-user response opens Discover",
+      "pass": true
+    }
+  ],
+  "requests": [
+    {
+      "path": "/api/auth/sign-up/email",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Flibrary&email=new%40example.test"
+    },
+    {
+      "path": "/api/auth/email-otp/verify-email"
+    },
+    {
+      "path": "/api/auth/email-otp/verify-email"
+    },
+    {
+      "path": "/api/auth/email-otp/verify-email"
+    },
+    {
+      "path": "/api/auth/sign-in/social",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Flibrary",
+      "newUserCallbackURL": "http://localhost:3067/auth/callback?returnTo=%2Flibrary",
+      "errorCallbackURL": "http://localhost:3067/auth/sign-in?returnTo=%2Flibrary"
+    },
+    {
+      "path": "/api/auth/sign-in/social",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Flibrary",
+      "newUserCallbackURL": "http://localhost:3067/auth/callback?returnTo=%2Flibrary",
+      "errorCallbackURL": "http://localhost:3067/auth/sign-in?returnTo=%2Flibrary"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import 'server-only';
 import { createNeonAuth } from '@neon/auth/next/server';
 import { headers } from 'next/headers';
 import { fetchVerifiedAuthSession, hasNeonSessionCookie, type VerifiedAuthSession } from './auth-session';
+import { previewEnabled, previewIdentity } from './preview';
 export { AuthenticationUnavailableError, type VerifiedAuthSession } from './auth-session';
 
 function authConfiguration() {
@@ -60,6 +61,7 @@ export function getAuth() {
 export async function getVerifiedAuthSession(): Promise<VerifiedAuthSession | null> {
   const requestHeaders = await headers();
   const cookie = requestHeaders.get('cookie');
+  if (previewEnabled()) return previewIdentity(cookie);
   if (!hasNeonSessionCookie(cookie)) return null;
 
   const { baseUrl, origin } = authConfiguration();

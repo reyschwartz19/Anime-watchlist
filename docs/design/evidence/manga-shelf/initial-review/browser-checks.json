@@ -1,0 +1,776 @@
+{
+  "testedAt": "2026-11-05T10:49:47.337Z",
+  "configuration": "Isolated in-memory fixtures; local typed artwork placeholders. No live email, OAuth, NVIDIA, catalog, or personal import verified.",
+  "checks": [
+    {
+      "name": "sign-in phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Sign in",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nANIME\nWATCHLIST\nFIND YOUR\nNEXT STORY.\nSIGN IN\n\nFind your next story. Keep the ones you love.\n\nContinue with Google\nCONTINUE WITH EMAIL\n\nNew to Anime Watchlist? Create an account",
+        "inputs": []
+      }
+    },
+    {
+      "name": "sign-in phone: inputs labeled",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "verification phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Verify your email",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nANIME\nWATCHLIST\nFIND YOUR\nNEXT STORY.\nVERIFY YOUR EMAIL\n\nEnter the code sent to remy@example.test.\n\nVerify your email\nEmail address\nVerification code\n\nYou can paste the full code from your email.\n\nVERIFY EMAIL\nRESEND VERIFICATION\nChange email\n\nUse another address by creating an account with the correct email.",
+        "inputs": [
+          {
+            "id": "auth-email",
+            "label": 1
+          },
+          {
+            "id": "auth-code",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "verification phone: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "auth-email",
+          "label": 1
+        },
+        {
+          "id": "auth-code",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "favorites phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Choose your favorites",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nStep 2 of 3\nCHOOSE YOUR FAVORITES\n\nPick a few anime you love so we can recommend more like them.\n\nSet up your preferences\nFIND FAVORITE ANIME\nSearch favorite anime by title\n\n0 selected\n\nSAMURAI CHAMPLOO\nSAMURAI CHAMPLOO\n2004 · TV\nDEATH NOTE\nDEATH NOTE\n2006 · TV\nFRIEREN: BEYOND JOURNEY’S END\nFRIEREN: BEYOND JOURNEY’S END\n2023 · TV\nCOWBOY BEBOP\nCOWBOY BEBOP\n1998 · TV\nMUSHI-SHI\nMUSHI-SHI\n2005 · TV\nNARUT",
+        "inputs": [
+          {
+            "id": "favorite-search",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "favorites phone: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "favorite-search",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "discover phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Discover",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nDISCOVER\nFIND SOMETHING NEW\nPICK FROM MY LIST\nWhat are you in the mood for?\nFIND MORE PICKS\nMore options\nSAMURAI CHAMPLOO\n\n2004 · TV\n\nFixture recommendation: Samurai Champloo matches your Adventure interest. This is preview data, not a live NVIDIA result.\n\nSAVE\nPASS\nALREADY WATCHED\nALSO FOR YOUR SHELF\nDEATH NOTE\n\nFixture recommendation: Death Note matches your Adventur",
+        "inputs": [
+          {
+            "id": "discover-request",
+            "label": 1
+          },
+          {
+            "id": "max-episodes",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "discover phone: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "discover-request",
+          "label": 1
+        },
+        {
+          "id": "max-episodes",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "my-list phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "My List",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nMY LIST\nALL (5)\nWATCHING (1)\nPLAN TO WATCH (2)\nCOMPLETED (1)\nDROPPED (1)\nSearch my list\nSEARCH\n\n5 titles on your shelf\n\nCOWBOY BEBOP\n\nCompleted\n\nNARUTO\n\nDropped\n\nMUSHI-SHI\n\nWatching\n\nFULLMETAL ALCHEMIST: BROTHERHOOD\n\nPlan to watch\n\nSTEINS;GATE\n\nPlan to watch",
+        "inputs": [
+          {
+            "id": "list-query",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "my-list phone: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "list-query",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "search phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Search",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nSEARCH\nFind a title\nSEARCH\nClear\n\n1 matches for “Samurai”\n\n2004 · TV\n\nSAMURAI CHAMPLOO",
+        "inputs": [
+          {
+            "id": "anime-query",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "search phone: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "anime-query",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "details phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Samurai Champloo",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nBack to search results\nSAMURAI CHAMPLOO\nYear\n2004\nType\nTV\nEpisodes\n26\nLibrary status\nWatching\nPlan to watch\nCompleted\nDropped\nADD TO MY LIST\n\nSYNOPSIS\n\nSamurai Champloo is part of the isolated Manga Shelf review catalog. This synopsis is sample copy for testing layout and recovery; open the live catalog after configuring the preview providers for verified metadata.\n\nAc",
+        "inputs": []
+      }
+    },
+    {
+      "name": "details phone: inputs labeled",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "profile phone: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Profile",
+        "width": 390,
+        "height": 844,
+        "scroll": 390,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nPROFILE\nR\nREMY\nYOUR ACCOUNT\nDisplay name\n\nRemy\n\nEmail\n\nviewer@example.test\n\nEdit identity\nMY TASTE\nAdventure\nMystery\nDrama\n\nMushi-Shi · Cowboy Bebop\n\nEdit taste\nHIDDEN TITLES (0)\n\nNo hidden titles. When a pick doesn’t fit, you can hide it and restore it here later.\n\nLOGIN AND SECURITY\n\nviewer@example.test · Email verified\n\nChange login email\nChange password\nSIGN OUT\nMi",
+        "inputs": [
+          {
+            "id": "display-name",
+            "label": 1
+          },
+          {
+            "id": "favorite-search",
+            "label": 1
+          },
+          {
+            "id": "new-email",
+            "label": 1
+          },
+          {
+            "id": "current-password",
+            "label": 1
+          },
+          {
+            "id": "new-password",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile phone: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "display-name",
+          "label": 1
+        },
+        {
+          "id": "favorite-search",
+          "label": 1
+        },
+        {
+          "id": "new-email",
+          "label": 1
+        },
+        {
+          "id": "current-password",
+          "label": 1
+        },
+        {
+          "id": "new-password",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "keyboard focus visible phone",
+      "pass": true,
+      "details": {
+        "tag": "A",
+        "outline": "2px"
+      }
+    },
+    {
+      "name": "sign-in desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Sign in",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1430,
+        "text": "Isolated review fixtures · no live account or provider data\nANIME\nWATCHLIST\nFIND YOUR\nNEXT STORY.\nSIGN IN\n\nFind your next story. Keep the ones you love.\n\nContinue with Google\nCONTINUE WITH EMAIL\n\nNew to Anime Watchlist? Create an account",
+        "inputs": []
+      }
+    },
+    {
+      "name": "sign-in desktop: inputs labeled",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "verification desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Verify your email",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1430,
+        "text": "Isolated review fixtures · no live account or provider data\nANIME\nWATCHLIST\nFIND YOUR\nNEXT STORY.\nVERIFY YOUR EMAIL\n\nEnter the code sent to remy@example.test.\n\nVerify your email\nEmail address\nVerification code\n\nYou can paste the full code from your email.\n\nVERIFY EMAIL\nRESEND VERIFICATION\nChange email\n\nUse another address by creating an account with the correct email.",
+        "inputs": [
+          {
+            "id": "auth-email",
+            "label": 1
+          },
+          {
+            "id": "auth-code",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "verification desktop: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "auth-email",
+          "label": 1
+        },
+        {
+          "id": "auth-code",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "favorites desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Choose your favorites",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1430,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nStep 2 of 3\nCHOOSE YOUR FAVORITES\n\nPick a few anime you love so we can recommend more like them.\n\nSet up your preferences\nFIND FAVORITE ANIME\nSearch favorite anime by title\n\n0 selected\n\nSAMURAI CHAMPLOO\nSAMURAI CHAMPLOO\n2004 · TV\nDEATH NOTE\nDEATH NOTE\n2006 · TV\nFRIEREN: BEYOND JOURNEY’S END\nFRIEREN: BEYOND JOURNEY’S END\n2023 · TV\nCOWBOY BEBOP\nCOWBOY BEBOP\n1998 · TV\nMUSHI-SHI\nMUSHI-SHI\n2005 · TV\nNARUT",
+        "inputs": [
+          {
+            "id": "favorite-search",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "favorites desktop: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "favorite-search",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "discover desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Discover",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1430,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nDISCOVER\nFIND SOMETHING NEW\nPICK FROM MY LIST\nWhat are you in the mood for?\nFIND MORE PICKS\nMore options\nSAMURAI CHAMPLOO\n\n2004 · TV\n\nFixture recommendation: Samurai Champloo matches your Adventure interest. This is preview data, not a live NVIDIA result.\n\nSAVE\nPASS\nALREADY WATCHED\nALSO FOR YOUR SHELF\nDEATH NOTE\n\nFixture recommendation: Death Note matches your Adventur",
+        "inputs": [
+          {
+            "id": "discover-request",
+            "label": 1
+          },
+          {
+            "id": "max-episodes",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "discover desktop: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "discover-request",
+          "label": 1
+        },
+        {
+          "id": "max-episodes",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "my-list desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "My List",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1440,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nMY LIST\nALL (5)\nWATCHING (1)\nPLAN TO WATCH (2)\nCOMPLETED (1)\nDROPPED (1)\nSearch my list\nSEARCH\n\n5 titles on your shelf\n\nCOWBOY BEBOP\n\nCompleted\n\nNARUTO\n\nDropped\n\nMUSHI-SHI\n\nWatching\n\nFULLMETAL ALCHEMIST: BROTHERHOOD\n\nPlan to watch\n\nSTEINS;GATE\n\nPlan to watch",
+        "inputs": [
+          {
+            "id": "list-query",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "my-list desktop: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "list-query",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "search desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Search",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1440,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nSEARCH\nFind a title\nSEARCH\nClear\n\n1 matches for “Samurai”\n\n2004 · TV\n\nSAMURAI CHAMPLOO",
+        "inputs": [
+          {
+            "id": "anime-query",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "search desktop: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "anime-query",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "details desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Samurai Champloo",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1440,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nBack to search results\nSAMURAI CHAMPLOO\nYear\n2004\nType\nTV\nEpisodes\n26\nLibrary status\nWatching\nPlan to watch\nCompleted\nDropped\nADD TO MY LIST\n\nSYNOPSIS\n\nSamurai Champloo is part of the isolated Manga Shelf review catalog. This synopsis is sample copy for testing layout and recovery; open the live catalog after configuring the preview providers for verified metadata.\n\nAc",
+        "inputs": []
+      }
+    },
+    {
+      "name": "details desktop: inputs labeled",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "profile desktop: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Profile",
+        "width": 1440,
+        "height": 900,
+        "scroll": 1430,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nPROFILE\nR\nREMY\nYour account\nMy taste\nHidden titles\nAccount security\nYOUR ACCOUNT\nDisplay name\n\nRemy\n\nEmail\n\nviewer@example.test\n\nEdit identity\nMY TASTE\nAdventure\nMystery\nDrama\n\nMushi-Shi · Cowboy Bebop\n\nEdit taste\nHIDDEN TITLES (0)\n\nNo hidden titles. When a pick doesn’t fit, you can hide it and restore it here later.\n\nLOGIN AND SECURITY\n\nviewer@example.test · Email ver",
+        "inputs": [
+          {
+            "id": "display-name",
+            "label": 1
+          },
+          {
+            "id": "favorite-search",
+            "label": 1
+          },
+          {
+            "id": "new-email",
+            "label": 1
+          },
+          {
+            "id": "current-password",
+            "label": 1
+          },
+          {
+            "id": "new-password",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile desktop: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "display-name",
+          "label": 1
+        },
+        {
+          "id": "favorite-search",
+          "label": 1
+        },
+        {
+          "id": "new-email",
+          "label": 1
+        },
+        {
+          "id": "current-password",
+          "label": 1
+        },
+        {
+          "id": "new-password",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "keyboard focus visible desktop",
+      "pass": true,
+      "details": {
+        "tag": "A",
+        "outline": "2px"
+      }
+    },
+    {
+      "name": "sign-in compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Sign in",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1353,
+        "text": "Isolated review fixtures · no live account or provider data\nANIME\nWATCHLIST\nFIND YOUR\nNEXT STORY.\nSIGN IN\n\nFind your next story. Keep the ones you love.\n\nContinue with Google\nCONTINUE WITH EMAIL\n\nNew to Anime Watchlist? Create an account",
+        "inputs": []
+      }
+    },
+    {
+      "name": "sign-in compact: inputs labeled",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "verification compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Verify your email",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1353,
+        "text": "Isolated review fixtures · no live account or provider data\nANIME\nWATCHLIST\nFIND YOUR\nNEXT STORY.\nVERIFY YOUR EMAIL\n\nEnter the code sent to remy@example.test.\n\nVerify your email\nEmail address\nVerification code\n\nYou can paste the full code from your email.\n\nVERIFY EMAIL\nRESEND VERIFICATION\nChange email\n\nUse another address by creating an account with the correct email.",
+        "inputs": [
+          {
+            "id": "auth-email",
+            "label": 1
+          },
+          {
+            "id": "auth-code",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "verification compact: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "auth-email",
+          "label": 1
+        },
+        {
+          "id": "auth-code",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "favorites compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Choose your favorites",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1353,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nStep 2 of 3\nCHOOSE YOUR FAVORITES\n\nPick a few anime you love so we can recommend more like them.\n\nSet up your preferences\nFIND FAVORITE ANIME\nSearch favorite anime by title\n\n0 selected\n\nSAMURAI CHAMPLOO\nSAMURAI CHAMPLOO\n2004 · TV\nDEATH NOTE\nDEATH NOTE\n2006 · TV\nFRIEREN: BEYOND JOURNEY’S END\nFRIEREN: BEYOND JOURNEY’S END\n2023 · TV\nCOWBOY BEBOP\nCOWBOY BEBOP\n1998 · TV\nMUSHI-SHI\nMUSHI-SHI\n2005 · TV\nNARUT",
+        "inputs": [
+          {
+            "id": "favorite-search",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "favorites compact: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "favorite-search",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "favorites recognizable in compact first viewport",
+      "pass": false,
+      "details": {
+        "top": 472.3125,
+        "bottom": 711.8125,
+        "height": 647
+      }
+    },
+    {
+      "name": "discover compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Discover",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1353,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nDISCOVER\nFIND SOMETHING NEW\nPICK FROM MY LIST\nWhat are you in the mood for?\nFIND MORE PICKS\nMore options\nSAMURAI CHAMPLOO\n\n2004 · TV\n\nFixture recommendation: Samurai Champloo matches your Adventure interest. This is preview data, not a live NVIDIA result.\n\nSAVE\nPASS\nALREADY WATCHED\nALSO FOR YOUR SHELF\nDEATH NOTE\n\nFixture recommendation: Death Note matches your Adventur",
+        "inputs": [
+          {
+            "id": "discover-request",
+            "label": 1
+          },
+          {
+            "id": "max-episodes",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "discover compact: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "discover-request",
+          "label": 1
+        },
+        {
+          "id": "max-episodes",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "my-list compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "My List",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1353,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nMY LIST\nALL (5)\nWATCHING (1)\nPLAN TO WATCH (2)\nCOMPLETED (1)\nDROPPED (1)\nSearch my list\nSEARCH\n\n5 titles on your shelf\n\nCOWBOY BEBOP\n\nCompleted\n\nNARUTO\n\nDropped\n\nMUSHI-SHI\n\nWatching\n\nFULLMETAL ALCHEMIST: BROTHERHOOD\n\nPlan to watch\n\nSTEINS;GATE\n\nPlan to watch",
+        "inputs": [
+          {
+            "id": "list-query",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "my-list compact: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "list-query",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "search compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Search",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1363,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nSEARCH\nFind a title\nSEARCH\nClear\n\n1 matches for “Samurai”\n\n2004 · TV\n\nSAMURAI CHAMPLOO",
+        "inputs": [
+          {
+            "id": "anime-query",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "search compact: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "anime-query",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "details compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Samurai Champloo",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1353,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nBack to search results\nSAMURAI CHAMPLOO\nYear\n2004\nType\nTV\nEpisodes\n26\nLibrary status\nWatching\nPlan to watch\nCompleted\nDropped\nADD TO MY LIST\n\nSYNOPSIS\n\nSamurai Champloo is part of the isolated Manga Shelf review catalog. This synopsis is sample copy for testing layout and recovery; open the live catalog after configuring the preview providers for verified metadata.\n\nAc",
+        "inputs": []
+      }
+    },
+    {
+      "name": "details compact: inputs labeled",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "profile compact: no horizontal overflow",
+      "pass": true,
+      "details": {
+        "title": "Profile",
+        "width": 1363,
+        "height": 647,
+        "scroll": 1353,
+        "text": "Isolated review fixtures · no live account or provider data\nSkip to main content\nANIME\nWATCHLIST\nDISCOVER\nMY LIST\nSEARCH\nPROFILE\nPROFILE\nR\nREMY\nYour account\nMy taste\nHidden titles\nAccount security\nYOUR ACCOUNT\nDisplay name\n\nRemy\n\nEmail\n\nviewer@example.test\n\nEdit identity\nMY TASTE\nAdventure\nMystery\nDrama\n\nMushi-Shi · Cowboy Bebop\n\nEdit taste\nHIDDEN TITLES (0)\n\nNo hidden titles. When a pick doesn’t fit, you can hide it and restore it here later.\n\nLOGIN AND SECURITY\n\nviewer@example.test · Email ver",
+        "inputs": [
+          {
+            "id": "display-name",
+            "label": 1
+          },
+          {
+            "id": "favorite-search",
+            "label": 1
+          },
+          {
+            "id": "new-email",
+            "label": 1
+          },
+          {
+            "id": "current-password",
+            "label": 1
+          },
+          {
+            "id": "new-password",
+            "label": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile compact: inputs labeled",
+      "pass": true,
+      "details": [
+        {
+          "id": "display-name",
+          "label": 1
+        },
+        {
+          "id": "favorite-search",
+          "label": 1
+        },
+        {
+          "id": "new-email",
+          "label": 1
+        },
+        {
+          "id": "current-password",
+          "label": 1
+        },
+        {
+          "id": "new-password",
+          "label": 1
+        }
+      ]
+    },
+    {
+      "name": "keyboard focus visible compact",
+      "pass": true,
+      "details": {
+        "tag": "A",
+        "outline": "2px"
+      }
+    },
+    {
+      "name": "browser has no uncaught runtime exceptions",
+      "pass": true,
+      "details": []
+    }
+  ]
+}

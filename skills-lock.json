@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "ux-usability-foundations": {
+      "source": "hueyexe/frontend-agent-skills",
+      "sourceType": "github",
+      "skillPath": "ux-usability-foundations/SKILL.md",
+      "computedHash": "9b347d19d1f619a60c24b4dfe0e387910771e401b29f5ee644dbeba1cffd7dec"
+    },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

@@ -1,0 +1,30 @@
+{
+  "testedAt": "2026-11-05T11:12:58.405Z",
+  "configuration": "Isolated app fixtures; reduced-motion and viewport emulation, browser network blocking for missing art.",
+  "checks": [
+    {
+      "name": "long catalog title wraps while its full accessible heading remains readable",
+      "pass": true
+    },
+    {
+      "name": "missing poster keeps title, facts, status and Save usable",
+      "pass": true
+    },
+    {
+      "name": "details Back preserves list filter, query and prior scroll",
+      "pass": true
+    },
+    {
+      "name": "reduced motion disables nonessential transitions",
+      "pass": true
+    },
+    {
+      "name": "narrow 320px layout keeps four status filters and controls reachable",
+      "pass": true
+    },
+    {
+      "name": "keyboard-only tabs reach and activate email sign-in with a visible focus ring",
+      "pass": true
+    }
+  ]
+}

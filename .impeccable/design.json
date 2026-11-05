@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-05T10:57:03.647827Z",
+  "title": "Design System: Manga Shelf",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#F9EBD7",
+        "tonalRamp": [
+          "oklch(15% 0.0102 76.97)",
+          "oklch(25% 0.0203 76.97)",
+          "oklch(35% 0.0305 76.97)",
+          "oklch(45% 0.0305 76.97)",
+          "oklch(60% 0.0305 76.97)",
+          "oklch(75% 0.0305 76.97)",
+          "oklch(85% 0.0183 76.97)",
+          "oklch(95% 0.0061 76.97)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0F0F0B",
+        "tonalRamp": [
+          "oklch(15% 0.0027 107.24)",
+          "oklch(25% 0.0054 107.24)",
+          "oklch(35% 0.0081 107.24)",
+          "oklch(45% 0.0081 107.24)",
+          "oklch(60% 0.0081 107.24)",
+          "oklch(75% 0.0081 107.24)",
+          "oklch(85% 0.0048 107.24)",
+          "oklch(95% 0.0016 107.24)"
+        ]
+      },
+      "red": {
+        "role": "primary",
+        "displayName": "Action red",
+        "canonical": "#CF102C",
+        "tonalRamp": [
+          "oklch(15% 0.0711 23.31)",
+          "oklch(25% 0.1423 23.31)",
+          "oklch(35% 0.2134 23.31)",
+          "oklch(45% 0.2134 23.31)",
+          "oklch(60% 0.2134 23.31)",
+          "oklch(75% 0.2134 23.31)",
+          "oklch(85% 0.1280 23.31)",
+          "oklch(95% 0.0427 23.31)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "On-action white",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(25% 0.0000 0.00)",
+          "oklch(35% 0.0000 0.00)",
+          "oklch(45% 0.0000 0.00)",
+          "oklch(60% 0.0000 0.00)",
+          "oklch(75% 0.0000 0.00)",
+          "oklch(85% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Observed secondary text",
+        "canonical": "#585044",
+        "tonalRamp": [
+          "oklch(15% 0.0073 78.04)",
+          "oklch(25% 0.0145 78.04)",
+          "oklch(35% 0.0218 78.04)",
+          "oklch(45% 0.0218 78.04)",
+          "oklch(60% 0.0218 78.04)",
+          "oklch(75% 0.0218 78.04)",
+          "oklch(85% 0.0131 78.04)",
+          "oklch(95% 0.0044 78.04)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "page-title": {
+        "displayName": "Page title",
+        "purpose": "Anton 400. Approved 40/42px phone and 56/58px desktop; base h1 is 40px/1.05 phone and 56px/1.08 desktop. At desktop widths of at least 960px and heights of at most 720px, Discover/My List use 44/48px and onboarding uses 40/44px."
+      },
+      "featured-anime": {
+        "displayName": "Featured anime",
+        "purpose": "Anton 400. Approved 32/35px phone and 44/48px desktop; current feature title is 32px/1.1 phone, 36px/1.08 tablet and compact desktop, and 44px/1.08 full desktop."
+      },
+      "section-heading": {
+        "displayName": "Section heading",
+        "purpose": "Anton 400. Approved 24/28px phone and 30/34px desktop; current headings inherit line-height 1.08."
+      },
+      "body": {
+        "displayName": "Reading and UI",
+        "purpose": "Source Sans 3 400/600/700, system-ui fallback. Current root 16px phone and 18px otherwise; paragraph line-height 1.45 and max-width 68ch."
+      },
+      "action": {
+        "displayName": "Compact action",
+        "purpose": "Anton 400; current shared buttons are 18px with 1.25 line-height. Individual discovery controls override the size."
+      },
+      "metadata": {
+        "displayName": "Metadata and navigation",
+        "purpose": "Source Sans 3 metadata at 14px; navigation is Anton 400 and reaches 14px on phone."
+      }
+    },
+    "shadows": [
+      {
+        "name": "interactive-edge",
+        "value": "inset 0 0 0 1px var(--ink)",
+        "purpose": "Shared button hover thickens the edge without layout movement; no elevated card shadow."
+      },
+      {
+        "name": "focus-paper-separation",
+        "value": "0 0 0 3px var(--paper)",
+        "purpose": "Current focus separation with 2px ink outline and 4px outline offset; not ambient elevation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-feedback",
+        "value": "120ms",
+        "purpose": "Background-color and color transition on shared buttons."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "none",
+        "purpose": "prefers-reduced-motion disables animations and transitions and changes smooth scrolling to auto."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet-min-width",
+        "value": "600px"
+      },
+      {
+        "name": "desktop-min-width",
+        "value": "960px"
+      },
+      {
+        "name": "compact-desktop-max-height",
+        "value": "720px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "description": "Primary action as implemented by the shared button selector in src/app/globals.css. Disabled controls use waiting feedback; application actions supply pending verbs.",
+      "html": "<button type=\"button\" class=\"ds-button-primary\">Save to my list</button>",
+      "css": ".ds-button-primary{cursor:pointer;min-height:44px;border:1.5px solid var(--ink,#0F0F0B);border-radius:3px;padding:10px 16px;display:inline-flex;gap:8px;align-items:center;justify-content:center;font-family:Anton,Impact,sans-serif;font-weight:400;font-size:18px;line-height:1.25;text-transform:uppercase;transition:background-color 120ms,color 120ms;background:var(--red,#CF102C);color:#FFFFFF;border-color:var(--red,#CF102C)}.ds-button-primary:hover{box-shadow:inset 0 0 0 1px var(--ink,#0F0F0B)}.ds-button-primary:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}.ds-button-primary:disabled{cursor:wait;opacity:.65}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "description": "Secondary action as implemented by the shared button selector in src/app/globals.css. Disabled controls use waiting feedback; application actions supply pending verbs.",
+      "html": "<button type=\"button\" class=\"ds-button-secondary\">Save to my list</button>",
+      "css": ".ds-button-secondary{cursor:pointer;min-height:44px;border:1.5px solid var(--ink,#0F0F0B);border-radius:3px;padding:10px 16px;display:inline-flex;gap:8px;align-items:center;justify-content:center;font-family:Anton,Impact,sans-serif;font-weight:400;font-size:18px;line-height:1.25;text-transform:uppercase;transition:background-color 120ms,color 120ms;background:var(--paper,#F9EBD7);color:var(--ink,#0F0F0B);border-color:var(--ink,#0F0F0B)}.ds-button-secondary:hover{box-shadow:inset 0 0 0 1px var(--ink,#0F0F0B)}.ds-button-secondary:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}.ds-button-secondary:disabled{cursor:wait;opacity:.65}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition:none}}"
+    },
+    {
+      "name": "Underlined text action",
+      "kind": "button",
+      "description": "Existing text-link treatment for contextual navigation; source uses inherited body typography and an underline.",
+      "html": "<a class=\"ds-text-action\" href=\"#profile\">Change display name</a>",
+      "css": ".ds-text-action{font-family:\"Source Sans 3\",system-ui,sans-serif;font-size:18px;color:var(--ink,#0F0F0B);text-decoration:underline;text-underline-offset:4px}.ds-text-action:hover{text-decoration-thickness:2px}.ds-text-action:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}@media(max-width:599px){.ds-text-action{font-size:16px}}"
+    },
+    {
+      "name": "Labeled input",
+      "kind": "input",
+      "description": "Persistent label and full-width paper field; error copy remains below the field in the application.",
+      "html": "<label class=\"ds-field\">Display name<input class=\"ds-input\" name=\"displayName\" autocomplete=\"nickname\" placeholder=\"Your name\" /></label>",
+      "css": ".ds-field{display:grid;gap:8px;font-family:\"Source Sans 3\",system-ui,sans-serif;font-size:18px;font-weight:600;color:var(--ink,#0F0F0B)}.ds-input{width:100%;min-height:44px;border:1.5px solid var(--ink,#0F0F0B);border-radius:3px;padding:10px 12px;background:transparent;color:var(--ink,#0F0F0B);caret-color:var(--red,#CF102C);font:400 18px \"Source Sans 3\",system-ui,sans-serif}.ds-input::placeholder{color:var(--muted,#585044);opacity:1}.ds-input:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}@media(max-width:599px){.ds-field,.ds-input{font-size:16px}}"
+    },
+    {
+      "name": "Four destinations",
+      "kind": "nav",
+      "description": "Same four destinations as Navigation.tsx. Application fixes this bar to the mobile viewport and uses an 80px header on compact desktop; this isolated preview keeps navigation in normal flow. Inline icons are from lucide-react 0.554.0, ISC with Feather MIT portions.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a class=\"ds-nav-link\" href=\"/recommendations\" aria-current=\"page\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg><span>Discover</span></a><a class=\"ds-nav-link\" href=\"/library\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13\"/></svg><span>My List</span></a><a class=\"ds-nav-link\" href=\"/search\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21 21-4.34-4.34\"/><circle cx=\"11\" cy=\"11\" r=\"8\"/></svg><span>Search</span></a><a class=\"ds-nav-link\" href=\"/profile\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"5\"/><path d=\"M20 21a8 8 0 0 0-16 0\"/></svg><span>Profile</span></a></nav>",
+      "css": ".ds-nav{display:flex;gap:32px;border-block:1px solid var(--ink,#0F0F0B);background:var(--paper,#F9EBD7);padding:8px}.ds-nav-link{min-height:44px;display:flex;gap:8px;align-items:center;font:400 18px Anton,Impact,sans-serif;text-transform:uppercase;color:var(--ink,#0F0F0B);text-decoration:none;text-underline-offset:4px}.ds-nav-link[aria-current]{color:var(--red,#CF102C)}.ds-nav-link:hover{text-decoration-thickness:2px}.ds-nav-link:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}@media(min-width:600px) and (max-width:959px){.ds-nav{gap:16px}.ds-nav-link{font-size:16px}}@media(max-width:599px){.ds-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:0}.ds-nav-link{flex-direction:column;justify-content:center;gap:2px;font-size:14px;min-height:52px}}"
+    },
+    {
+      "name": "Genre choice",
+      "kind": "chip",
+      "description": "Source Sans 3 choice button from ProfileForm genre-options. aria-pressed exposes selection; the app updates this value.",
+      "html": "<button class=\"ds-genre-choice\" type=\"button\" aria-pressed=\"true\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg>Adventure</button>",
+      "css": ".ds-genre-choice{cursor:pointer;min-height:44px;border:1.5px solid var(--ink,#0F0F0B);border-radius:3px;padding:10px 16px;display:inline-flex;gap:8px;align-items:center;justify-content:center;font-family:Anton,Impact,sans-serif;font-weight:400;font-size:18px;line-height:1.25;text-transform:uppercase;transition:background-color 120ms,color 120ms;font-family:\"Source Sans 3\",system-ui,sans-serif;text-transform:none;background:var(--paper,#F9EBD7);color:var(--ink,#0F0F0B)}.ds-genre-choice[aria-pressed=true]{background:var(--red,#CF102C);color:#FFFFFF;border-color:var(--red,#CF102C)}.ds-genre-choice svg{width:16px;height:16px}.ds-genre-choice:hover{box-shadow:inset 0 0 0 1px var(--ink,#0F0F0B)}.ds-genre-choice:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}@media(prefers-reduced-motion:reduce){.ds-genre-choice{transition:none}}"
+    },
+    {
+      "name": "Shelf title with unavailable artwork",
+      "kind": "card",
+      "description": "AnimeCard and Poster fallback. The reserved 2:3 frame and independent title preserve recognition while catalog rights remain uncleared.",
+      "html": "<article class=\"ds-card\"><a class=\"ds-card-link\" href=\"#details\"><div class=\"ds-poster-fallback\"><span>Example title</span><small>Artwork unavailable</small></div><div class=\"ds-caption\"><h2>Example title</h2><p>Plan to watch</p></div></a></article>",
+      "css": ".ds-card{max-width:240px;border:1px solid var(--ink,#0F0F0B);border-radius:3px;overflow:hidden;background:var(--paper,#F9EBD7);color:var(--ink,#0F0F0B)}.ds-card-link{display:block;height:100%;color:inherit;text-decoration:none}.ds-card-link:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}.ds-poster-fallback{aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:16px;border-bottom:1px solid var(--ink,#0F0F0B)}.ds-poster-fallback>span{font:400 28px Anton,Impact,sans-serif;text-transform:uppercase}.ds-poster-fallback small{color:var(--muted,#585044);font:400 14px \"Source Sans 3\",system-ui,sans-serif}.ds-caption{padding:10px 12px;border-top:1px solid var(--ink,#0F0F0B)}.ds-caption h2{margin:0;font:400 20px/1.2 Anton,Impact,sans-serif;text-transform:uppercase;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ds-caption p{margin:6px 0 0;font:400 14px/1.45 \"Source Sans 3\",system-ui,sans-serif}@media(max-width:599px){.ds-caption{padding:8px}.ds-caption h2{font-size:18px}}@media(min-width:960px) and (max-height:720px){.ds-caption p{margin-top:4px}}"
+    },
+    {
+      "name": "Favorite selection",
+      "kind": "card",
+      "description": "Paper favorite tile from ProfileForm. Artwork is square normally and 136px high on compact desktop; the selected caption remains 18/22px there. aria-pressed and the red checked corner jointly convey selection. This sample contains no external artwork.",
+      "html": "<button type=\"button\" class=\"ds-favorite\" aria-pressed=\"true\"><span class=\"ds-favorite-art\" aria-hidden=\"true\"><span class=\"ds-favorite-placeholder\">Example title</span></span><span class=\"ds-favorite-caption\">Example title</span><span class=\"ds-selection-mark\" aria-hidden=\"true\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span></button>",
+      "css": ".ds-favorite{cursor:pointer;min-height:44px;border:1.5px solid var(--ink,#0F0F0B);border-radius:3px;padding:10px 16px;display:inline-flex;gap:8px;align-items:center;justify-content:center;font-family:Anton,Impact,sans-serif;font-weight:400;font-size:18px;line-height:1.25;text-transform:uppercase;transition:background-color 120ms,color 120ms;width:200px;padding:0;display:flex;flex-direction:column;justify-content:start;text-align:left;overflow:hidden;position:relative;background:var(--paper,#F9EBD7);color:var(--ink,#0F0F0B)}.ds-favorite[aria-pressed=true]{border-color:var(--red,#CF102C)}.ds-favorite-art{display:block;width:100%;aspect-ratio:1;position:relative;overflow:hidden}.ds-favorite-placeholder{position:absolute;inset:0;padding:12px;font:400 24px Anton,Impact,sans-serif}.ds-favorite-caption{width:100%;padding:8px;border-top:1px solid var(--ink,#0F0F0B)}.ds-selection-mark{position:absolute;top:8px;right:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--ink,#0F0F0B);border-radius:3px;background:var(--paper,#F9EBD7)}.ds-favorite[aria-pressed=true] .ds-selection-mark{background:var(--red,#CF102C);border-color:var(--red,#CF102C);color:#FFFFFF}.ds-favorite:hover{box-shadow:inset 0 0 0 1px var(--ink,#0F0F0B)}.ds-favorite:focus-visible{outline:2px solid var(--ink,#0F0F0B);outline-offset:4px;box-shadow:0 0 0 3px var(--paper,#F9EBD7)}@media(prefers-reduced-motion:reduce){.ds-favorite{transition:none}}@media(min-width:960px) and (max-height:720px){.ds-favorite-art{height:136px;max-height:150px;aspect-ratio:auto}.ds-favorite-caption{font-size:18px;line-height:22px}}"
+    },
+    {
+      "name": "Owned wordmark",
+      "kind": "custom",
+      "description": "Original typeset wordmark and CSS underline from Wordmark.tsx. The wordmark is the only slanted display treatment.",
+      "html": "<span class=\"ds-wordmark\" aria-label=\"Anime Watchlist\" translate=\"no\"><span aria-hidden=\"true\">Anime<br />Watchlist</span></span>",
+      "css": ".ds-wordmark{display:inline-block;position:relative;font:400 30px/.92 Anton,Impact,sans-serif;text-transform:uppercase;transform:skew(-9deg);padding-bottom:13px;text-align:left;color:var(--ink,#0F0F0B)}.ds-wordmark::after{content:\"\";position:absolute;height:6px;left:0;right:0;bottom:3px;background:var(--red,#CF102C);clip-path:polygon(3% 70%,100% 0,89% 60%,0 100%)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Manga Shelf",
+    "overview": "The 1536 × 1024 board contains three separate narrow screens. Sign-in uses an angled opening illustration; favorites uses a cropped eye strip, three progress marks and captioned tiles; Discover uses a single feature, two mode buttons and labeled bottom navigation. The paper, ink and red dominate even the illustrated covers. This corrects an earlier description of full-color artwork as a defining feature. Treat the fictionalized cover illustrations as composition studies.",
+    "keyCharacteristics": [
+      "The paper, ink and red dominate even the illustrated covers.",
+      "The lettering is visibly heavy, narrow and uppercase.",
+      "Paper surfaces, no elevated card shadows.",
+      "Decorative marks remain outside reading and control surfaces."
+    ],
+    "rules": [],
+    "dos": [],
+    "donts": []
+  }
+}

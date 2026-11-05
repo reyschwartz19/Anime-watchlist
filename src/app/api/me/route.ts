@@ -1,23 +1,21 @@
-import { getVerifiedAuthSession } from '@/lib/auth';
-import { getDb } from '@/lib/db';
+import { getCurrentUser } from '@/lib/current-user';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const headers = { 'Cache-Control': 'private, no-store' };
-  const identity = await getVerifiedAuthSession();
-  if (!identity) return Response.json({ error: 'Sign in first.' }, { status: 401, headers });
-  const user = await getDb().appUser.upsert({
-    where: { authProviderId: identity.id },
-    update: { email: identity.email },
-    create: { authProviderId: identity.id, email: identity.email, displayName: identity.name, photoURL: identity.image },
-  });
+  try {
+  const user = await getCurrentUser();
+  if (!user) return Response.json({ error: 'Sign in first.' }, { status: 401, headers });
   return Response.json({
     internalUserId: user.id,
-    authProviderId: identity.id,
-    email: identity.email,
-    emailVerified: identity.emailVerified,
+    authProviderId: user.authProviderId,
+    email: user.email,
+    emailVerified: user.emailVerified,
     onboarded: user.onboarded,
   }, { headers });
+  } catch {
+    return Response.json({ error: 'Your profile could not be loaded. Retry to continue.', code: 'PROFILE_UNAVAILABLE' }, { status: 503, headers });
+  }
 }

@@ -64,7 +64,7 @@ export async function removeAnime(input: unknown): Promise<ActionResult> {
 export async function saveProfile(input: unknown): Promise<ActionResult> {
   const user = await requireUser();
   const parsed = profileInput.safeParse(input);
-  if (!parsed.success) return { ok: false, message: 'Check your profile fields and use a valid HTTP or HTTPS photo URL.' };
+  if (!parsed.success) return { ok: false, message: 'Check your profile fields and try again.' };
   const data = parsed.data;
   if (data.completeOnboarding && data.interests.length === 0) {
     return { ok: false, message: 'Choose at least one interest to finish onboarding.' };
@@ -73,10 +73,8 @@ export async function saveProfile(input: unknown): Promise<ActionResult> {
     await getDb().appUser.update({
       where: { id: user.id },
       data: {
-        displayName: data.displayName || null,
-        photoURL: data.photoURL || null,
-        interests: data.interests,
-        favoriteAnimes: data.favoriteAnimes,
+        ...(data.section !== 'taste' ? { displayName: data.displayName || null, photoURL: data.photoURL || null } : {}),
+        ...(data.section !== 'identity' ? { interests: data.interests, favoriteAnimes: data.favoriteAnimes } : {}),
         ...(data.completeOnboarding ? { onboarded: true } : {}),
         profileEditedAt: new Date(),
       },

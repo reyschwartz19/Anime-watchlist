@@ -1,0 +1,104 @@
+{
+  "testedAt": "2026-11-05T11:09:21.380Z",
+  "base": "http://localhost:3067",
+  "fixtureBoundary": {
+    "server": "Existing isolated Next fixture server on localhost:3067.",
+    "initialApiMe": "fixture-viewer",
+    "browserIdentity": "fixture-second",
+    "cookie": "anime_preview_user=second",
+    "profile": "Fresh owned Chrome profile, removed after run.",
+    "services": "In-memory fixture database, fixture catalog, fixture recommendation ranking and fixture authentication only. No live OAuth, email, catalog, NVIDIA or real database.",
+    "failure": "One local /recommendations POST response dropped with CDP Fetch.failRequest only after the successful HTTP response reached the browser."
+  },
+  "selected": {
+    "title": "Samurai Champloo",
+    "id": 205
+  },
+  "checks": [
+    {
+      "name": "generated batch survives Details and Back to Discover",
+      "pass": true,
+      "details": {
+        "before": [
+          205,
+          1535,
+          52991
+        ],
+        "after": [
+          205,
+          1535,
+          52991
+        ],
+        "restoration": "Persisted request ID is reloaded through the owner-checked server generation action."
+      }
+    },
+    {
+      "name": "lost Save response keeps the old lead and displays local retry recovery",
+      "pass": true,
+      "details": {
+        "selected": {
+          "title": "Samurai Champloo",
+          "id": 205
+        },
+        "serverCommitVisibleOnMyList": true,
+        "oldLeadRetained": true,
+        "recoveryMessage": "We couldn’t confirm your choice. Retry the same action to safely check it."
+      }
+    },
+    {
+      "name": "same Save retry succeeds and Undo restores the original absent shelf state",
+      "pass": true,
+      "details": {
+        "saveRequests": [
+          {
+            "action": "save",
+            "operationId": "32ea8076-dad7-48c8-9fd9-2ea93c5ea13a"
+          },
+          {
+            "action": "save",
+            "operationId": "32ea8076-dad7-48c8-9fd9-2ea93c5ea13a"
+          }
+        ],
+        "sameOperationId": true,
+        "undoRemovedTitleFromMyList": true
+      }
+    }
+  ],
+  "interceptions": [
+    {
+      "path": "/recommendations",
+      "method": "POST",
+      "responseStatusCode": 200,
+      "responseStage": true,
+      "deliberatelyDropped": true
+    }
+  ],
+  "requests": [
+    {
+      "action": "generation",
+      "operationId": null
+    },
+    {
+      "action": "generation",
+      "operationId": null
+    },
+    {
+      "action": "generation",
+      "operationId": null
+    },
+    {
+      "action": "save",
+      "operationId": "32ea8076-dad7-48c8-9fd9-2ea93c5ea13a"
+    },
+    {
+      "action": "save",
+      "operationId": "32ea8076-dad7-48c8-9fd9-2ea93c5ea13a"
+    },
+    {
+      "action": "undo",
+      "operationId": "32ea8076-dad7-48c8-9fd9-2ea93c5ea13a"
+    }
+  ],
+  "interceptionErrors": [],
+  "browserRuntimeErrors": []
+}

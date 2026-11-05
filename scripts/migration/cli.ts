@@ -5,6 +5,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { verifyIdentityReceipt } from '../../src/lib/migration-identity';
 import { normalize, validateExport, validateSourceUid } from './core';
 import { outsideGitPath, writePrivateJson } from './files';
+import { requireMatchingDryRun } from './plan';
 import { backupDestination, importOneUser, inspectMigration, type MigrationReport } from './store';
 
 config({ path: '.env.local', quiet: true });
@@ -14,7 +15,7 @@ const help = `One-user Firebase migration (no production writes or cutover)
 
 export --source-uid UID --firebase-project-id PROJECT --out /outside-git/user.json
 dry-run --source-uid UID --destination-user-id UUID --identity-receipt /outside-git/identity.json --file /outside-git/user.json [--report /outside-git/plan.json]
-import --source-uid UID --destination-user-id UUID --identity-receipt /outside-git/identity.json --file /outside-git/user.json --destination-backup /outside-git/before.json --confirm-write UID:UUID [--accept-issues] [--report /outside-git/result.json]
+import --source-uid UID --destination-user-id UUID --identity-receipt /outside-git/identity.json --file /outside-git/user.json --dry-run-report /outside-git/plan.json --destination-backup /outside-git/before.json --confirm-write UID:UUID [--accept-issues] [--report /outside-git/result.json]
 verify --source-uid UID --destination-user-id UUID --identity-receipt /outside-git/identity.json --file /outside-git/user.json [--report /outside-git/verification.json]
 
 No command defaults to import. Without a command, dry-run is selected.
@@ -27,7 +28,7 @@ Exit codes: 0=planned/equivalent, 2=verification differences preserved for revie
 function argumentsFor(args: string[]) {
   const commands = new Set(['export', 'dry-run', 'import', 'verify']);
   const command = args[0] && commands.has(args[0]) ? args.shift()! : 'dry-run';
-  const allowed = new Set(['source-uid', 'firebase-project-id', 'out', 'destination-user-id', 'identity-receipt', 'file', 'report', 'destination-backup', 'confirm-write', 'accept-issues']);
+  const allowed = new Set(['source-uid', 'firebase-project-id', 'out', 'destination-user-id', 'identity-receipt', 'file', 'report', 'dry-run-report', 'destination-backup', 'confirm-write', 'accept-issues']);
   const result = new Map<string, string>();
   for (let index = 0; index < args.length; index++) {
     const key = args[index].startsWith('--') ? args[index].slice(2) : '';
@@ -82,6 +83,7 @@ async function main() {
   if (command === 'import') {
     if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production' || process.env.MIGRATION_TARGET !== 'preview') throw new Error('Import is restricted to an explicitly configured preview target. Production writes/cutover are not enabled.');
     if (require('confirm-write') !== `${sourceUid}:${destinationUserId}`) throw new Error('--confirm-write must exactly match SOURCE_UID:DESTINATION_USER_ID.');
+    requireMatchingDryRun(require('dry-run-report'), { sourceUid, destinationUserId, sourceDigest: snapshot.sourceDigest });
     outsideGitPath(require('destination-backup'));
   }
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: databaseUrl, max: 2, connectionTimeoutMillis: 15000 }) });

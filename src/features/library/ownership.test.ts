@@ -55,6 +55,11 @@ const fakeDb = {
     },
   },
   feedback: {
+    async findUnique({ where }: { where: { userId_animeId: { userId: string; animeId: number } } }) {
+      databaseCalls += 1;
+      const pair = where.userId_animeId;
+      return feedback.get(key(pair.userId, pair.animeId)) ?? null;
+    },
     async upsert({ where, create, update }: { where: { userId_animeId: { userId: string; animeId: number } }; create: { userId: string; animeId: number; value: string }; update: { value: string } }) {
       databaseCalls += 1;
       const pair = where.userId_animeId;
@@ -152,4 +157,14 @@ test('anonymous actions stop before database or provider access', async () => {
   await assert.rejects(setFeedback({ animeId: 457, value: 'like' }), /Unauthenticated/);
   assert.equal(databaseCalls, 0);
   assert.equal(providerCalls, 0);
+});
+
+test('section-local profile writes preserve newer values outside the edited section', async () => {
+  users.get('a')!.interests = ['Newer taste'];
+  const stale = { displayName: 'New name', photoURL: null, interests: ['Old taste'], favoriteAnimes: [], completeOnboarding: false };
+  assert.equal((await saveProfile({ ...stale, section: 'identity' })).ok, true);
+  assert.deepEqual(users.get('a')!.interests, ['Newer taste']);
+  assert.equal((await saveProfile({ ...stale, displayName: 'Stale name', interests: ['Drama'], section: 'taste' })).ok, true);
+  assert.equal(users.get('a')!.displayName, 'New name');
+  assert.deepEqual(users.get('a')!.interests, ['Drama']);
 });

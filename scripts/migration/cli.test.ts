@@ -41,6 +41,15 @@ test('CLI requires explicit IDs, defaults to dry-run, rejects forged receipts an
       assert.ok(!result.stderr.includes('ECONNREFUSED'));
     }
     assert.match(run(['import', ...flags, '--confirm-write', 'wrong']).stderr, /must exactly match/);
+    const importFlags = ['import', ...flags, '--confirm-write', `${source.uid}:${internalUserId}`, '--destination-backup', join(directory, 'before.json')];
+    const missingPlan = run(importFlags);
+    assert.match(missingPlan.stderr, /--dry-run-report is required/);
+    assert.ok(!missingPlan.stderr.includes('ECONNREFUSED'));
+    const wrongPlan = join(directory, 'wrong-plan.json');
+    writeFileSync(wrongPlan, JSON.stringify({ version: 1, mode: 'dry-run', sourceUid: 'other-user', destinationUserId: internalUserId, sourceDigest: 'wrong', entries: [], profile: [], issues: [], plannedInsertAnimeIds: [] }), { mode: 0o600 });
+    const mismatchedPlan = run([...importFlags, '--dry-run-report', wrongPlan]);
+    assert.match(mismatchedPlan.stderr, /does not match/);
+    assert.ok(!mismatchedPlan.stderr.includes('ECONNREFUSED'));
     writeFileSync(receiptFile, JSON.stringify({ ...receipt, signature: 'forged' }));
     assert.match(run(['dry-run', ...flags]).stderr, /signature is invalid/);
   } finally { rmSync(directory, { recursive: true, force: true }); }

@@ -6,7 +6,9 @@ export function safeAuthDestination(input: unknown): string {
   if (typeof input !== 'string' || !input.startsWith('/') || input.startsWith('//') || input.length > 4096) return '/library';
   try {
     const url = new URL(input, referenceOrigin);
-    if (url.origin !== referenceOrigin || !destinations.has(url.pathname)) return '/library';
+    const detailId = /^\/anime\/([1-9]\d*)$/.exec(url.pathname)?.[1];
+    const detail = detailId !== undefined && Number(detailId) <= 2_147_483_647;
+    if (url.origin !== referenceOrigin || (!destinations.has(url.pathname) && !detail)) return '/library';
     return `${url.pathname}${url.search}`;
   } catch {
     return '/library';

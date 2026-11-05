@@ -110,12 +110,13 @@ npm run migration -- import \
   --destination-user-id "$DESTINATION_USER_ID" \
   --identity-receipt "$IDENTITY_RECEIPT" \
   --file "$MIGRATION_BACKUP_DIR/firebase-01.json" \
+  --dry-run-report "$MIGRATION_BACKUP_DIR/plan-01.json" \
   --destination-backup "$MIGRATION_BACKUP_DIR/destination-before-01.json" \
   --confirm-write "$SOURCE_UID:$DESTINATION_USER_ID" \
   --report "$MIGRATION_BACKUP_DIR/import-01.json"
 ```
 
-Import refuses production Node/Vercel environments and requires `MIGRATION_TARGET=preview`. The destination backup contains this user's profile, library, feedback, migration binding and source snapshots. Backup and import are separate consistent transactions: pause editing so the backup covers the state you intend to restore.
+Import refuses production Node/Vercel environments and requires `MIGRATION_TARGET=preview`. It also requires the private `--dry-run-report` generated and reviewed in step 4. Its source UID, destination ID and exact export digest must match; a different export revision requires a fresh dry run. This is an operator review artifact, not a signed approval or a guarantee that destination data stayed unchanged. The transaction rechecks destination state before applying insert-only changes. The destination backup contains this user's profile, library, feedback, migration binding and source snapshots. Backup and import are separate consistent transactions: pause editing so the backup covers the state you intend to restore.
 
 Binding, first-profile copy, missing entries and snapshot commit together in one serializable transaction, protected by unique constraints. An interruption rolls back all of them; serialization conflicts retry. If a connection drops after commit and the outcome is unclear, verify and replay with **new** backup/report filenames.
 

@@ -35,6 +35,8 @@ dist-ssr
 
 # Framework output and local compiler cache
 .next/
+.next-build/
+.next-review/
 *.tsbuildinfo
 
 # Real migration artifacts must be stored outside this checkout.

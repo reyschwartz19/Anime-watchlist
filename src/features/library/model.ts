@@ -18,12 +18,16 @@ const webUrl = z.string().url().refine((value) => /^https?:\/\//i.test(value), '
 export const animeSchema = z.object({
   mal_id: z.number().int().positive().max(2_147_483_647),
   title: z.string().min(1).max(1000),
-  images: z.object({ jpg: z.object({ image_url: webUrl, large_image_url: webUrl }) }),
+  title_english: z.string().max(1000).nullish(),
+  title_japanese: z.string().max(1000).nullish(),
+  titles: z.array(z.object({ type: z.string().max(100), title: z.string().max(1000) })).optional(),
+  images: z.object({ jpg: z.object({ image_url: webUrl.nullish(), large_image_url: webUrl.nullish() }) }),
   synopsis: z.string().max(100_000).nullish().transform((value) => value ?? ''),
   episodes: z.number().int().nonnegative().nullable().optional(),
   score: z.number().min(0).max(10).nullable().optional(),
   year: z.number().int().nullable().optional(),
   type: z.string().nullable().optional(),
+  status: z.string().max(100).nullish(),
   relations: z.array(z.object({ relation: z.string(), entry: z.array(z.object({ mal_id: z.number().int(), type: z.string().optional(), name: z.string().optional() })) })).optional(),
   genres: z.array(z.object({ name: z.string().max(200) })).nullish().transform((value) => value ?? []),
 });
@@ -55,6 +59,7 @@ export interface AnimeView {
   type?: string | null;
   episodes?: number | null;
   genres?: string[];
+  alternateTitle?: string;
 }
 
 /** A display projection only. Imported raw data is never rewritten by this fallback. */
@@ -74,6 +79,10 @@ export function toAnimeView(value: unknown, animeId: number): AnimeView {
   return {
     mal_id: animeId,
     title: typeof object.title === 'string' && object.title.trim() ? object.title : `Anime #${animeId}`,
+    ...(typeof object.title_english === 'string' && object.title_english.trim() && object.title_english !== object.title
+      ? { alternateTitle: object.title_english }
+      : typeof object.title_japanese === 'string' && object.title_japanese.trim() && object.title_japanese !== object.title
+        ? { alternateTitle: object.title_japanese } : {}),
     imageUrl,
     synopsis: typeof object.synopsis === 'string' ? object.synopsis : '',
     year: typeof object.year === 'number' ? object.year : null,

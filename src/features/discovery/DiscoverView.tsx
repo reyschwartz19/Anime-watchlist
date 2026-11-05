@@ -26,6 +26,7 @@ export function DiscoverView({ userId }: { userId: string }) {
   const [reason, setReason] = useState('');
   const [hydrated, setHydrated] = useState(false);
   const [batch, setBatch] = useState<BatchState | null>(null);
+  const [cooldown, setCooldown] = useState(0);
   const operations = useRef(new Map<string, string>());
   const undoButton = useRef<HTMLButtonElement>(null);
   const lock = useRef(false);
@@ -71,8 +72,13 @@ export function DiscoverView({ userId }: { userId: string }) {
   useEffect(() => {
     if (hydrated) try { sessionStorage.setItem(storageKey, JSON.stringify({ mode, request, maxEpisodes, passes, batch, undo })); } catch {}
   }, [storageKey, hydrated, mode, request, maxEpisodes, passes, batch, undo]);
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown(current => Math.max(0, current - 1)), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
   function generate() {
-    if (lock.current) return;
+    if (lock.current || cooldown > 0) return;
     lock.current = true;
     setMessage(''); setFailed(false); setPassId(null);
     const constraints = maxEpisodes ? { maxEpisodes: Number(maxEpisodes) } : {};
@@ -83,7 +89,12 @@ export function DiscoverView({ userId }: { userId: string }) {
       try {
         const result = await generateRecommendations({ mode, request, sessionPassIds: passes, constraints, requestId });
         if (result.ok) { setRecommendations(result.recommendations); setBatch({ requestId, mode, request, maxEpisodes }); setUndo(null); generation.current = null; requestAnimationFrame(() => heading.current?.focus({ preventScroll: true })); }
-        else { setMessage(result.message); setFailed(result.kind !== 'empty'); if (result.kind === 'empty') setRecommendations([]); }
+        else {
+          setMessage(result.message); setFailed(result.kind !== 'empty');
+          if (result.kind === 'empty') setRecommendations([]);
+          if (result.retryAfterSeconds) setCooldown(Math.ceil(result.retryAfterSeconds));
+          if (result.newRequestRequired) generation.current = null;
+        }
       } catch { setFailed(true); setMessage('Your picks could not be loaded. Your request is still here. Try again.'); }
       finally { lock.current = false; }
     });
@@ -118,7 +129,20 @@ export function DiscoverView({ userId }: { userId: string }) {
       try {
         const result = await undoRecommendation({ operationId: previous.operationId, undoToken: previous.token });
         setMessage(result.message); setFailed(!result.ok);
-        if (result.ok) { setRecommendations(current => { const next = current.filter(p => p.anime.mal_id !== previous.pick.anime.mal_id); next.splice(previous.index, 0, previous.pick); return next; }); setPasses(current => current.filter(id => id !== previous.pick.anime.mal_id)); setUndo(null); }
+        if (result.ok) {
+          const remainingPasses = passes.filter(id => id !== previous.pick.anime.mal_id);
+          setPasses(remainingPasses); setUndo(null); setRecommendations([]);
+          // Another tab or device may have saved or hidden this title since it
+          // was shown. Recheck the whole batch instead of reinserting a snapshot.
+          if (batch) {
+            const refreshed = await generateRecommendations({ mode: batch.mode, request: batch.request, requestId: batch.requestId, sessionPassIds: remainingPasses, constraints: batch.maxEpisodes ? { maxEpisodes: Number(batch.maxEpisodes) } : {} });
+            if (refreshed.ok) setRecommendations(refreshed.recommendations);
+            else {
+              setMessage(`${result.message} ${refreshed.message}`); setFailed(refreshed.kind !== 'empty');
+              if (refreshed.retryAfterSeconds) setCooldown(Math.ceil(refreshed.retryAfterSeconds));
+            }
+          }
+        }
       } catch { setFailed(true); setMessage('Undo could not be saved. Try again.'); }
       finally { lock.current = false; }
     });
@@ -127,7 +151,7 @@ export function DiscoverView({ userId }: { userId: string }) {
   const lead = recommendations[0];
   return <div className="stack">
     <div className="discover-controls"><div className="mode-switch" role="group" aria-label="Discovery mode"><button type="button" aria-pressed={mode === 'new'} disabled={busy || !hydrated} onClick={() => { setMode('new'); setRecommendations([]); setBatch(null); setUndo(null); }}>Find something new</button><button type="button" aria-pressed={mode === 'list'} disabled={busy || !hydrated} onClick={() => { setMode('list'); setRecommendations([]); setBatch(null); setUndo(null); }}>Pick from my list</button></div>
-      <details className="request-settings" open={lead ? undefined : true}><summary>{lead ? 'Adjust your request' : 'Set your mood'}</summary><form onSubmit={event => { event.preventDefault(); generate(); }} className="stack"><div className="request-row"><label htmlFor="discover-request">What are you in the mood for?<input id="discover-request" name="request" autoComplete="off" placeholder="Sword fights and a great soundtrack…" value={request} onChange={e => setRequest(e.target.value)} maxLength={1000} /></label><button className="primary" type="submit" disabled={busy || !hydrated}>{pending ? 'Finding your picks…' : recommendations.length ? 'Find more picks' : 'Find my next anime'}</button></div><details><summary>More options</summary><label className="constraint-field" htmlFor="max-episodes">Maximum episodes<input id="max-episodes" name="maxEpisodes" type="number" min={1} max={5000} value={maxEpisodes} onChange={e => setMaxEpisodes(e.target.value)} placeholder="Any length…" /></label></details></form></details>
+      <details className="request-settings" open={lead ? undefined : true}><summary>{lead ? 'Adjust your request' : 'Set your mood'}</summary><form onSubmit={event => { event.preventDefault(); generate(); }} className="stack"><div className="request-row"><label htmlFor="discover-request">What are you in the mood for?<input id="discover-request" name="request" autoComplete="off" placeholder="Sword fights and a great soundtrack…" value={request} onChange={e => setRequest(e.target.value)} maxLength={1000} /></label><button className="primary" type="submit" disabled={busy || !hydrated || cooldown > 0}>{pending ? 'Finding your picks…' : cooldown > 0 ? `Try again in ${cooldown}s` : recommendations.length ? 'Find more picks' : 'Find my next anime'}</button></div><details><summary>More options</summary><label className="constraint-field" htmlFor="max-episodes">Maximum episodes<input id="max-episodes" name="maxEpisodes" type="number" min={1} max={5000} value={maxEpisodes} onChange={e => setMaxEpisodes(e.target.value)} placeholder="Any length…" /></label></details></form></details>
     </div>
     {message && <div className="undo-notice" role={failed ? 'alert' : 'status'}><p>{message}</p>{undo && <button ref={undoButton} disabled={busy} onClick={undoLast}><Undo2 size={18} aria-hidden="true" />Undo</button>}</div>}
     {undo?.action === 'watched' && <div className="panel stack"><p>How did {undo.pick.anime.title} fit your taste? This is optional.</p><FeedbackControls animeId={undo.pick.anime.mal_id} initialValue={undo.pick.feedback} requestId={undo.pick.requestId} /></div>}

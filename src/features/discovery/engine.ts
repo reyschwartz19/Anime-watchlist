@@ -1,13 +1,14 @@
 import { z } from 'zod';
 import type { Anime } from '@/features/library/model';
 
-export const PROMPT_VERSION = 'manga-shelf-v1';
-export const DEFAULT_MODEL = 'nvidia/nemotron-3-ultra-550b-a55b';
+export const PROMPT_VERSION = 'manga-shelf-groq-v2';
+export const DEFAULT_MODEL = 'openai/gpt-oss-120b';
 export const constraintsSchema = z.object({
   maxEpisodes: z.number().int().positive().max(5000).optional(),
   genres: z.array(z.string().trim().min(1).max(100)).max(15).optional(),
   excludedGenres: z.array(z.string().trim().min(1).max(100)).max(15).optional(),
   standaloneOnly: z.boolean().optional(),
+  finishedOnly: z.boolean().optional(),
   types: z.array(z.enum(['TV', 'Movie', 'OVA', 'ONA', 'Special', 'TV Special'])).max(6).optional(),
   excludedTypes: z.array(z.enum(['TV', 'Movie', 'OVA', 'ONA', 'Special', 'TV Special'])).max(6).optional(),
 }).strict();
@@ -15,7 +16,7 @@ export type Constraints = z.infer<typeof constraintsSchema>;
 export const generationSchema = z.object({
   mode: z.enum(['new', 'list']).default('new'),
   request: z.string().trim().max(1200).default(''),
-  sessionPassIds: z.array(z.number().int().positive()).max(1000).default([]),
+  sessionPassIds: z.array(z.number().int().positive().max(2_147_483_647)).max(1000).default([]),
   requestId: z.string().uuid(),
   constraints: constraintsSchema.default({}),
 }).strict();
@@ -25,6 +26,7 @@ export type Candidate = Anime & {
   type?: string | null;
   relations?: { relation: string; entry: { mal_id: number; type: string; name?: string }[] }[];
   relationsVerified?: boolean;
+  status?: string | null;
 };
 export interface Eligibility {
   mode: 'new' | 'list';
@@ -42,6 +44,7 @@ export function eligible(anime: Candidate, context: Eligibility): boolean {
   const { maxEpisodes, genres = [], excludedGenres = [] } = context.constraints;
   // Unknown facts cannot satisfy a hard constraint.
   if (maxEpisodes && (!anime.episodes || anime.episodes > maxEpisodes)) return false;
+  if (context.constraints.finishedOnly && anime.status !== 'Finished Airing') return false;
   const names = new Set(anime.genres.map((item) => item.name.toLocaleLowerCase()));
   if (genres.some((genre) => !names.has(genre.toLocaleLowerCase()))) return false;
   if (excludedGenres.some((genre) => names.has(genre.toLocaleLowerCase()))) return false;
@@ -58,8 +61,8 @@ export function eligible(anime: Candidate, context: Eligibility): boolean {
 /** Parse ID/reason pairs together: rejected or duplicate IDs never shift reasons. */
 export function validateRanking(raw: unknown, candidates: Candidate[]): { anime: Candidate; reason: string }[] {
   const parsed = z.object({ picks: z.array(z.object({
-    animeId: z.number().int().positive(),
-    reason: z.string().trim().min(1).max(1600),
+    animeId: z.number().int().positive().max(2_147_483_647),
+    reason: z.string().trim().min(1).max(600),
   }).strict()).max(20) }).strict().parse(raw);
   const byId = new Map(candidates.map((anime) => [anime.mal_id, anime]));
   const seen = new Set<number>();
@@ -87,7 +90,51 @@ export function requestConstraints(request: string, supplied: Constraints): Cons
     excludedGenres: [...new Set(excluded)],
     ...(required.length ? { genres: [...new Set(required)] } : {}),
     ...(/\b(?:standalone|no sequels|without sequels)\b/i.test(request) ? { standaloneOnly: true } : {}),
+    ...(/\b(?:finished (?:series|anime|shows?)|completed (?:series|anime|shows?)|fully aired|finished airing|ended series)\b/i.test(request) ? { finishedOnly: true } : {}),
     ...(/\b(?:no|without|exclude|avoid)\s+(?:movies|films)\b/i.test(request) ? { excludedTypes: [...new Set([...(supplied.excludedTypes ?? []), 'Movie' as const])] } : {}),
     ...(/\b(?:only|must be)\s+(?:a\s+)?(?:movies?|films?)\b/i.test(request) ? { types: ['Movie' as const] } : {}),
   };
+}
+
+/** Round-robin the sources so broad popularity never buries explicit taste. */
+export function mergeCandidateSources(sources: Candidate[][], limit = 60): Candidate[] {
+  const seen = new Set<number>();
+  const result: Candidate[] = [];
+  for (let position = 0; result.length < limit && sources.some(source => position < source.length); position++) {
+    for (const source of sources) {
+      const candidate = source[position];
+      if (!candidate || seen.has(candidate.mal_id)) continue;
+      seen.add(candidate.mal_id); result.push(candidate);
+      if (result.length >= limit) break;
+    }
+  }
+  return result;
+}
+
+/** Bound a known franchise using anime relations, never title-name guesses. */
+export function diverseCandidates(candidates: Candidate[], maximum = 18): Candidate[] {
+  const parent = new Map<number, number>();
+  const root = (id: number): number => {
+    const next = parent.get(id);
+    if (next === undefined || next === id) return id;
+    const found = root(next); parent.set(id, found); return found;
+  };
+  for (const candidate of candidates) {
+    for (const relation of candidate.relations ?? []) {
+      if (!['Prequel', 'Sequel', 'Parent story', 'Full story', 'Side story', 'Spin-off', 'Alternative version'].includes(relation.relation)) continue;
+      for (const entry of relation.entry) {
+        if (entry.type !== 'anime') continue;
+        const left = root(candidate.mal_id); const right = root(entry.mal_id);
+        if (left !== right) parent.set(Math.max(left, right), Math.min(left, right));
+      }
+    }
+  }
+  const counts = new Map<number, number>(); const seen = new Set<number>();
+  return candidates.filter(candidate => {
+    if (seen.has(candidate.mal_id)) return false;
+    seen.add(candidate.mal_id);
+    const family = root(candidate.mal_id); const count = counts.get(family) ?? 0;
+    if (count >= 2) return false;
+    counts.set(family, count + 1); return true;
+  }).slice(0, maximum);
 }

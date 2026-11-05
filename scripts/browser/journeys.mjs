@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { openBrowser, pause } from './cdp.mjs';
 
 const base = process.env.ANIME_QA_BASE_URL ?? 'http://localhost:3067';
-const folder = resolve('docs/design/evidence/manga-shelf');
+const folder = resolve(process.env.ANIME_QA_OUTPUT_DIR ?? 'docs/design/evidence/manga-shelf');
 await mkdir(folder, { recursive: true });
 const identity = await (await fetch(`${base}/api/me`)).json();
 if (identity.authProviderId !== 'fixture-viewer') throw new Error('Refusing browser actions against a non-fixture app.');
@@ -105,13 +105,13 @@ try {
   await scenario('model failure preserves mood request and recovers', async () => {
     await b.navigate('/recommendations'); await b.clickText('Find something new');
     await b.input('#discover-request', 'a quiet adventure tonight'); await b.cookie('anime_preview_failure', 'model'); await generate();
-    assert((await text()).includes('NVIDIA could not rank'), 'Model failure not identified.');
+    assert((await text()).includes('Groq could not rank'), 'Model failure not identified.');
     assert(await b.evaluate('document.querySelector("#discover-request").value==="a quiet adventure tonight"'), 'Mood lost on failure.');
     await b.cookie('anime_preview_failure', ''); await generate(); assert(await lead(), 'Retry did not recover.');
   });
   await scenario('catalog failure distinguished from zero search matches', async () => {
     await b.cookie('anime_preview_failure', 'catalog'); await b.navigate('/search?q=Samurai');
-    assert((await text()).includes('unavailable'), 'Catalog error not identified.');
+    assert(/unavailable|could not be reached/i.test(await text()), 'Catalog error not identified.');
     await b.cookie('anime_preview_failure', ''); await b.navigate('/search?q=nomatchingfixturetitle');
     assert(/no titles match|no matches|no matching titles/i.test(await text()), 'No match state missing.');
   });
@@ -145,7 +145,7 @@ try {
   });
   record('no uncaught browser runtime exceptions', b.errors.length === 0, b.errors);
 } finally {
-  await writeFile(`${folder}/journey-checks.json`, `${JSON.stringify({ testedAt: new Date().toISOString(), configuration: 'Isolated in-memory app fixtures. Auth callback and error states use fixture identities; no live OAuth/email or NVIDIA result claimed.', checks }, null, 2)}\n`);
+  await writeFile(`${folder}/journey-checks.json`, `${JSON.stringify({ testedAt: new Date().toISOString(), configuration: 'Isolated in-memory app fixtures. Auth callback and error states use fixture identities; no live OAuth/email or Groq result claimed.', checks }, null, 2)}\n`);
   await b.close();
 }
 console.log(JSON.stringify({ passed: checks.filter(check => check.pass).length, failed: checks.filter(check => !check.pass).length }));

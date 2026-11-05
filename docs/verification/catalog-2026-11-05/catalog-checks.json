@@ -1,0 +1,26 @@
+{
+  "configuration": "Isolated in-memory fixtures; no live auth, database, catalog or model certification.",
+  "checks": [
+    {
+      "name": "manual Completed save preserves query and scroll, repeated clicks keep one entry",
+      "pass": true
+    },
+    {
+      "name": "debounced searches discard older responses and preserve the latest phrase in the URL",
+      "pass": true
+    },
+    {
+      "name": "search controls fit phone, desktop and equivalent 200% reflow",
+      "pass": true
+    },
+    {
+      "name": "details retains search page and has a canonical MAL source link",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser exceptions",
+      "pass": true,
+      "errors": []
+    }
+  ]
+}

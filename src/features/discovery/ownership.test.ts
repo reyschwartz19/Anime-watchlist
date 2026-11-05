@@ -11,6 +11,7 @@ let db: ReturnType<typeof createFixtureDatabase>;
 let viewer = 'fixture-viewer';
 let failure: 'model' | 'catalog' | null = null;
 let rankingCalls = 0;
+let duringRanking: (() => Promise<void>) | null = null;
 class ProviderError extends Error { constructor(public kind: 'catalog' | 'model', message: string) { super(message); } }
 mock.module('next/cache', { namedExports: { revalidatePath() {} } });
 mock.module('../../lib/current-user.ts', { namedExports: {
@@ -21,6 +22,11 @@ mock.module('../../lib/current-user.ts', { namedExports: {
   },
 } });
 mock.module('../../lib/db.ts', { namedExports: { getDb: () => db } });
+mock.module('../../lib/rate-limit.ts', { namedExports: {
+  async enforceUserLimit() {},
+  async acquireGenerationLease() { return { async release() {} }; },
+  RateLimitError: class RateLimitError extends Error {},
+} });
 mock.module('../../lib/providers.ts', { namedExports: {
   ProviderError,
   async retrieveCandidates() { if (failure === 'catalog') throw new ProviderError('catalog', 'Catalog fixture failure'); return fixtureCatalog().map((anime) => ({ ...anime, relationsVerified: true })); },
@@ -28,6 +34,7 @@ mock.module('../../lib/providers.ts', { namedExports: {
   async rankCandidates({ candidates }: { candidates: Candidate[] }) {
     rankingCalls++;
     if (failure === 'model') throw new ProviderError('model', 'Model fixture failure');
+    await duringRanking?.();
     return candidates.slice(0, 3).map((anime) => ({ anime, reason: `Reason for ${anime.mal_id}` }));
   },
 } });
@@ -35,7 +42,7 @@ const { generateRecommendations } = await import('./actions');
 const { actOnRecommendation, undoRecommendation, restoreHiddenTitle, getHiddenTitles, setFeedback } = await import('../feedback/actions');
 const request = (extra: object = {}) => ({ mode: 'new', request: '', sessionPassIds: [], requestId: randomUUID(), ...extra });
 
-beforeEach(() => { db = createFixtureDatabase(); viewer = 'fixture-viewer'; failure = null; rankingCalls = 0; });
+beforeEach(() => { db = createFixtureDatabase(); viewer = 'fixture-viewer'; failure = null; rankingCalls = 0; duringRanking = null; });
 
 test('new mode excludes the whole library, and cached batches recheck durable dismissal', async () => {
   const input = request();
@@ -180,4 +187,111 @@ test('permanent-dismiss undo restores the prior explicit taste row', async () =>
   assert.equal((await undoRecommendation({ operationId, undoToken: result.undoToken! })).ok, true);
   const row = await db.feedback.findFirst({ where: { animeId } });
   assert.equal(row?.value, 'like'); assert.equal(row?.reason, 'Soundtrack'); assert.equal(row?.dismissal, null);
+});
+
+test('reusing a feedback operation ID cannot change its reason or write another outcome', async () => {
+  const input = request(); const batch = await generateRecommendations(input);
+  if (!batch.ok) return assert.fail('Fixture batch should succeed');
+  const animeId = batch.recommendations[0].anime.mal_id;
+  const operation = { animeId, requestId: input.requestId, action: 'strong_dismiss', reason: 'Too much violence', operationId: randomUUID() };
+  assert.equal((await actOnRecommendation(operation)).ok, true);
+  assert.equal((await actOnRecommendation({ ...operation, reason: 'Different reason' })).ok, false);
+  assert.equal((await db.feedback.findFirst({ where: { animeId } }))?.dismissalReason, 'Too much violence');
+  assert.equal(await db.recommendationEvent.count({ where: { id: operation.operationId } }), 1);
+});
+
+test('concurrent taste clicks produce one attributable outcome and reject a mismatched retry', async () => {
+  const input = request(); const batch = await generateRecommendations(input);
+  if (!batch.ok) return assert.fail('Fixture batch should succeed');
+  const operation = { animeId: batch.recommendations[0].anime.mal_id, requestId: input.requestId, value: 'like', reason: 'Atmosphere', operationId: randomUUID() };
+  const results = await Promise.all([setFeedback(operation), setFeedback(operation)]);
+  assert.equal(results.every(result => result.ok), true);
+  assert.equal(await db.recommendationEvent.count({ where: { id: operation.operationId } }), 1);
+  assert.equal((await setFeedback({ ...operation, reason: 'Changed reason' })).ok, false);
+});
+
+test('clearing explicit taste preserves a permanent dismissal through concurrent calls', async () => {
+  const input = request(); const batch = await generateRecommendations(input);
+  if (!batch.ok) return assert.fail('Fixture batch should succeed');
+  const animeId = batch.recommendations[0].anime.mal_id;
+  await setFeedback({ animeId, value: 'like' });
+  const results = await Promise.all([
+    setFeedback({ animeId, value: null }),
+    actOnRecommendation({ animeId, requestId: input.requestId, action: 'strong_dismiss', operationId: randomUUID() }),
+  ]);
+  assert.equal(results.every(result => result.ok), true);
+  assert.equal((await db.feedback.findFirst({ where: { animeId } }))?.dismissal, 'strong_dismiss');
+});
+
+test('feedback IDs are bounded before reaching the database', async () => {
+  assert.equal((await restoreHiddenTitle({ animeId: 2147483648 })).ok, false);
+  assert.equal((await actOnRecommendation({ animeId: 2147483648, requestId: randomUUID(), action: 'save', operationId: randomUUID() })).ok, false);
+});
+
+test('missing Groq configuration stops discovery before catalog or inference and keeps library reads available', async () => {
+  const fixtureSetting = process.env.ANIME_PREVIEW_FIXTURES;
+  const apiKey = process.env.GROQ_API_KEY;
+  try {
+    process.env.ANIME_PREVIEW_FIXTURES = '0';
+    delete process.env.GROQ_API_KEY;
+    const result = await generateRecommendations(request());
+    assert.equal(result.ok, false);
+    if (!result.ok) { assert.equal(result.kind, 'model'); assert.match(result.message, /still search/); }
+    assert.equal(rankingCalls, 0);
+    assert.equal(await db.recommendationBatch.count(), 0);
+    assert.ok((await db.libraryEntry.findMany()).length > 0);
+  } finally {
+    if (fixtureSetting === undefined) delete process.env.ANIME_PREVIEW_FIXTURES;
+    else process.env.ANIME_PREVIEW_FIXTURES = fixtureSetting;
+    if (apiKey === undefined) delete process.env.GROQ_API_KEY;
+    else process.env.GROQ_API_KEY = apiKey;
+  }
+});
+
+test('candidate diagnostics remain distinct from displayed picks with stable model and prompt metadata', async () => {
+  const input = request();
+  const result = await generateRecommendations(input);
+  if (!result.ok) return assert.fail(result.message);
+  const batch = await db.recommendationBatch.findFirst({ where: { id: input.requestId } });
+  assert.equal(batch?.model, 'openai/gpt-oss-120b');
+  assert.match(batch?.promptVersion ?? '', /groq/);
+  const candidates = await db.recommendationEvent.findMany({ where: { batchId: input.requestId, action: 'candidate' }, orderBy: { position: 'asc' } });
+  const displayed = await db.recommendationEvent.findMany({ where: { batchId: input.requestId, action: 'display' }, orderBy: { position: 'asc' } });
+  assert.ok(candidates.length > displayed.length);
+  assert.deepEqual(displayed.map(value => value.animeId), result.recommendations.map(value => value.anime.mal_id));
+  await generateRecommendations(input);
+  assert.equal(await db.recommendationEvent.count({ where: { batchId: input.requestId, action: 'candidate' } }), candidates.length);
+});
+
+test('old watched titles remain excluded beyond a compact recent-history summary', async () => {
+  const userId = '00000000-0000-4000-8000-000000000001';
+  await db.libraryEntry.create({ data: { userId, animeId: 205, status: 'completed', anime: {}, addedAt: new Date('2004-01-01'), editedAt: null } });
+  await db.libraryEntry.createMany({ data: Array.from({ length: 250 }, (_, index) => ({ userId, animeId: 100000 + index, status: 'completed', anime: {}, addedAt: new Date('2026-01-01') })) });
+  const result = await generateRecommendations(request());
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.recommendations.some(pick => pick.anime.mal_id === 205), false);
+});
+
+test('eligibility is rechecked after a save and dismissal during provider latency', async () => {
+  const userId = '00000000-0000-4000-8000-000000000001';
+  duringRanking = async () => {
+    await db.libraryEntry.create({ data: { userId, animeId: 205, status: 'completed', anime: {}, addedAt: new Date(), editedAt: new Date() } });
+    await db.feedback.create({ data: { userId, animeId: 1535, dismissal: 'not_interested', value: null } });
+  };
+  const result = await generateRecommendations(request());
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.recommendations.some(pick => [205, 1535].includes(pick.anime.mal_id)), false);
+});
+
+test('dismissal undo preserves newer explicit taste even within the same timestamp millisecond', async () => {
+  const input = request(); const batch = await generateRecommendations(input);
+  if (!batch.ok) return assert.fail('Fixture batch should succeed');
+  const animeId = batch.recommendations[0].anime.mal_id;
+  const operationId = randomUUID();
+  const result = await actOnRecommendation({ requestId: input.requestId, animeId, action: 'not_interested', operationId });
+  assert.equal(result.ok, true);
+  const event = await db.recommendationEvent.findFirst({ where: { id: operationId } });
+  await db.feedback.updateMany({ where: { animeId }, data: { value: 'like', reason: 'New rating', updatedAt: event!.createdAt } });
+  assert.equal((await undoRecommendation({ operationId, undoToken: result.undoToken! })).ok, false);
+  assert.equal((await db.feedback.findFirst({ where: { animeId } }))?.value, 'like');
 });

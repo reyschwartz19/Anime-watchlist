@@ -4,14 +4,14 @@ These dependency-free Node scripts use local Chrome’s DevTools Protocol. They
 refuse actions unless `/api/me` identifies the explicitly enabled fixture app.
 The app’s fixture mode also refuses production Node/Vercel environments; cookies
 alone cannot enable it. No personal database, live catalog, real account, email,
-OAuth exchange or NVIDIA completion is exercised by these scripts.
+OAuth exchange or Groq completion is exercised by these scripts.
 
 Start a separate development server (its output lives in ignored `.next-review`):
 
 ```sh
 ANIME_PREVIEW_FIXTURES=1 APP_URL=http://localhost:3067 \
 DATABASE_URL= DATABASE_URL_UNPOOLED= NEON_AUTH_BASE_URL= \
-NVIDIA_API_KEY= GEMINI_API_KEY= MIGRATION_ENABLED=false \
+GROQ_API_KEY= MIGRATION_ENABLED=false \
 npm run dev -- --port 3067
 ```
 
@@ -46,5 +46,5 @@ python3 scripts/browser/contact-sheet.py
 
 The 200% check in `journeys.mjs` emulates a 720×450 CSS viewport at device scale 2
 for a 1440×900 display. It verifies zoom-equivalent layout reflow, not physical
-device or screen-reader behavior. Live auth and NVIDIA verification still need
+device or screen-reader behavior. Live auth and Groq verification still need
 the configured isolated provider environment and a human-owned test account.

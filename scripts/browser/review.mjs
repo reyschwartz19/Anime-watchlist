@@ -57,7 +57,7 @@ try {
   check('browser has no uncaught runtime exceptions', browser.errors.length === 0, browser.errors);
 } catch (error) { check('capture run completed', false, { message: error.message, body: await browser.evaluate('document.body.innerText') }); await browser.screenshot(`${folder}/capture-failure.png`); }
 finally {
-  await writeFile(`${folder}/browser-checks.json`, `${JSON.stringify({ testedAt: new Date().toISOString(), configuration: 'Isolated in-memory fixtures; local typed artwork placeholders. No live email, OAuth, NVIDIA, catalog, or personal import verified.', checks }, null, 2)}\n`);
+  await writeFile(`${folder}/browser-checks.json`, `${JSON.stringify({ testedAt: new Date().toISOString(), configuration: 'Isolated in-memory fixtures; local typed artwork placeholders. No live email, OAuth, Groq, catalog, or personal import verified.', checks }, null, 2)}\n`);
   await browser.close();
 }
 console.log(JSON.stringify({ passed: checks.filter(check => check.pass).length, failed: checks.filter(check => !check.pass).length, folder }));

@@ -33,3 +33,12 @@ test('catalog records with an unavailable synopsis remain searchable', () => {
   assert.equal(parsed.synopsis, '');
   assert.deepEqual(parsed.genres, []);
 });
+
+test('missing artwork and alternate titles remain useful for season recognition', () => {
+  const parsed = animeSchema.parse({ mal_id: 34134, title: 'One Punch Man 2nd Season', title_english: 'One-Punch Man Season 2', year: 2019, type: 'TV', status: 'Finished Airing', images: { jpg: { image_url: null, large_image_url: null } }, synopsis: null });
+  const anime = toAnimeView(parsed, parsed.mal_id);
+  assert.equal(anime.imageUrl, null);
+  assert.equal(anime.alternateTitle, 'One-Punch Man Season 2');
+  assert.equal(anime.year, 2019);
+  assert.equal(anime.type, 'TV');
+});

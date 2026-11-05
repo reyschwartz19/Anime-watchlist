@@ -1,5 +1,7 @@
 # Manga Shelf implementation handoff
 
+Historical design implementation record. For the current Groq integration, catalog, limits, preview migration status, and verification, use [the catalog handoff](CATALOG_DISCOVERY_HANDOFF.md). NVIDIA references below describe the prior implementation.
+
 Review branch: `feat/manga-shelf`, created from the authoritative working checkout at `478a163`. The original untracked `Manga-shelf-design/` input directory is preserved. Its approved documents and both intact boards are integrated at their intended paths. Earlier DESIGN/reference documents survive in `docs/design/history`; earlier standalone mockups and evidence remain available. No ZIP was present in the checkout or attachments.
 
 ## Working changes

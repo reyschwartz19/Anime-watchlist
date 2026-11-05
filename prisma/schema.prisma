@@ -18,6 +18,16 @@ enum FeedbackValue {
   dislike
 }
 
+// Shared outbound budgets, per-user inbound windows and expiring concurrency
+// leases. Keys hash identity; values never contain prompts or authentication data.
+model RateLimitState {
+  key       String   @id
+  value     Json
+  expiresAt DateTime @db.Timestamptz(3)
+
+  @@index([expiresAt])
+}
+
 // Application identity stays stable if the managed auth identity changes.
 // The managed neon_auth schema belongs to Neon, never to this migration.
 model AppUser {

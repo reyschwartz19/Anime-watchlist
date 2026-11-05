@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { eligible, requestConstraints, validateRanking, type Candidate, type Eligibility } from './engine';
+import { diverseCandidates, eligible, mergeCandidateSources, requestConstraints, validateRanking, type Candidate, type Eligibility } from './engine';
 
 const anime: Candidate = { mal_id: 205, title: 'Samurai Champloo', synopsis: '', images: { jpg: { image_url: 'https://example.test/a.jpg', large_image_url: 'https://example.test/a.jpg' } }, episodes: 26, genres: [{ name: 'Action' }], relations: [] };
 const context = (overrides: Partial<Eligibility> = {}): Eligibility => ({ mode: 'new', library: [], dismissedIds: [], sessionPassIds: [], constraints: {}, ...overrides });
@@ -52,4 +52,29 @@ test('standalone and format hard constraints remain deterministic', () => {
   assert.equal(eligible({ ...anime, type: 'Movie' }, context({ constraints: { excludedTypes: ['Movie'] } })), false);
   assert.equal(eligible({ ...anime, type: null }, context({ constraints: { types: ['TV'] } })), false);
   assert.deepEqual(requestConstraints('standalone, no movies, only fantasy', {}), { excludedGenres: [], genres: ['Fantasy'], standaloneOnly: true, excludedTypes: ['Movie'] });
+});
+
+test('finished series maximum 13 episodes requires both known finished status and a known count', () => {
+  const constraints = requestConstraints('finished series, maximum 13 episodes', {});
+  assert.equal(constraints.finishedOnly, true); assert.equal(constraints.maxEpisodes, 13);
+  assert.equal(eligible({ ...anime, episodes: 13, status: 'Finished Airing' }, context({ constraints })), true);
+  for (const candidate of [{ ...anime, episodes: null, status: 'Finished Airing' }, { ...anime, episodes: 12, status: null }, { ...anime, episodes: 12, status: 'Currently Airing' }]) {
+    assert.equal(eligible(candidate, context({ constraints })), false);
+  }
+});
+
+test('whole-library exclusions include old watched records beyond a compact recent taste summary', () => {
+  const library = Array.from({ length: 200 }, (_, index) => ({ animeId: 1000 + index, status: 'completed' }));
+  library.push({ animeId: anime.mal_id, status: 'completed' });
+  assert.equal(eligible(anime, context({ library })), false);
+});
+
+test('round-robin sources preserve varied origins and deduplicate stable MAL IDs', () => {
+  const record = (id: number) => ({ ...anime, mal_id: id });
+  assert.deepEqual(mergeCandidateSources([[record(1), record(2)], [record(3), record(1)], [record(4), record(5)]]).map(value => value.mal_id), [1, 3, 4, 2, 5]);
+});
+
+test('known transitive franchise relations cap a candidate family without merging different seasons by title', () => {
+  const record = (id: number, parent?: number): Candidate => ({ ...anime, mal_id: id, title: 'Same romanized name', relations: parent ? [{ relation: 'Prequel', entry: [{ mal_id: parent, type: 'anime' }] }] : [] });
+  assert.deepEqual(diverseCandidates([record(1), record(2, 1), record(3, 2), record(4), record(4)]).map(value => value.mal_id), [1, 2, 4]);
 });

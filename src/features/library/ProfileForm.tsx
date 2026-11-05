@@ -17,7 +17,7 @@ export interface ProfileFormData {
   favoriteAnimes: string[];
 }
 
-interface FavoriteItem { mal_id: number; title: string; imageUrl: string | null; year: number | null; type: string | null }
+interface FavoriteItem { mal_id: number; title: string; alternateTitle?: string; imageUrl: string | null; year: number | null; type: string | null }
 interface Draft { displayName: string; interests: string[]; favorites: string[]; step: number }
 
 export function ProfileForm({ profile, onboarding = false, section }: { profile: ProfileFormData; onboarding?: boolean; section?: 'identity' | 'taste' }) {
@@ -187,7 +187,7 @@ export function ProfileForm({ profile, onboarding = false, section }: { profile:
                 <Poster anime={{ ...item, synopsis: '' }} eager={index < 4} />
                 <span className="selection-mark" aria-hidden="true">{selected && <Check size={22} strokeWidth={3} />}</span>
               </span>
-              <span className="favorite-caption">{item.title}<small>{[item.year, item.type].filter(Boolean).join(' · ') || 'Year unavailable'}</small></span>
+              <span className="favorite-caption">{item.title}{item.alternateTitle && <small>{item.alternateTitle}</small>}<small>{[item.year, item.type].filter(Boolean).join(' · ') || 'Year unavailable'}</small></span>
             </button>;
           })}
         </div>

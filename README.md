@@ -16,7 +16,7 @@ npm run db:migrate
 npm run dev
 ```
 
-Open `http://localhost:3000/auth/sign-up`, create a new login, and verify its email. For migration, open `/profile` or `/api/me` before saving preferences or completing onboarding. Follow the [one-user migration runbook](docs/MIGRATION.md) for exact IDs, verified destination receipt, read-only export, dry run, preview import, per-field verification, edit freeze, and rollback. All credentials are server-only.
+Open `http://localhost:3000/auth/sign-up`, create a fresh login, verify its email, and complete onboarding. Search for your old titles and mark each Completed, Watching, Plan to Watch, or Dropped. Saving a title again updates the same MAL ID. Normal startup and builds need no Firebase configuration. All credentials are server-only.
 
 ## Routes
 
@@ -24,7 +24,7 @@ Open `http://localhost:3000/auth/sign-up`, create a new login, and verify its em
 | --- | --- |
 | `/library` | Watching, Plan to watch, Completed, Dropped, and All filters; save/update/remove |
 | `/search?q=…` | Jikan catalog search with owner-specific saved state |
-| `/recommendations` | NVIDIA-ranked new discoveries or Plan to Watch picks, save/watched/pass/dismiss/undo |
+| `/recommendations` | Groq-ranked new discoveries or Plan to Watch picks, save/watched/pass/dismiss/undo |
 | `/anime/[id]?from=…` | Catalog details, all four statuses, recoverable removal and return context |
 | `/profile`, `/onboarding` | Progressive identity/favorites/taste setup, initials, hidden-title restore and security |
 | `/auth/sign-in`, `/auth/sign-up` | Managed email/password and configured Google login |
@@ -48,7 +48,7 @@ legacy/firebase/            retained Vite/Firebase behavioral reference
 
 A stable internal `AppUser.id` owns app data; `authProviderId` is a separate unique login mapping. Every private page/query/action verifies the managed session server-side. Client payloads cannot select an owner. The importer additionally requires a short-lived signed destination receipt. Prisma leaves Neon's managed `neon_auth` schema alone.
 
-Recommendations use server-only `NVIDIA_API_KEY` and configurable `NVIDIA_MODEL` (default `nvidia/nemotron-3-ultra-550b-a55b`). There is no active Gemini or OpenAI fallback. Library, search and preferences do not require an inference key. See [discovery architecture and smoke check](docs/DISCOVERY.md). Catalog artwork remains a neutral fallback until source-specific display permission is recorded and `CATALOG_ARTWORK_CLEARED=1` is set.
+Recommendations use server-only `GROQ_API_KEY` and `GROQ_MODEL=openai/gpt-oss-120b`, with strict JSON Schema output at Groq's explicit chat-completions endpoint. There is no provider fallback or OpenAI API key requirement. Library, search and preferences work without Groq. See [discovery architecture and smoke checks](docs/DISCOVERY.md), [limits and security](docs/SECURITY_LIMITS.md), and [current verification and preview handoff](docs/CATALOG_DISCOVERY_HANDOFF.md). Catalog artwork remains a neutral fallback until source-specific display permission is recorded and `CATALOG_ARTWORK_CLEARED=1` is set.
 
 ## Verification
 
@@ -68,11 +68,11 @@ npm run legacy:dev
 npm run legacy:build
 ```
 
-Its original Firebase/Gemini variables remain in the root local environment; real credentials are not copied into `legacy/`. The retained app can still write Firebase when you sign in and edit it. Migration tools only read the explicit source document. Keep the old deployment/project intact until a separately reviewed cutover.
+Only this retained app uses Firebase/Gemini configuration. Real credentials are never copied into `legacy/`. Its data is independent of the active Next.js app. The standalone [migration utility](docs/MIGRATION.md) remains available for a separately authorized import; manual re-entry is the current workflow. No Firebase import runs during startup, build, tests, or deployment.
 
 ## Manga Shelf review
 
-See [implementation handoff and current verification](docs/MANGA_SHELF_HANDOFF.md). The new additive discovery migration has **not** been applied to the remote preview database; its initial migration is already applied. Review and apply only pending migrations to the isolated preview, never reset it. Personal Firebase import and production cutover remain pending.
+See the [design implementation record](docs/MANGA_SHELF_HANDOFF.md) and [current catalog and preview handoff](docs/CATALOG_DISCOVERY_HANDOFF.md). Review and apply only pending migrations to the isolated preview; never reset a database. Production promotion and merging remain for the owner's review.
 
 For a credential-free browser review, run the isolated dev fixture adapter (unavailable in production):
 
@@ -84,4 +84,4 @@ node scripts/browser/journeys.mjs
 # Other focused auth/onboarding/edge/retry scripts are linked in the handoff.
 ```
 
-It uses an in-memory database and original typography placeholders. It never connects to Neon, NVIDIA, Jikan or Firebase. Restarting the fixture server resets its data. Do not enable fixture mode for a hosted preview.
+It uses an in-memory database and original typography placeholders. It never connects to Neon, Groq, Jikan or Firebase. Restarting the fixture server resets its data. Do not enable fixture mode for a hosted preview.

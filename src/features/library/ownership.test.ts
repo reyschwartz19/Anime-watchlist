@@ -8,7 +8,7 @@ type User = { id: string; onboarded: boolean; displayName: string; interests: st
 type Entry = { userId: string; animeId: number; status: string; anime: unknown; addedAt: Date; editedAt: Date | null; deletedAt: Date | null; legacyRaw: unknown; legacyProgress: unknown };
 const users = new Map<string, User>();
 const entries = new Map<string, Entry>();
-const feedback = new Map<string, { userId: string; animeId: number; value: string }>();
+const feedback = new Map<string, { userId: string; animeId: number; value: string | null; reason?: string | null; dismissal?: string | null }>();
 let authenticatedUser: string | null = 'a';
 let databaseCalls = 0;
 let providerCalls = 0;
@@ -67,9 +67,14 @@ const fakeDb = {
       const row = feedback.get(id);
       feedback.set(id, row ? { ...row, ...update } : { ...create });
     },
-    async deleteMany({ where }: { where: { userId?: string; animeId: number } }) {
+    async updateMany({ where, data }: { where: { userId: string; animeId: number }; data: { value: null; reason: null } }) {
       databaseCalls += 1;
-      for (const [id, row] of feedback) if (row.animeId === where.animeId && (where.userId === undefined || row.userId === where.userId)) feedback.delete(id);
+      const row = feedback.get(key(where.userId, where.animeId));
+      if (row) Object.assign(row, data);
+    },
+    async deleteMany({ where }: { where: { userId?: string; animeId: number; dismissal?: null; value?: null } }) {
+      databaseCalls += 1;
+      for (const [id, row] of feedback) if (row.animeId === where.animeId && (where.userId === undefined || row.userId === where.userId) && (where.dismissal === undefined || row.dismissal == null) && (where.value === undefined || row.value === null)) feedback.delete(id);
     },
   },
 };
@@ -82,8 +87,10 @@ mock.module('../../lib/current-user.ts', { namedExports: {
   },
 } });
 mock.module('../../lib/db.ts', { namedExports: { getDb: () => fakeDb } });
+mock.module('../../lib/rate-limit.ts', { namedExports: { async enforceUserLimit() {}, RateLimitError: class RateLimitError extends Error {} } });
 mock.module('../../lib/providers.ts', { namedExports: {
-  async getAnimeDetails(animeId: number) {
+  ProviderError: class ProviderError extends Error {},
+  async getAnimeMetadata(animeId: number) {
     providerCalls += 1;
     return { mal_id: animeId, title: `Catalog title ${animeId}`, images: { jpg: { image_url: 'https://example.test/a.jpg', large_image_url: 'https://example.test/a.jpg' } }, synopsis: '', genres: [] };
   },
@@ -127,6 +134,20 @@ test('saving a new title binds it to the signed-in internal ID', async () => {
   assert.equal(entries.get('a:42')?.status, 'plan_to_watch');
   assert.equal(entries.has('b:42'), false);
   assert.equal(providerCalls, 1);
+});
+
+test('concurrent and repeated manual saves update one stable MAL entry, keeping seasons separate', async () => {
+  const first = { animeId: 30276, status: 'completed' };
+  assert.equal((await Promise.all([saveAnime(first), saveAnime(first)])).every(result => result.ok), true);
+  assert.equal(entries.size, 3);
+  const original = structuredClone(entries.get('a:30276'));
+  assert.equal((await saveAnime({ animeId: 30276, status: 'watching' })).ok, true);
+  assert.equal(entries.get('a:30276')?.status, 'watching');
+  assert.deepEqual(entries.get('a:30276')?.anime, original?.anime);
+  assert.deepEqual(entries.get('a:30276')?.addedAt, original?.addedAt);
+  assert.equal((await saveAnime({ animeId: 34134, status: 'plan_to_watch' })).ok, true);
+  assert.equal(entries.get('a:34134')?.status, 'plan_to_watch');
+  assert.equal(entries.get('a:30276')?.status, 'watching');
 });
 
 test('profile editing cannot modify another user or reset completed onboarding', async () => {

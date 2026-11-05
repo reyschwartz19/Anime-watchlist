@@ -6,10 +6,11 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { requireUser } from '@/lib/current-user';
 import { getDb } from '@/lib/db';
-import { feedbackInput, type ActionResult } from '@/features/library/model';
+import { enforceUserLimit, RateLimitError } from '@/lib/rate-limit';
+import { animeIdSchema, feedbackInput, type ActionResult } from '@/features/library/model';
 
 const actionInput = z.object({
-  requestId: z.string().uuid(), animeId: z.number().int().positive(),
+  requestId: z.string().uuid(), animeId: animeIdSchema,
   action: z.enum(['save', 'watched', 'not_interested', 'strong_dismiss', 'not_tonight']),
   reason: z.string().trim().max(1200).optional(), operationId: z.string().uuid(),
 }).strict();
@@ -25,10 +26,11 @@ export async function actOnRecommendation(input: unknown): Promise<ActionResult 
   if (!parsed.success) return { ok: false, message: 'Choose a valid action for this recommendation.' };
   const data = parsed.data;
   try {
+    await enforceUserLimit(user.id, 'mutation');
     const result = await getDb().$transaction(async (tx) => {
       const existing = await tx.recommendationEvent.findFirst({ where: { id: data.operationId, userId: user.id } });
       if (existing) {
-        if (existing.batchId !== data.requestId || existing.animeId !== data.animeId || existing.action !== data.action) throw new Error('Mismatched retry');
+        if (existing.batchId !== data.requestId || existing.animeId !== data.animeId || existing.action !== data.action || existing.reason !== (data.reason || null)) throw new Error('Mismatched retry');
         return { alreadyUndone: !!existing.undoneAt };
       }
       const batch = await tx.recommendationBatch.findFirst({ where: { id: data.requestId, userId: user.id } });
@@ -67,11 +69,12 @@ export async function actOnRecommendation(input: unknown): Promise<ActionResult 
     refreshRecommendations();
     if ('newerStatus' in result) return { ok: false, message: 'This title already has a newer library status. Open My List to review it; your current status is kept.' };
     return { ok: true, message: result.alreadyUndone ? 'This action has already been undone.' : data.action === 'save' ? 'Saved to Plan to Watch.' : data.action === 'watched' ? 'Marked Completed. You can add optional taste feedback.' : data.action === 'not_tonight' ? 'Passed for this session.' : 'Hidden from recommendations. Restore it in Profile.', ...(result.alreadyUndone ? {} : { undoToken: data.operationId }) };
-  } catch {
+  } catch (error) {
+    if (error instanceof RateLimitError) return { ok: false, message: error.message };
     // A concurrent duplicate can lose a serializable transaction but its exact
     // committed operation is still safe to acknowledge on retry.
     const event = await getDb().recommendationEvent.findFirst({ where: { id: data.operationId, userId: user.id } }).catch(() => null);
-    if (event && event.batchId === data.requestId && event.animeId === data.animeId && event.action === data.action) return { ok: true, message: event.undoneAt ? 'This action has already been undone.' : 'Your choice is saved.', ...(event.undoneAt ? {} : { undoToken: data.operationId }) };
+    if (event && event.batchId === data.requestId && event.animeId === data.animeId && event.action === data.action && event.reason === (data.reason || null)) return { ok: true, message: event.undoneAt ? 'This action has already been undone.' : 'Your choice is saved.', ...(event.undoneAt ? {} : { undoToken: data.operationId }) };
     return { ok: false, message: 'Your choice was not saved. Keep this pick open and try again.' };
   }
 }
@@ -86,6 +89,7 @@ export async function undoRecommendation(input: unknown): Promise<ActionResult> 
   const parsed = z.object({ operationId: z.string().uuid(), undoToken: z.string().uuid() }).strict().safeParse(input);
   if (!parsed.success) return { ok: false, message: 'This undo action is invalid.' };
   try {
+    await enforceUserLimit(user.id, 'mutation');
     const outcome = await getDb().$transaction(async (tx) => {
       const event = await tx.recommendationEvent.findFirst({ where: { id: parsed.data.operationId, userId: user.id } });
       if (!event || event.undoTokenHash !== hash(parsed.data.undoToken)) throw new Error('Invalid owner or token');
@@ -93,7 +97,8 @@ export async function undoRecommendation(input: unknown): Promise<ActionResult> 
       const key = { userId_animeId: { userId: user.id, animeId: event.animeId } };
       if (event.action === 'save' || event.action === 'watched') {
         const current = await tx.libraryEntry.findUnique({ where: key });
-        if (!current?.editedAt || current.editedAt.getTime() !== event.createdAt.getTime()) return 'newer';
+        const expectedStatus = event.action === 'save' ? 'plan_to_watch' : 'completed';
+        if (!current?.editedAt || current.editedAt.getTime() !== event.createdAt.getTime() || current.deletedAt || current.status !== expectedStatus) return 'newer';
         const before = beforeRow(event.previousLibrary);
         if (before) {
           await tx.libraryEntry.update({ where: key, data: { status: before.status as 'watching', deletedAt: before.deletedAt ? new Date(String(before.deletedAt)) : null, editedAt: new Date() } });
@@ -102,8 +107,11 @@ export async function undoRecommendation(input: unknown): Promise<ActionResult> 
         }
       } else if (event.action !== 'not_tonight') {
         const current = await tx.feedback.findUnique({ where: key });
-        if (!current || current.updatedAt.getTime() !== event.createdAt.getTime()) return 'newer';
+        if (!current || current.updatedAt.getTime() !== event.createdAt.getTime() || current.dismissal !== event.action || current.dismissalReason !== event.reason) return 'newer';
         const before = beforeRow(event.previousFeedback);
+        // A separate rating may commit in the same timestamp millisecond as
+        // the dismissal. Preserve it even when timestamp equality cannot tell.
+        if (current.value !== (before?.value ?? null) || current.reason !== (before?.reason ?? null)) return 'newer';
         if (before) {
           await tx.feedback.update({ where: key, data: { value: before.value as 'like' | 'dislike' | null, dismissal: typeof before.dismissal === 'string' ? before.dismissal : null, dismissalReason: typeof before.dismissalReason === 'string' ? before.dismissalReason : null, reason: typeof before.reason === 'string' ? before.reason : null, title: typeof before.title === 'string' ? before.title : null } });
         } else await tx.feedback.deleteMany({ where: { userId: user.id, animeId: event.animeId } });
@@ -113,7 +121,8 @@ export async function undoRecommendation(input: unknown): Promise<ActionResult> 
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     refreshRecommendations();
     return outcome === 'newer' ? { ok: false, message: 'This title has a newer edit. Your newer choice has been kept.' } : { ok: true, message: outcome === 'already' ? 'This action is already undone.' : 'Undone. Your previous choice is restored.' };
-  } catch {
+  } catch (error) {
+    if (error instanceof RateLimitError) return { ok: false, message: error.message };
     return { ok: false, message: 'This action could not be undone. Try again.' };
   }
 }
@@ -126,13 +135,14 @@ export async function getHiddenTitles(): Promise<{ animeId: number; title: strin
 
 export async function restoreHiddenTitle(input: unknown): Promise<ActionResult> {
   const user = await requireUser();
-  const parsed = z.object({ animeId: z.number().int().positive() }).strict().safeParse(input);
+  const parsed = z.object({ animeId: animeIdSchema }).strict().safeParse(input);
   if (!parsed.success) return { ok: false, message: 'Choose a valid hidden title.' };
   try {
+    await enforceUserLimit(user.id, 'mutation');
     await getDb().feedback.updateMany({ where: { userId: user.id, animeId: parsed.data.animeId }, data: { dismissal: null, dismissalReason: null } });
     refreshRecommendations();
     return { ok: true, message: 'Restored. This title can appear in recommendations again.' };
-  } catch { return { ok: false, message: 'This title could not be restored. Try again.' }; }
+  } catch (error) { return { ok: false, message: error instanceof RateLimitError ? error.message : 'This title could not be restored. Try again.' }; }
 }
 
 export async function setFeedback(input: unknown): Promise<ActionResult> {
@@ -145,12 +155,13 @@ export async function setFeedback(input: unknown): Promise<ActionResult> {
   const { animeId, value, reason, requestId, operationId } = parsed.data;
   if (!!requestId !== !!operationId) return { ok: false, message: 'This feedback is missing its recommendation context. Try again.' };
   try {
+    await enforceUserLimit(user.id, 'mutation');
     if (requestId && operationId) {
       await getDb().$transaction(async (tx) => {
         const prior = await tx.recommendationEvent.findFirst({ where: { id: operationId, userId: user.id } });
         const eventAction = value ? `taste_${value}` : 'taste_clear';
         if (prior) {
-          if (prior.batchId !== requestId || prior.animeId !== animeId || prior.action !== eventAction) throw new Error('Mismatched retry');
+          if (prior.batchId !== requestId || prior.animeId !== animeId || prior.action !== eventAction || prior.reason !== (reason || null)) throw new Error('Mismatched retry');
           return;
         }
         const batch = await tx.recommendationBatch.findFirst({ where: { id: requestId, userId: user.id } });
@@ -162,13 +173,14 @@ export async function setFeedback(input: unknown): Promise<ActionResult> {
         const before = await tx.feedback.findUnique({ where: key });
         await tx.feedback.upsert({ where: key, create: { userId: user.id, animeId, value, reason: value === null ? null : reason || null, title }, update: { value, title, ...(value === null ? { reason: null } : reason === undefined ? {} : { reason: reason || null }) } });
         await tx.recommendationEvent.create({ data: { id: operationId, userId: user.id, batchId: requestId, animeId, action: eventAction, reason: reason || null, previousFeedback: json({ row: before }) } });
-      });
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     } else if (value === null) {
       // Keep an independent permanent dismissal when clearing explicit taste.
       // The original no-context API remains supported for existing controls.
-      const current = await getDb().feedback.findUnique({ where: { userId_animeId: { userId: user.id, animeId } } });
-      if (current?.dismissal) await getDb().feedback.updateMany({ where: { userId: user.id, animeId }, data: { value: null, reason: null } });
-      else await getDb().feedback.deleteMany({ where: { userId: user.id, animeId } });
+      await getDb().feedback.updateMany({ where: { userId: user.id, animeId }, data: { value: null, reason: null } });
+      // Conditional deletion cannot erase a concurrently created dismissal or
+      // a newer explicit rating between these two statements.
+      await getDb().feedback.deleteMany({ where: { userId: user.id, animeId, dismissal: null, value: null } });
     } else {
       await getDb().feedback.upsert({
         where: { userId_animeId: { userId: user.id, animeId } },
@@ -178,7 +190,13 @@ export async function setFeedback(input: unknown): Promise<ActionResult> {
     }
     revalidatePath('/recommendations');
     return { ok: true, message: value === null ? 'Feedback cleared.' : 'Feedback saved for future recommendations.' };
-  } catch {
+  } catch (error) {
+    if (error instanceof RateLimitError) return { ok: false, message: error.message };
+    if (requestId && operationId) {
+      const prior = await getDb().recommendationEvent.findFirst({ where: { id: operationId, userId: user.id } }).catch(() => null);
+      const expectedAction = value ? `taste_${value}` : 'taste_clear';
+      if (prior && prior.batchId === requestId && prior.animeId === animeId && prior.action === expectedAction && prior.reason === (reason || null)) return { ok: true, message: 'Feedback saved for future recommendations.' };
+    }
     return { ok: false, message: 'Feedback was not saved. Try again.' };
   }
 }

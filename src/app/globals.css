@@ -434,6 +434,29 @@ h1,h2,h3,[id] {
 .search-result svg {
   flex: 0 0 auto;
 }
+.search-entry {
+  align-items: flex-start;
+  padding-block: 16px;
+}
+.search-entry .result-copy h2 a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.compact-library-actions {
+  gap: 8px;
+  margin-block-start: 8px;
+}
+.compact-library-actions .row {
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.compact-library-actions label {
+  font-size: 14px;
+}
+.compact-library-actions p {
+  font-size: 14px;
+}
 .recent-searches {
   display: flex;
   flex-wrap: wrap;

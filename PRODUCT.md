@@ -6,4 +6,4 @@ The owner approved Manga Shelf: paper, ink, action red, condensed display letter
 
 Four destinations: Discover, My List, Search, Profile. New viewers complete progressive identity, favorites and taste onboarding. Library statuses are Watching, Plan to watch, Completed and Dropped. Completion does not imply favorite. Durable dismissals and explicit taste remain separate from library state. All private reads and writes require server-verified identity.
 
-Implementation remains Next.js App Router, TypeScript, Prisma, Neon PostgreSQL and Neon Managed Better Auth. NVIDIA ranking is server-only. The Firebase personal import remains a separate, explicitly authorized cutover. No production deployment or personal import is part of this change.
+Implementation remains Next.js App Router, TypeScript, Prisma, Neon PostgreSQL and Neon Managed Better Auth. Groq-hosted openai/gpt-oss-120b ranking is server-only. The owner creates a fresh account and manually adds old titles. The standalone Firebase utility remains available for a separately authorized import. Production deployment and personal import are outside this change.

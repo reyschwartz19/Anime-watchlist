@@ -4,6 +4,8 @@ import { createNeonAuth } from '@neon/auth/next/server';
 import { headers } from 'next/headers';
 import { fetchVerifiedAuthSession, hasNeonSessionCookie, type VerifiedAuthSession } from './auth-session';
 import { previewEnabled, previewIdentity } from './preview';
+import { enforceAuthLimit } from './rate-limit';
+import { authRequestIdentity } from './auth-request';
 export { AuthenticationUnavailableError, type VerifiedAuthSession } from './auth-session';
 
 function authConfiguration() {
@@ -42,6 +44,9 @@ export function getAuth() {
     auth = createNeonAuth({
       baseUrl,
       cookies: { secret, sameSite: 'lax' },
+      // Provider failures can contain upstream request details. The UI uses
+      // sanitized errors; never emit auth tokens or email addresses to logs.
+      logLevel: 'silent',
     });
   }
   return auth;
@@ -65,5 +70,6 @@ export async function getVerifiedAuthSession(): Promise<VerifiedAuthSession | nu
   if (!hasNeonSessionCookie(cookie)) return null;
 
   const { baseUrl, origin } = authConfiguration();
+  await enforceAuthLimit(authRequestIdentity(requestHeaders, process.env.VERCEL === '1'), false);
   return fetchVerifiedAuthSession({ baseUrl, origin, cookie });
 }

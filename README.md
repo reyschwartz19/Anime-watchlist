@@ -50,7 +50,7 @@ legacy/firebase/            retained Vite/Firebase behavioral reference
 
 A stable internal `AppUser.id` owns app data; `authProviderId` is a separate unique login mapping. Every private page/query/action verifies the managed session server-side. Client payloads cannot select an owner. The importer additionally requires a short-lived signed destination receipt. Prisma leaves Neon's managed `neon_auth` schema alone.
 
-Recommendations use server-only `GROQ_API_KEY` and `GROQ_MODEL=openai/gpt-oss-120b`, with strict JSON Schema output at Groq's explicit chat-completions endpoint. There is no provider fallback or OpenAI API key requirement. Library, search and preferences work without Groq. See [discovery architecture and smoke checks](docs/DISCOVERY.md), [limits and security](docs/SECURITY_LIMITS.md), and [current verification and preview handoff](docs/CATALOG_DISCOVERY_HANDOFF.md). Catalog artwork remains a neutral fallback until source-specific display permission is recorded and `CATALOG_ARTWORK_CLEARED=1` is set.
+Recommendations use server-only `GROQ_API_KEY` and `GROQ_MODEL=openai/gpt-oss-120b`, with strict JSON Schema output at Groq's explicit chat-completions endpoint. Discover opens with cached Watch next picks and offers decks of up to five illustrated cards: swipe left to pass or right to save. Viewing notes on watched titles inform future picks and are searchable in My List. There is no provider fallback or OpenAI API key requirement. Library, search and preferences work without Groq. See [discovery architecture and smoke checks](docs/DISCOVERY.md), [limits and security](docs/SECURITY_LIMITS.md), and the [current deck/notes handoff](docs/DISCOVERY_DECK_HANDOFF.md).
 
 ## Verification
 

@@ -12,7 +12,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   const [{ entries, counts }, params] = await Promise.all([getLibrary(), searchParams]);
   const active = toStatus(params.status) ?? 'all';
   const query = typeof params.q === 'string' ? params.q.slice(0, 300) : '';
-  const visible = entries.filter(entry => (active === 'all' || entry.status === active) && entry.anime.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+  const visible = entries.filter(entry => (active === 'all' || entry.status === active) && `${entry.anime.title} ${entry.notes}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   const returnTo = `/library?${new URLSearchParams({ status: active, ...(query ? { q: query } : {}) })}`;
   return <section className="stack library-page">
     <header className="row"><h1>My List</h1><p className="muted">{visible.length} {visible.length === 1 ? 'title' : 'titles'}</p></header>
@@ -23,9 +23,10 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
     <form action="/library" method="get" className="row">
       <input type="hidden" name="status" value={active} />
       <label className="sr-only" htmlFor="list-query">Search my list</label>
-      <input id="list-query" type="search" name="q" autoComplete="off" maxLength={300} defaultValue={query} placeholder="Search my list…" />
+      <input id="list-query" type="search" name="q" autoComplete="off" maxLength={300} defaultValue={query} placeholder="Search titles or your viewing notes…" />
       <button type="submit"><Search size={20} aria-hidden="true" />Search</button>
     </form>
+    <p className="muted">Open a watched title to record what you liked, what didn’t work, and its animation style.</p>
     {visible.length ? <div className="shelf-grid">{visible.map(entry => <AnimeCard key={entry.anime.mal_id} anime={entry.anime} currentStatus={entry.status} returnTo={returnTo} />)}</div> : <div className="empty-state">
       <h2>{entries.length ? 'No matching titles' : 'Your next story starts here'}</h2>
       <p>{entries.length ? 'Try another title or clear your filters.' : 'Save a discovery or search for something you already have in mind.'}</p>

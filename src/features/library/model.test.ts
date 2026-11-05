@@ -42,3 +42,10 @@ test('missing artwork and alternate titles remain useful for season recognition'
   assert.equal(anime.year, 2019);
   assert.equal(anime.type, 'TV');
 });
+
+test('valid catalog artwork is shown even with the obsolete environment gate disabled', () => {
+  const previous = process.env.CATALOG_ARTWORK_CLEARED;
+  process.env.CATALOG_ARTWORK_CLEARED = '0';
+  try { assert.equal(toAnimeView({ title: 'Cover test', images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/1370/135212.jpg' } } }, 205).imageUrl, 'https://cdn.myanimelist.net/images/anime/1370/135212.jpg'); }
+  finally { if (previous === undefined) delete process.env.CATALOG_ARTWORK_CLEARED; else process.env.CATALOG_ARTWORK_CLEARED = previous; }
+});

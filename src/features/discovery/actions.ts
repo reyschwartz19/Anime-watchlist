@@ -9,7 +9,8 @@ import { acquireGenerationLease, enforceUserLimit, RateLimitError } from '@/lib/
 import { ProviderError, rankCandidates, retrieveCandidates, verifyCandidates } from '@/lib/providers';
 import { parseFavorite } from '@/features/library/favorites';
 import { toAnimeView, type AnimeView, type LibraryStatus } from '@/features/library/model';
-import { DEFAULT_MODEL, PROMPT_VERSION, eligible, generationSchema, requestConstraints, type Candidate, type Eligibility } from './engine';
+import { DEFAULT_MODEL, PROMPT_VERSION, WATCH_NEXT_REQUEST, eligible, generationSchema, requestConstraints, type Candidate, type Eligibility } from './engine';
+import { prioritizeCandidates } from './taste';
 
 export interface RecommendationView {
   anime: AnimeView;
@@ -39,18 +40,32 @@ function displayEventId(batchId: string, ids: number[], animeId: number): string
   return `${digest.slice(0, 8)}-${digest.slice(8, 12)}-4${digest.slice(13, 16)}-8${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
 }
 
+const inFlight = new Map<string, Promise<GenerationResult>>();
+type Viewer = Awaited<ReturnType<typeof requireUser>>;
+type GenerationInput = ReturnType<typeof generationSchema.parse>;
+
 export async function generateRecommendations(input: unknown): Promise<GenerationResult> {
   const user = await requireUser();
   const parsed = generationSchema.safeParse(input);
   if (!parsed.success) return { ok: false, kind: 'invalid', message: 'Choose a discovery mode and a valid request. Try generating again.' };
-  const data = parsed.data;
+  return coalesceGeneration(user, parsed.data);
+}
+
+function coalesceGeneration(user: Viewer, data: GenerationInput): Promise<GenerationResult> {
+  const key = JSON.stringify([user.id, data]);
+  const existing = inFlight.get(key);
+  if (existing) return existing;
+  const operation = runGeneration(user, data).finally(() => inFlight.delete(key));
+  inFlight.set(key, operation);
+  return operation;
+}
+
+async function runGeneration(user: Viewer, data: GenerationInput): Promise<GenerationResult> {
   const constraints = requestConstraints(data.request, data.constraints);
   let lease: Awaited<ReturnType<typeof acquireGenerationLease>> | undefined;
   let inferenceStarted = false;
   try {
     const db = getDb();
-    // Cached batches also perform private reads and impression writes.
-    await enforceUserLimit(user.id, 'generation');
     const loadState = async () => {
       const [library, preferences] = await Promise.all([
         db.libraryEntry.findMany({ where: { userId: user.id, deletedAt: null } }),
@@ -67,12 +82,14 @@ export async function generateRecommendations(input: unknown): Promise<Generatio
     const cached = await db.recommendationBatch.findFirst({ where: { id: data.requestId, userId: user.id } });
     let picks: SavedPick[];
     if (cached) {
+      await enforceUserLimit(user.id, 'catalog');
       // A retry cannot swap request semantics under an existing impression ID.
       if (cached.mode !== data.mode || cached.request !== data.request || constraintKey(cached.constraints) !== constraintKey(constraints)) {
         return { ok: false, kind: 'invalid', message: 'This request changed. Generate a fresh set of picks.' };
       }
       picks = savedPicks(cached.picks);
     } else {
+      await enforceUserLimit(user.id, 'generation');
       if (data.mode === 'list' && !state.library.some((entry) => entry.status === 'plan_to_watch')) {
         return { ok: false, kind: 'empty', message: 'Your Plan to Watch shelf is empty. Save a title from Search or find something new.' };
       }
@@ -87,13 +104,16 @@ export async function generateRecommendations(input: unknown): Promise<Generatio
       } else candidates = await retrieveCandidates(user.interests, constraints, {
         favorites: user.favoriteAnimes.map(parseFavorite),
         likedIds: state.preferences.filter((item) => item.value === 'like').map((item) => item.animeId),
+        completedIds: state.library.filter(entry => entry.status === 'completed' && !state.preferences.some(item => item.animeId === entry.animeId && item.value === 'dislike')).map(entry => entry.animeId),
       });
       // Relations are verified only after cheap ID/constraint filtering. Do not
       // infer sequels from title similarity or trust the model to enforce them.
       // Edge search summaries omit genres/completion status. Verify full facts
       // before applying those constraints; an absent summary fact isn't a mismatch.
       candidates = candidates.filter((anime) => eligible(anime, { ...state.eligibility, constraints: {} }));
+      candidates = prioritizeCandidates(candidates, state.library, state.preferences, data.request, 24);
       candidates = (await verifyCandidates(candidates, state.eligibility)).filter((anime) => eligible(anime, state.eligibility));
+      candidates = prioritizeCandidates(candidates, state.library, state.preferences, data.request, 10);
       if (!candidates.length) return { ok: false, kind: 'empty', message: data.mode === 'list' ? 'No Plan to Watch titles fit these choices. Adjust your request or restore hidden titles in Profile.' : 'No eligible catalog titles match these choices. Adjust your request or try a different genre.' };
       const libraryTitles = new Map(state.library.map((entry) => [entry.animeId, toAnimeView(entry.anime, entry.animeId).title]));
       inferenceStarted = true;
@@ -102,7 +122,7 @@ export async function generateRecommendations(input: unknown): Promise<Generatio
         interests: user.interests,
         favorites: user.favoriteAnimes.map(parseFavorite),
         libraryTaste: state.library.map((entry) => ({ animeId: entry.animeId, title: toAnimeView(entry.anime, entry.animeId).title, status: entry.status })),
-        feedback: state.preferences.filter((item) => !!item.value || !!item.dismissal).map((item) => ({ animeId: item.animeId, value: item.value, reason: item.reason, title: item.title || libraryTitles.get(item.animeId) || null, dismissal: item.dismissal, dismissalReason: item.dismissalReason })),
+        feedback: state.preferences.filter((item) => !!item.value || !!item.dismissal || !!item.reason || !!item.likedAspects || !!item.dislikedAspects || !!item.visualStyle).map((item) => ({ animeId: item.animeId, value: item.value, reason: item.reason, likedAspects: item.likedAspects, dislikedAspects: item.dislikedAspects, visualStyle: item.visualStyle, title: item.title || libraryTitles.get(item.animeId) || null, dismissal: item.dismissal, dismissalReason: item.dismissalReason })),
       });
       // Re-read after provider latency: concurrent saves and dismissals win.
       const refreshed = await loadState();
@@ -161,4 +181,24 @@ export async function generateRecommendations(input: unknown): Promise<Generatio
     // committed response into an ambiguous retry for the viewer.
     if (lease) await lease.release({ retainRequest: inferenceStarted }).catch(() => {});
   }
+}
+
+/** Stable per-owner/taste/six-hour key: a page reload reuses the deck, never a model call. */
+export async function getWatchNext(sessionPassIds: unknown = []): Promise<GenerationResult> {
+  const user = await requireUser();
+  const request = WATCH_NEXT_REQUEST;
+  const parsed = generationSchema.safeParse({ mode: 'new', request, requestId: '00000000-0000-4000-8000-000000000000', sessionPassIds });
+  if (!parsed.success) return { ok: false, kind: 'invalid', message: 'Your session choices could not be loaded. Refresh to try again.' };
+  try {
+    const db = getDb();
+    const [library, feedback] = await Promise.all([
+      db.libraryEntry.findMany({ where: { userId: user.id, deletedAt: null }, select: { animeId: true, status: true, editedAt: true }, orderBy: { animeId: 'asc' } }),
+      db.feedback.findMany({ where: { userId: user.id }, select: { animeId: true, value: true, reason: true, likedAspects: true, dislikedAspects: true, visualStyle: true, dismissalReason: true }, orderBy: { animeId: 'asc' } }),
+    ]);
+    const history = library.filter(entry => entry.status === 'completed').map(entry => entry.animeId);
+    const taste = feedback.filter(item => item.value || item.reason || item.likedAspects || item.dislikedAspects || item.visualStyle || item.dismissalReason);
+    const digest = createHash('sha256').update(JSON.stringify([user.id, PROMPT_VERSION, Math.floor(Date.now() / 21_600_000), user.interests, user.favoriteAnimes, history, taste])).digest('hex');
+    const requestId = `${digest.slice(0, 8)}-${digest.slice(8, 12)}-4${digest.slice(13, 16)}-8${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
+    return coalesceGeneration(user, { ...parsed.data, requestId });
+  } catch { return { ok: false, kind: 'storage', message: 'Watch next could not be loaded. You can still choose a mood below.' }; }
 }

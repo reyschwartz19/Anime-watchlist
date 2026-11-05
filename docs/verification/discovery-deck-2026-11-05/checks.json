@@ -1,0 +1,51 @@
+{
+  "configuration": "Synthetic account/catalog/ranking fixtures with real public cover bytes when ANIME_QA_COVERS is supplied. No live login or personal-data writes.",
+  "realCoverResponses": 47,
+  "checks": [
+    {
+      "name": "automatic Watch next loads five covers without a mood request",
+      "pass": true
+    },
+    {
+      "name": "opening a five-card deck needs no new request",
+      "pass": true
+    },
+    {
+      "name": "left swipe advances immediately and Undo restores the cached card",
+      "pass": true
+    },
+    {
+      "name": "rapid visible Pass actions consume the existing deck without blocking the next card",
+      "pass": true
+    },
+    {
+      "name": "right swipe saves the lead pick and Undo restores it",
+      "pass": true
+    },
+    {
+      "name": "viewing notes persist and are searchable within the owner’s library",
+      "pass": true
+    },
+    {
+      "name": "another account cannot read or edit the owner’s notes",
+      "pass": true
+    },
+    {
+      "name": "search rows, long titles and broken covers stay within their frames at every target size",
+      "pass": true
+    },
+    {
+      "name": "phone home, deck and notes have loaded art and no document overflow",
+      "pass": true
+    },
+    {
+      "name": "a long recommendation reason expands the card without overlapping its controls",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser exceptions",
+      "pass": true,
+      "errors": []
+    }
+  ]
+}

@@ -57,7 +57,7 @@ test('concurrency leases expire after crashes and are independent of request res
   let result = reserveBudget(state, [], { requests: 0, tokens: 0 }, 1000, lease);
   assert.equal(result.retryAfterMs, 0); state = result.state;
   result = reserveBudget(state, [], { requests: 0, tokens: 0 }, 2000, { ...lease, id: 'b' });
-  assert.equal(result.retryAfterMs, 19_000);
+  assert.equal(result.retryAfterMs, 1000, 'in-flight work must not impose the crash-recovery TTL as a user cooldown');
   assert.equal(result.state.leases.length, 1);
   assert.equal(reserveBudget(state, [], { requests: 0, tokens: 0 }, 21_000, lease).retryAfterMs, 0);
 });

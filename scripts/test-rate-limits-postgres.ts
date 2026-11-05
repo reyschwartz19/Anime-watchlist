@@ -61,8 +61,11 @@ try {
 
   await check('Groq reservation accounts for tokens and provider response ceilings', async () => {
     const release = await reserveProviderBudget('groq', { tokens: 5000 });
+    await release.settle?.(1000);
     await release();
-    await assert.rejects(reserveProviderBudget('groq', { tokens: 4000 }), RateLimitError);
+    const next = await reserveProviderBudget('groq', { tokens: 6000 });
+    await next();
+    await assert.rejects(reserveProviderBudget('groq', { tokens: 1001 }), RateLimitError);
     await observeProviderHeaders('groq', new Headers({ 'x-ratelimit-remaining-tokens': '1', 'x-ratelimit-reset-tokens': '30s' }), 200);
     await assert.rejects(reserveProviderBudget('groq', { tokens: 100 }), (problem: unknown) => problem instanceof RateLimitError && problem.retryAfterSeconds >= 29);
   });

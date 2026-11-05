@@ -28,6 +28,8 @@ export const animeSchema = z.object({
   year: z.number().int().nullable().optional(),
   type: z.string().nullable().optional(),
   status: z.string().max(100).nullish(),
+  studios: z.array(z.object({ name: z.string().max(200) })).max(30).optional(),
+  source: z.string().max(100).nullish(),
   relations: z.array(z.object({ relation: z.string(), entry: z.array(z.object({ mal_id: z.number().int(), type: z.string().optional(), name: z.string().optional() })) })).optional(),
   genres: z.array(z.object({ name: z.string().max(200) })).nullish().transform((value) => value ?? []),
 });
@@ -69,13 +71,9 @@ export function toAnimeView(value: unknown, animeId: number): AnimeView {
   const jpg = images.jpg && typeof images.jpg === 'object' ? images.jpg as Record<string, unknown> : {};
   const candidate = typeof jpg.large_image_url === 'string' ? jpg.large_image_url : jpg.image_url;
   const validImage = typeof candidate === 'string' && webUrl.safeParse(candidate).success ? candidate : null;
-  // API availability does not license third-party artwork. Enable only after
-  // recording display/crop permission in docs/design/assets.md. Preview's owned
-  // title graphics are available only in an explicitly isolated dev/test run.
-  const fixtureArt = validImage && process.env.ANIME_PREVIEW_FIXTURES === '1' &&
-    ['development', 'test'].includes(process.env.NODE_ENV ?? '') && process.env.VERCEL_ENV !== 'production' &&
-    new URL(validImage).pathname === '/preview/poster.svg' && new URL(validImage).origin === new URL(process.env.APP_URL ?? 'http://localhost:3000').origin;
-  const imageUrl = process.env.CATALOG_ARTWORK_CLEARED === '1' || fixtureArt ? validImage : null;
+  // The owner requested original catalog covers. Missing/broken images get a
+  // bounded fallback; the old environment gate no longer hides valid artwork.
+  const imageUrl = validImage;
   return {
     mal_id: animeId,
     title: typeof object.title === 'string' && object.title.trim() ? object.title : `Anime #${animeId}`,

@@ -1502,3 +1502,100 @@ h1,h2,h3,[id] {
   .auth-art .wordmark { font-size: 30px; }
   .entrance-graphic > span { font-size: 32px; }
 }
+
+/* Original catalog art occupies a fixed frame; failed art never owns typography. */
+.poster-fallback { width:100%; min-width:0; overflow:hidden; justify-content:center; align-items:center; gap:8px; text-align:center; padding:12px; background:color-mix(in srgb,var(--ink) 5%,var(--paper)); }
+.poster-fallback > span { max-width:100%; font-size:18px; line-height:1.2; overflow-wrap:anywhere; }
+.poster-fallback small { font-size:12px; line-height:1.25; }
+.search-entry { display:grid; grid-template-columns:80px minmax(0,1fr); gap:20px; padding:16px; align-items:start; }
+.search-entry .search-cover { display:block; width:80px; height:120px; overflow:hidden; align-self:start; }
+.search-cover > .anime-poster,.search-cover > .poster-fallback { width:100%; height:100%; aspect-ratio:auto; object-fit:cover; }
+.search-cover .poster-fallback > span { font-size:14px; }
+.search-cover .poster-fallback { padding:6px; }
+.search-entry .result-copy { min-width:0; overflow-wrap:anywhere; }
+.search-entry .result-copy h2 { line-height:1.2; }
+.search-entry .result-copy h2 a { display:flex; align-items:flex-start; min-width:0; }
+.search-entry .result-copy h2 svg { margin-top:4px; }
+.compact-library-actions label { max-width:220px; }
+.compact-library-actions button { flex-shrink:0; }
+.discover-experience { gap:40px; }
+.section-heading,.deck-heading { display:flex; align-items:end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.section-heading > div { display:grid; gap:8px; }
+.watch-next { padding-bottom:32px; border-bottom:1px solid var(--ink); }
+.watch-next-rail { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:20px; align-items:start; }
+.watch-next-item { min-width:0; text-decoration:none; display:grid; gap:12px; }
+.watch-next-art { width:100%; aspect-ratio:2/3; overflow:hidden; border:1px solid var(--ink); background:var(--paper); }
+.watch-next-art > .anime-poster,.watch-next-art > .poster-fallback { width:100%; height:100%; object-fit:cover; aspect-ratio:auto; }
+.watch-next-caption { display:grid; gap:8px; }
+.watch-next-caption h3 { font-size:20px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.watch-next-caption p { font-size:14px; }
+.watch-next-item:hover h3 { text-decoration:underline; text-underline-offset:4px; }
+.watch-next-loading { min-height:220px; display:flex; flex-direction:column; gap:12px; justify-content:center; border-block:1px solid var(--line); }
+.discover-controls > h2 { margin-bottom:8px; }
+.recommendation-deck { gap:16px; min-width:0; }
+.swipe-stage { position:relative; min-width:0; overflow:hidden; padding:8px 8px 16px 0; }
+.deck-underlay { position:absolute; inset:16px 0 8px 8px; border:1px solid var(--ink); border-radius:3px; background:var(--paper); }
+.swipe-card { position:relative; display:grid; grid-template-columns:minmax(220px,.8fr) minmax(0,1.25fr); min-height:420px; border:1px solid var(--ink); border-radius:3px; background:var(--paper); transform-origin:center 70%; transition:transform 180ms cubic-bezier(.16,1,.3,1),opacity 180ms; touch-action:pan-y; }
+.swipe-card.dragging { transition:none; cursor:grabbing; }
+.swipe-card.exit-left { transform:translateX(-110%) rotate(-9deg); opacity:0; }
+.swipe-card.exit-right { transform:translateX(110%) rotate(9deg); opacity:0; }
+.deck-art { position:relative; height:460px; min-width:0; overflow:hidden; align-self:start; background:color-mix(in srgb,var(--ink) 8%,var(--paper)); }
+.deck-art > .anime-poster,.deck-art > .poster-fallback { width:100%; height:100%; object-fit:contain; aspect-ratio:auto; user-select:none; -webkit-user-drag:none; }
+.swipe-verdict { position:absolute; top:24px; left:24px; padding:8px 16px; font-family:Anton,Impact,sans-serif; font-size:30px; background:var(--paper); color:var(--ink); border:2px solid var(--ink); transform:rotate(-8deg); text-transform:uppercase; }
+.deck-copy { min-width:0; padding:28px; align-content:start; gap:16px; }
+.deck-copy h3 { font-size:36px; line-height:1.15; overflow-wrap:anywhere; }
+.deck-copy h3 a { text-decoration:none; }
+.deck-copy h3 a:hover { text-decoration:underline; }
+.deck-copy .pick-reason { font-size:20px; line-height:1.45; overflow-wrap:anywhere; }
+.deck-facts,.deck-genres { font-size:15px; }
+.deck-actions { display:flex; gap:12px; flex-wrap:wrap; padding-top:8px; }
+.deck-actions button { flex:1 1 180px; }
+.deck-more > summary { font-size:16px; }
+.deck-more .stack { gap:12px; }
+.deck-details { display:inline-flex; gap:8px; align-items:center; justify-self:start; font-size:16px; }
+.deck-up-next { display:flex; gap:12px; align-items:center; overflow-x:auto; padding-bottom:8px; }
+.deck-up-next > span { font-size:14px; white-space:nowrap; }
+.deck-up-next > a { display:block; width:44px; height:66px; flex:none; overflow:hidden; border:1px solid var(--ink); }
+.deck-up-next .anime-poster,.deck-up-next .poster-fallback { height:100%; width:100%; object-fit:cover; }
+.deck-up-next .poster-fallback { padding:2px; }
+.deck-up-next .poster-fallback > span { font-size:10px; }
+.deck-up-next .poster-fallback small { display:none; }
+.viewing-notes { border-top:1px solid var(--ink); padding-top:32px; }
+.notes-heading { gap:12px; }
+.notes-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.notes-columns textarea { min-height:132px; }
+@media(max-width:959px) {
+  .watch-next-rail { gap:12px; }
+  .deck-art { height:400px; }
+  .deck-copy { padding:20px; }
+  .deck-copy h3 { font-size:30px; }
+}
+@media(max-width:599px) {
+  .search-entry { grid-template-columns:64px minmax(0,1fr); gap:12px; padding:12px; }
+  .search-entry .search-cover { width:64px; height:96px; }
+  .search-entry h2 { font-size:22px; }
+  .compact-library-actions .row { gap:8px; }
+  .compact-library-actions button { font-size:16px; padding:10px 12px; }
+  .discover-experience { gap:28px; }
+  .watch-next { padding-bottom:24px; }
+  .watch-next-rail { grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:43%; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:12px; }
+  .watch-next-item { scroll-snap-align:start; gap:10px; }
+  .watch-next-caption h3 { font-size:18px; }
+  .watch-next-loading { min-height:190px; }
+  .deck-heading { align-items:start; gap:8px; }
+  .deck-heading h2 { font-size:26px; }
+  .deck-heading p { font-size:14px; }
+  .swipe-card { grid-template-columns:minmax(0,1fr); }
+  .deck-art { height:236px; }
+  .deck-copy { padding:16px; gap:12px; }
+  .deck-copy h3 { font-size:28px; }
+  .deck-copy .pick-reason { font-size:18px; line-height:1.4; }
+  .deck-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding-top:4px; }
+  .deck-actions button { min-width:0; font-size:16px; padding:10px 8px; }
+  .deck-up-next { gap:8px; }
+  .notes-columns { grid-template-columns:minmax(0,1fr); gap:20px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .swipe-card { transition:none; }
+  .swipe-card.exit-left,.swipe-card.exit-right { transform:none; }
+}

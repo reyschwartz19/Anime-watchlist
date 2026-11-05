@@ -76,6 +76,9 @@ model Feedback {
   // must never become a blanket genre preference.
   value     FeedbackValue?
   reason    String?
+  likedAspects String?
+  dislikedAspects String?
+  visualStyle String?
   dismissal String?
   dismissalReason String?
   title     String?

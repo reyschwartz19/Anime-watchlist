@@ -117,6 +117,8 @@ export function createCatalogTransport(options: {
 export function createCatalogClient(request: (path: string) => Promise<unknown>, now = Date.now) {
   const metadata = new Map<number, { anime: Candidate; expires: number }>();
   function remember(anime: Candidate) {
+    const previous = metadata.get(anime.mal_id);
+    if (previous && previous.expires > now() && previous.anime.relationsVerified && !anime.relationsVerified) return previous.anime;
     metadata.delete(anime.mal_id);
     metadata.set(anime.mal_id, { anime, expires: now() + 300_000 });
     if (metadata.size > 1000) metadata.delete(metadata.keys().next().value!);
@@ -157,6 +159,12 @@ export function createCatalogClient(request: (path: string) => Promise<unknown>,
   }
   return {
     list, getCachedAnime,
+    async recommendationCandidates(animeId: number): Promise<Candidate[]> {
+      animeIdSchema.parse(animeId);
+      const body = envelope(await request(`/anime/${animeId}/recommendations`));
+      const values = z.array(z.object({ entry: z.unknown() })).max(10000).parse(body.data);
+      return values.slice(0, 8).flatMap(item => { const anime = parseCatalogAnime(item.entry); return anime ? [remember(anime)] : []; });
+    },
     getAnimeDetails: (animeId: number) => details(animeId, true),
     getAnimeMetadata: (animeId: number) => details(animeId, false),
     async searchAnimePage(query: string, page = 1) {

@@ -111,7 +111,8 @@ export async function undoRecommendation(input: unknown): Promise<ActionResult> 
         const before = beforeRow(event.previousFeedback);
         // A separate rating may commit in the same timestamp millisecond as
         // the dismissal. Preserve it even when timestamp equality cannot tell.
-        if (current.value !== (before?.value ?? null) || current.reason !== (before?.reason ?? null)) return 'newer';
+        if (current.value !== (before?.value ?? null) || current.reason !== (before?.reason ?? null) ||
+          current.likedAspects !== (before?.likedAspects ?? null) || current.dislikedAspects !== (before?.dislikedAspects ?? null) || current.visualStyle !== (before?.visualStyle ?? null)) return 'newer';
         if (before) {
           await tx.feedback.update({ where: key, data: { value: before.value as 'like' | 'dislike' | null, dismissal: typeof before.dismissal === 'string' ? before.dismissal : null, dismissalReason: typeof before.dismissalReason === 'string' ? before.dismissalReason : null, reason: typeof before.reason === 'string' ? before.reason : null, title: typeof before.title === 'string' ? before.title : null } });
         } else await tx.feedback.deleteMany({ where: { userId: user.id, animeId: event.animeId } });
@@ -171,21 +172,23 @@ export async function setFeedback(input: unknown): Promise<ActionResult> {
         const title = ((pick as { anime: { title?: string } }).anime).title ?? `Anime #${animeId}`;
         const key = { userId_animeId: { userId: user.id, animeId } };
         const before = await tx.feedback.findUnique({ where: key });
-        await tx.feedback.upsert({ where: key, create: { userId: user.id, animeId, value, reason: value === null ? null : reason || null, title }, update: { value, title, ...(value === null ? { reason: null } : reason === undefined ? {} : { reason: reason || null }) } });
+        await tx.feedback.upsert({ where: key, create: { userId: user.id, animeId, value, reason: value === null ? null : reason || null, title }, update: { value, title, ...(value !== null && reason ? { reason } : {}) } });
         await tx.recommendationEvent.create({ data: { id: operationId, userId: user.id, batchId: requestId, animeId, action: eventAction, reason: reason || null, previousFeedback: json({ row: before }) } });
       }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     } else if (value === null) {
       // Keep an independent permanent dismissal when clearing explicit taste.
       // The original no-context API remains supported for existing controls.
-      await getDb().feedback.updateMany({ where: { userId: user.id, animeId }, data: { value: null, reason: null } });
+      // General viewing comments are independent of the rating toggle. Only
+      // the viewing-notes editor can explicitly replace or clear that text.
+      await getDb().feedback.updateMany({ where: { userId: user.id, animeId }, data: { value: null } });
       // Conditional deletion cannot erase a concurrently created dismissal or
       // a newer explicit rating between these two statements.
-      await getDb().feedback.deleteMany({ where: { userId: user.id, animeId, dismissal: null, value: null } });
+      await getDb().feedback.deleteMany({ where: { userId: user.id, animeId, dismissal: null, value: null, reason: null, likedAspects: null, dislikedAspects: null, visualStyle: null } });
     } else {
       await getDb().feedback.upsert({
         where: { userId_animeId: { userId: user.id, animeId } },
         create: { userId: user.id, animeId, value, ...(reason === undefined ? {} : { reason: reason || null }) },
-        update: { value, ...(reason === undefined ? {} : { reason: reason || null }) },
+        update: { value, ...(reason ? { reason } : {}) },
       });
     }
     revalidatePath('/recommendations');

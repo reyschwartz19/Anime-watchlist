@@ -30,7 +30,7 @@ function normalizeAnime(value: unknown): unknown {
     images: { jpg: { image_url: images.medium ?? item.imageUrl ?? null, large_image_url: images.large ?? item.imageUrl ?? null } },
     synopsis: item.synopsis, episodes: item.episodes, score: item.score,
     year: item.year ?? (year ? Number(year) : null), type: item.type, status: item.status,
-    genres: item.genres, themes: item.themes,
+    genres: item.genres, themes: item.themes, studios: item.studios, source: item.source,
     // A missing/malformed relations field must not become a verified empty list.
     relations: Array.isArray(item.relations) ? item.relations.map(value => {
       const relation = record(value);
@@ -54,9 +54,9 @@ export function normalizeEdgeEnvelope(value: unknown, path: string): unknown {
   if (!parsed.success) throw new ProviderError('catalog', 'The catalog returned an unreadable response. Try again.', 'invalid_response');
   const { data, meta } = parsed.data;
   if (/^\/anime\/\d+\/recommendations(?:\?|$)/.test(path)) {
-    const entries = z.array(z.object({ malId: z.number().int().positive().max(2_147_483_647) })).max(10000).safeParse(data);
+    const entries = z.array(z.object({ malId: z.number().int().positive().max(2_147_483_647), title: z.string().max(1000).optional(), imageUrl: z.string().nullable().optional() })).max(10000).safeParse(data);
     if (!entries.success) throw new ProviderError('catalog', 'The catalog returned unreadable related titles.', 'invalid_response');
-    return { data: entries.data.map(item => ({ entry: { mal_id: item.malId } })) };
+    return { data: entries.data.map(item => ({ entry: { mal_id: item.malId, title: item.title, images: { jpg: { image_url: item.imageUrl, large_image_url: item.imageUrl } } } })) };
   }
   const safeOnly = new URL(path, JIKAN_EDGE_ORIGIN).searchParams.get('sfw') === 'true';
   const values = Array.isArray(data)

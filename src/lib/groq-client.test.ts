@@ -51,6 +51,20 @@ test('missing key leaves useful unavailability without any network request', asy
   await assert.rejects(rank(context()), (error: unknown) => error instanceof ProviderError && error.code === 'unconfigured' && error.message.includes('search'));
 });
 
+test('a full deck requests five picks, includes viewing notes, and settles known token usage', async () => {
+  const input = context();
+  input.candidates = Array.from({ length: 5 }, (_, index) => ({ ...input.candidates[0], mal_id: index + 1 }));
+  input.feedback = [{ animeId: 99, value: 'like', reason: 'Jazz', title: 'A watched title', dismissal: null, dismissalReason: null, likedAspects: 'Character writing', dislikedAspects: 'Filler', visualStyle: 'Painted backgrounds' }];
+  const prepared = prepareRanking(input);
+  assert.equal(prepared.body.response_format.json_schema.schema.properties.picks.minItems, 5);
+  assert.equal(prepared.body.response_format.json_schema.schema.properties.picks.maxItems, 5);
+  assert.match(prepared.serialized, /Painted backgrounds/);
+  assert.ok(prepared.reservedTokens < Buffer.byteLength(prepared.serialized) + 1200, 'bytes are not tokens');
+  let settled = 0;
+  const rank = createGroqRanker({ apiKey: () => 'fixture-key', reserve: async () => Object.assign(async () => {}, { settle: async (tokens: number) => { settled = tokens; } }), fetch: async () => Response.json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ picks: input.candidates.map(anime => ({ animeId: anime.mal_id, reason: 'A specific fit.' })) }) } }], usage: { total_tokens: 817 } }) });
+  assert.equal((await rank(input)).length, 5); assert.equal(settled, 817);
+});
+
 test('429s, timeouts, malformed/incomplete model output never replay ambiguous inference or expose upstream text', async () => {
   const responses = [
     async () => new Response('secret upstream', { status: 429, headers: { 'retry-after': '8' } }),

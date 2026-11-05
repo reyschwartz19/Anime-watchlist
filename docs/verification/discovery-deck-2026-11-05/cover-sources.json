@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-05",
+  "usage": "Public cover bytes used only to verify isolated fixture layouts. Production uses provider image URLs directly.",
+  "covers": [
+    {
+      "title": "Samurai Champloo",
+      "url": "https://cdn.myanimelist.net/images/anime/1370/135212l.jpg"
+    },
+    {
+      "title": "Death Note",
+      "url": "https://cdn.myanimelist.net/images/anime/1079/138100l.jpg"
+    },
+    {
+      "title": "Frieren: Beyond Journey’s End",
+      "url": "https://cdn.myanimelist.net/images/anime/1015/138006l.jpg"
+    },
+    {
+      "title": "Cowboy Bebop",
+      "url": "https://cdn.myanimelist.net/images/anime/4/19644l.jpg"
+    },
+    {
+      "title": "Mushi-Shi",
+      "url": "https://cdn.myanimelist.net/images/anime/2/73862l.jpg"
+    },
+    {
+      "title": "Naruto",
+      "url": "https://cdn.myanimelist.net/images/anime/1141/142503l.jpg"
+    },
+    {
+      "title": "Fullmetal Alchemist: Brotherhood",
+      "url": "https://cdn.myanimelist.net/images/anime/1208/94745l.jpg"
+    },
+    {
+      "title": "One Punch Man",
+      "url": "https://cdn.myanimelist.net/images/anime/12/76049l.jpg"
+    },
+    {
+      "title": "Demon Slayer: Kimetsu no Yaiba",
+      "url": "https://cdn.myanimelist.net/images/anime/1286/99889l.jpg"
+    },
+    {
+      "title": "Attack on Titan",
+      "url": "https://cdn.myanimelist.net/images/anime/10/47347l.jpg"
+    },
+    {
+      "title": "Steins;Gate",
+      "url": "https://cdn.myanimelist.net/images/anime/1935/127974l.jpg"
+    },
+    {
+      "title": "Code Geass: Lelouch of the Rebellion",
+      "url": "https://cdn.myanimelist.net/images/anime/1032/135088l.jpg"
+    }
+  ]
+}

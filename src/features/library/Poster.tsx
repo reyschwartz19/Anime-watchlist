@@ -12,5 +12,5 @@ export function Poster({ anime, eager = false }: { anime: AnimeView; eager?: boo
   }, [anime.imageUrl]);
   return anime.imageUrl && !failed
     ? <img ref={image} className="anime-poster" src={anime.imageUrl} alt="" width={300} height={450} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} referrerPolicy="no-referrer" onError={() => setFailed(true)} />
-    : <span className="poster-fallback"><span>{anime.title}</span><small>Artwork unavailable</small></span>;
+    : <span className="poster-fallback" aria-label={`Cover unavailable for ${anime.title}`}><span>No cover</span><small>Image unavailable</small></span>;
 }

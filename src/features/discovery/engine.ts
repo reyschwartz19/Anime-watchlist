@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import type { Anime } from '@/features/library/model';
 
-export const PROMPT_VERSION = 'manga-shelf-groq-v2';
+export const PROMPT_VERSION = 'manga-shelf-groq-v3-notes';
 export const DEFAULT_MODEL = 'openai/gpt-oss-120b';
+export const WATCH_NEXT_REQUEST = 'Suggest a varied next watch guided by my viewing history, notes and explicit taste. Compare character writing, pacing, animation preferences and episode length when these are mentioned in my notes.';
 export const constraintsSchema = z.object({
   maxEpisodes: z.number().int().positive().max(5000).optional(),
   genres: z.array(z.string().trim().min(1).max(100)).max(15).optional(),
@@ -71,7 +72,7 @@ export function validateRanking(raw: unknown, candidates: Candidate[]): { anime:
     if (!anime || seen.has(animeId)) return [];
     seen.add(animeId);
     return [{ anime, reason }];
-  }).slice(0, 3);
+  }).slice(0, 5);
 }
 
 /** Familiar hard wording is promoted to a deterministic constraint before ranking. */

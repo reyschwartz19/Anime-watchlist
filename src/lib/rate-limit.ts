@@ -42,8 +42,7 @@ async function changeState<T>(key: string, operation: (state: BudgetState, now: 
   // Production never uses process-local counters. The advisory transaction lock
   // serializes the entire decision + reservation across all Vercel instances.
   const result = await getDb().$transaction(async tx => {
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))::text AS locked`;
-    const [{ now }] = await tx.$queryRaw<{ now: Date }[]>`SELECT clock_timestamp() AS now`;
+    const [{ now }] = await tx.$queryRaw<{ now: Date }[]>`WITH locked AS MATERIALIZED (SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))) SELECT clock_timestamp() AS now FROM locked`;
     const row = await tx.rateLimitState.findUnique({ where: { key } });
     const previous = row && row.expiresAt > now ? row.value as unknown as BudgetState : emptyBudget();
     const { state, result } = operation(previous, +now);
@@ -67,7 +66,8 @@ async function changeState<T>(key: string, operation: (state: BudgetState, now: 
 }
 let nextCleanupAt = 0;
 
-async function reserve(key: string, rules: BudgetRule[], cost: BudgetCost, lease?: { concurrency: number; durationMs: number }): Promise<() => Promise<void>> {
+type Reservation = (() => Promise<void>) & { settle?: (actualTokens: number) => Promise<void> };
+async function reserve(key: string, rules: BudgetRule[], cost: BudgetCost, lease?: { concurrency: number; durationMs: number }): Promise<Reservation> {
   if (previewEnabled()) return async () => {};
   const id = randomUUID();
   const retryAfterMs = await changeState(key, (state, now) => {
@@ -76,29 +76,35 @@ async function reserve(key: string, rules: BudgetRule[], cost: BudgetCost, lease
   });
   if (retryAfterMs) throw new RateLimitError(retryAfterMs);
   let released = false;
-  return async () => {
+  const release: Reservation = async () => {
     if (released || !lease) return;
     released = true;
     await changeState(key, state => ({ state: { ...state, leases: state.leases.filter(value => value.id !== id) }, result: undefined }));
   };
+  release.settle = async actualTokens => {
+    if (!lease || !Number.isSafeInteger(actualTokens) || actualTokens < 0) return;
+    await changeState(key, state => ({ state: { ...state, events: state.events.map(event => event.reservationId === id ? { ...event, tokens: Math.min(event.tokens, actualTokens) } : event) }, result: undefined }));
+  };
+  return release;
 }
 
-export async function reserveProviderBudget(provider: 'jikan' | 'groq', cost: Partial<BudgetCost> = {}): Promise<() => Promise<void>> {
+export async function reserveProviderBudget(provider: 'jikan' | 'groq', cost: Partial<BudgetCost> = {}): Promise<Reservation> {
   return reserve(`provider:${provider}`, providerRules(provider), { requests: cost.requests ?? 1, tokens: cost.tokens ?? 0 }, {
     concurrency: configured(provider === 'jikan' ? 'JIKAN_CONCURRENCY' : 'GROQ_CONCURRENCY', provider === 'jikan' ? 2 : 1, 8),
     // Expiry survives a crashed request. Longer than the bounded provider timeout.
-    durationMs: provider === 'jikan' ? 20_000 : 60_000,
+    durationMs: provider === 'jikan' ? 20_000 : 45_000,
   });
 }
 
 export async function observeProviderHeaders(provider: 'jikan' | 'groq', headers: Headers, status = 200): Promise<void> {
   if (previewEnabled()) return;
+  if (status !== 429 && !headers.has('x-ratelimit-remaining-requests') && !headers.has('x-ratelimit-remaining-tokens')) return;
   await changeState(`provider:${provider}`, (state, now) => ({ state: observeBudgetHeaders(state, headers, status, now), result: undefined }));
 }
 
 export async function enforceUserLimit(userId: string, kind: 'generation' | 'mutation' | 'catalog'): Promise<void> {
   const name = `USER_${kind.toUpperCase()}_RPM`;
-  await reserve(scoped(`user:${kind}`, userId), [{ windowMs: 60_000, requests: configured(name, kind === 'generation' ? 5 : 60) }], { requests: 1, tokens: 0 });
+  await reserve(scoped(`user:${kind}`, userId), [{ windowMs: 60_000, requests: configured(name, kind === 'generation' ? 12 : 60) }], { requests: 1, tokens: 0 });
 }
 
 /**
@@ -107,7 +113,11 @@ export async function enforceUserLimit(userId: string, kind: 'generation' | 'mut
  * provider completed it, so automatic same-ID replay would spend another call.
  */
 export async function acquireGenerationLease(userId: string, requestId: string): Promise<{ release(options?: { retainRequest?: boolean }): Promise<void> }> {
-  const releaseUser = await reserve(scoped('generation', userId), [], { requests: 0, tokens: 0 }, { concurrency: 1, durationMs: 240_000 });
+  let releaseUser: Reservation;
+  // Crash recovery must outlive the route's 180s ceiling; the UI retry delay
+  // below describes an active request, rather than exposing this lease TTL.
+  try { releaseUser = await reserve(scoped('generation:v3', userId), [], { requests: 0, tokens: 0 }, { concurrency: 1, durationMs: 240_000 }); }
+  catch (problem) { if (problem instanceof RateLimitError) throw new RateLimitError(3000, 'Your picks are still being prepared. Try again in a few seconds.'); throw problem; }
   const requestKey = scoped('generation:request', `${userId}:${requestId}`);
   try {
     await reserve(requestKey, [{ windowMs: 86_400_000, requests: 1 }], { requests: 1, tokens: 0 });

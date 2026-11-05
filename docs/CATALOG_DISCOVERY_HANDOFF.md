@@ -1,5 +1,7 @@
 # Catalog, Groq, and preview handoff
 
+Historical integration record. The [deck and viewing-notes handoff](DISCOVERY_DECK_HANDOFF.md) supersedes recommendation limits, artwork gating, ranking size, latency bounds and migration counts below.
+
 Verified on 2026-11-05 on `feat/manga-shelf`. The approved Manga Shelf layout, colors, fonts, and existing design evidence are preserved. The original untracked `Manga-shelf-design/` folder and private `.env.local` are untouched. The owner will deploy to Vercel and complete live sign-in.
 
 **Subsequent catalog fix, 2026-11-05:** the original public Jikan host was [discontinued on October 1](https://github.com/jikan-me/jikan-rest/issues/613), which explains the timeout reported below. The owner selected Jikan Edge. The active shared client now uses its live endpoint and normalizes its different response schema; real search/details pass. See [the updated discovery notes](DISCOVERY.md). Historical verification below records the original run, not the current endpoint's status.

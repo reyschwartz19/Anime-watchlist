@@ -64,7 +64,7 @@ export function createFixtureDatabase() {
     const insert = (data: Row) => {
       const row: Row = { id: randomUUID(), createdAt: new Date(), updatedAt: new Date(), ...clone(data) };
       if (name === 'libraryEntry') Object.assign(row, { addedAt: null, editedAt: null, deletedAt: null, legacyRaw: null, legacyProgress: null, importSourceDigest: null, ...clone(data) });
-      if (name === 'feedback') Object.assign(row, { value: null, reason: null, dismissal: null, dismissalReason: null, title: null, ...clone(data) });
+      if (name === 'feedback') Object.assign(row, { value: null, reason: null, likedAspects: null, dislikedAspects: null, visualStyle: null, dismissal: null, dismissalReason: null, title: null, ...clone(data) });
       if (name === 'recommendationEvent') Object.assign(row, { reason: null, previousLibrary: null, previousFeedback: null, undoTokenHash: null, undoneAt: null, ...clone(data) });
       const unique = name === 'libraryEntry' || name === 'feedback' ? ['userId', 'animeId'] : name === 'migrationSnapshot' ? ['bindingId', 'sourceDigest'] : ['id'];
       if (tables[name].some(existing => unique.every(key => existing[key] === row[key])) ||

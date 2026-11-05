@@ -2,7 +2,7 @@
 export type BudgetRule = { windowMs: number; requests?: number; tokens?: number };
 export type BudgetCost = { requests: number; tokens: number };
 export type BudgetState = {
-  events: ({ at: number } & BudgetCost)[];
+  events: ({ at: number; reservationId?: string } & BudgetCost)[];
   leases: { id: string; expiresAt: number }[];
   blockedUntil: number;
   remoteRequests?: { remaining: number; resetAt: number };
@@ -45,10 +45,11 @@ export function reserveBudget(
     if (remote && cost[dimension] > remote.remaining) retryAfterMs = Math.max(retryAfterMs, remote.resetAt - now);
   }
   if (lease && state.leases.length >= lease.concurrency) {
-    retryAfterMs = Math.max(retryAfterMs, Math.min(...state.leases.map(value => value.expiresAt)) - now);
+    // A healthy in-flight request can finish long before its crash-recovery TTL.
+    retryAfterMs = Math.max(retryAfterMs, Math.min(1000, Math.min(...state.leases.map(value => value.expiresAt)) - now));
   }
   if (retryAfterMs > 0) return { state, retryAfterMs };
-  if (cost.requests || cost.tokens) state.events.push({ at: now, ...cost });
+  if (cost.requests || cost.tokens) state.events.push({ at: now, ...cost, ...(lease ? { reservationId: lease.id } : {}) });
   if (state.remoteRequests) state.remoteRequests.remaining = Math.max(0, state.remoteRequests.remaining - cost.requests);
   if (state.remoteTokens) state.remoteTokens.remaining = Math.max(0, state.remoteTokens.remaining - cost.tokens);
   if (lease) state.leases.push({ id: lease.id, expiresAt: now + lease.durationMs });

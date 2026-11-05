@@ -44,11 +44,47 @@ mock.module('../../lib/providers.ts', { namedExports: {
     return candidates.slice(0, 3).map((anime) => ({ anime, reason: `Reason for ${anime.mal_id}` }));
   },
 } });
-const { generateRecommendations } = await import('./actions');
+const { generateRecommendations, getWatchNext } = await import('./actions');
+const { saveViewingNotes } = await import('../feedback/notes-actions');
 const { actOnRecommendation, undoRecommendation, restoreHiddenTitle, getHiddenTitles, setFeedback } = await import('../feedback/actions');
 const request = (extra: object = {}) => ({ mode: 'new', request: '', sessionPassIds: [], requestId: randomUUID(), ...extra });
 
 beforeEach(() => { db = createFixtureDatabase(); viewer = 'fixture-viewer'; failure = null; rankingCalls = 0; duringRanking = null; sparseSummaries = false; });
+
+test('viewing notes belong to a watched library entry and preserve independent dismissals', async () => {
+  const note = { animeId: 1, value: 'like', reason: 'Jazz soundtrack', likedAspects: 'Expressive animation and character writing', dislikedAspects: 'Slow middle episodes', visualStyle: 'Loved hand-drawn backgrounds' };
+  assert.equal((await saveViewingNotes(note)).ok, true);
+  const userId = '00000000-0000-4000-8000-000000000001';
+  assert.equal((await db.feedback.findFirst({ where: { userId, animeId: 1 } }))?.likedAspects, note.likedAspects);
+  assert.equal((await saveViewingNotes({ ...note, userId: 'forged' })).ok, false);
+  assert.equal((await saveViewingNotes({ ...note, animeId: 5114 })).ok, false, 'unwatched backlog is not a viewing history');
+  viewer = 'fixture-second';
+  assert.equal((await saveViewingNotes(note)).ok, false, 'another user cannot comment on the first owner’s entry');
+  assert.equal(await db.feedback.count({ where: { userId: '00000000-0000-4000-8000-000000000003', animeId: 1 } }), 0);
+  viewer = 'fixture-viewer';
+  await db.feedback.update({ where: { userId_animeId: { userId, animeId: 1 } }, data: { dismissal: 'strong_dismiss' } });
+  assert.equal((await saveViewingNotes({ ...note, reason: 'Updated thoughts' })).ok, true);
+  assert.equal((await db.feedback.findFirst({ where: { userId, animeId: 1 } }))?.dismissal, 'strong_dismiss');
+  await setFeedback({ animeId: 1, value: null });
+  assert.equal((await db.feedback.findFirst({ where: { userId, animeId: 1 } }))?.likedAspects, note.likedAspects);
+  assert.equal((await db.feedback.findFirst({ where: { userId, animeId: 1 } }))?.reason, 'Updated thoughts');
+  await setFeedback({ animeId: 1, value: 'like', reason: '' });
+  assert.equal((await db.feedback.findFirst({ where: { userId, animeId: 1 } }))?.reason, 'Updated thoughts', 'an empty quick-rating reason cannot erase a viewing comment');
+  await saveViewingNotes({ ...note, likedAspects: '', dislikedAspects: '', visualStyle: '', reason: 'A general comment by itself' });
+  await setFeedback({ animeId: 1, value: null });
+  assert.equal((await db.feedback.findFirst({ where: { userId, animeId: 1 } }))?.reason, 'A general comment by itself');
+});
+
+test('Watch next coalesces initial requests and reuses the model batch until taste changes', async () => {
+  const [first, duplicate] = await Promise.all([getWatchNext(), getWatchNext()]);
+  assert.equal(first.ok, true); assert.equal(duplicate.ok, true); assert.equal(rankingCalls, 1);
+  if (!first.ok || !duplicate.ok) return;
+  assert.equal(first.requestId, duplicate.requestId);
+  const reload = await getWatchNext(); assert.equal(reload.ok, true); assert.equal(rankingCalls, 1);
+  await saveViewingNotes({ animeId: 1, value: 'like', reason: 'Quiet science fiction', likedAspects: 'Jazz', dislikedAspects: '', visualStyle: 'Expressive animation' });
+  const changed = await getWatchNext(); assert.equal(changed.ok, true); assert.equal(rankingCalls, 2);
+  if (changed.ok) assert.notEqual(changed.requestId, first.requestId);
+});
 
 test('sparse catalog summaries are hydrated before genre and completion constraints are enforced', async () => {
   sparseSummaries = true;
@@ -308,4 +344,16 @@ test('dismissal undo preserves newer explicit taste even within the same timesta
   await db.feedback.updateMany({ where: { animeId }, data: { value: 'like', reason: 'New rating', updatedAt: event!.createdAt } });
   assert.equal((await undoRecommendation({ operationId, undoToken: result.undoToken! })).ok, false);
   assert.equal((await db.feedback.findFirst({ where: { animeId } }))?.value, 'like');
+});
+
+test('dismissal undo cannot delete structured notes written in the same millisecond', async () => {
+  const input = request(); const batch = await generateRecommendations(input);
+  if (!batch.ok) return assert.fail('Fixture batch should succeed');
+  const animeId = batch.recommendations[0].anime.mal_id;
+  const operationId = randomUUID();
+  const result = await actOnRecommendation({ requestId: input.requestId, animeId, action: 'not_interested', operationId });
+  const event = await db.recommendationEvent.findFirst({ where: { id: operationId } });
+  await db.feedback.updateMany({ where: { animeId }, data: { likedAspects: 'Hand-painted backgrounds', updatedAt: event!.createdAt } });
+  assert.equal((await undoRecommendation({ operationId, undoToken: result.undoToken! })).ok, false);
+  assert.equal((await db.feedback.findFirst({ where: { animeId } }))?.likedAspects, 'Hand-painted backgrounds');
 });

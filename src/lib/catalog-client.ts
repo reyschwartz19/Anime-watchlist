@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { animeSchema, animeIdSchema } from '@/features/library/model';
 import type { Candidate } from '@/features/discovery/engine';
 import { ProviderError, readProviderText } from './provider-error';
+import { JIKAN_EDGE_ORIGIN, edgeCatalogPath, normalizeEdgeEnvelope } from './jikan-edge-adapter';
 
 export const JIKAN_ORIGIN = 'https://api.jikan.moe/v4';
 const pageSchema = z.number().int().min(1).max(1000);
@@ -46,6 +47,7 @@ export function retryAfterSeconds(value: string | null, now = Date.now()): numbe
 
 type BudgetRelease = () => Promise<void>;
 export function createCatalogTransport(options: {
+  source?: 'jikan-edge' | 'jikan-v4';
   fetch?: typeof fetch;
   reserve?: () => Promise<BudgetRelease>;
   observe?: (headers: Headers, status: number) => Promise<void>;
@@ -77,7 +79,8 @@ export function createCatalogTransport(options: {
       try {
         await pace();
         release = await options.reserve?.();
-        const response = await (options.fetch ?? fetch)(`${JIKAN_ORIGIN}${path}`, {
+        const edge = options.source !== 'jikan-v4';
+        const response = await (options.fetch ?? fetch)(`${edge ? JIKAN_EDGE_ORIGIN : JIKAN_ORIGIN}${edge ? edgeCatalogPath(path) : path}`, {
           headers: { Accept: 'application/json' }, redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(12_000),
         });
         await options.observe?.(response.headers, response.status);
@@ -88,7 +91,7 @@ export function createCatalogTransport(options: {
         }
         if (!response.ok) throw new ProviderError('catalog', 'The anime catalog is unavailable. Your input is kept; try again shortly.');
         const raw = await readProviderText(response, 2_000_000);
-        const value = envelopeSchema.parse(JSON.parse(raw));
+        const value = envelopeSchema.parse(edge ? normalizeEdgeEnvelope(JSON.parse(raw), path) : JSON.parse(raw));
         cache.delete(path);
         cache.set(path, { value, expires: now() + 300_000 });
         if (cache.size > 200) cache.delete(cache.keys().next().value!);
@@ -130,7 +133,8 @@ export function createCatalogClient(request: (path: string) => Promise<unknown>,
   }
   async function list(path: string, page = 1): Promise<CatalogPage> {
     const body = envelope(await request(normalizeCatalogPath(path)));
-    const values = z.array(z.unknown()).max(100).safeParse(body.data);
+    // Edge returns the whole season, rather than honoring Jikan's list limit.
+    const values = z.array(z.unknown()).max(/^\/seasons\/now(?:\?|$)/.test(path) ? 500 : 100).safeParse(body.data);
     if (!values.success) throw new ProviderError('catalog', 'The catalog returned an unreadable response. Try again.', 'invalid_response');
     const items = values.data.flatMap(value => { const anime = parseCatalogAnime(value); return anime ? [remember(anime)] : []; });
     if (values.data.length && !items.length) throw new ProviderError('catalog', 'The catalog returned unreadable title metadata. Try again.', 'invalid_response');

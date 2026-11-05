@@ -90,8 +90,10 @@ export async function generateRecommendations(input: unknown): Promise<Generatio
       });
       // Relations are verified only after cheap ID/constraint filtering. Do not
       // infer sequels from title similarity or trust the model to enforce them.
-      candidates = candidates.filter((anime) => anime.genres && eligible(anime, data.mode === 'list' ? { ...state.eligibility, constraints: {} } : state.eligibility));
-      candidates = (await verifyCandidates(candidates)).filter((anime) => eligible(anime, state.eligibility));
+      // Edge search summaries omit genres/completion status. Verify full facts
+      // before applying those constraints; an absent summary fact isn't a mismatch.
+      candidates = candidates.filter((anime) => eligible(anime, { ...state.eligibility, constraints: {} }));
+      candidates = (await verifyCandidates(candidates, state.eligibility)).filter((anime) => eligible(anime, state.eligibility));
       if (!candidates.length) return { ok: false, kind: 'empty', message: data.mode === 'list' ? 'No Plan to Watch titles fit these choices. Adjust your request or restore hidden titles in Profile.' : 'No eligible catalog titles match these choices. Adjust your request or try a different genre.' };
       const libraryTitles = new Map(state.library.map((entry) => [entry.animeId, toAnimeView(entry.anime, entry.animeId).title]));
       inferenceStarted = true;

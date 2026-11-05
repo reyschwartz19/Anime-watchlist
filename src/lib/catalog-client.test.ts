@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createCatalogClient, createCatalogTransport, normalizeCatalogPath, parseCatalogAnime, retryAfterSeconds } from './catalog-client';
+import { createCatalogClient, createCatalogTransport as createTransport, normalizeCatalogPath, parseCatalogAnime, retryAfterSeconds } from './catalog-client';
 import { ProviderError } from './provider-error';
+
+// Existing v4 fixture contracts remain supported independently of the Edge adapter.
+const createCatalogTransport: typeof createTransport = options => createTransport({ source: 'jikan-v4', ...options });
 
 const title = (id = 205) => ({ mal_id: id, title: id === 205 ? 'Samurai Champloo' : 'A different season',
   images: { jpg: { image_url: null, large_image_url: null } }, synopsis: null, episodes: null, genres: null,

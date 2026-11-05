@@ -18,6 +18,8 @@ npm run dev
 
 Open `http://localhost:3000/auth/sign-up`, create a fresh login, verify its email, and complete onboarding. Search for your old titles and mark each Completed, Watching, Plan to Watch, or Dropped. Saving a title again updates the same MAL ID. Normal startup and builds need no Firebase configuration. All credentials are server-only.
 
+Catalog requests use the free Jikan Edge service listed by the original Jikan maintainer. The old `api.jikan.moe` public service shut down on October 1, 2026. The shared adapter preserves existing MyAnimeList IDs, metadata, and library records; no new key is required. See [catalog migration and verification](docs/DISCOVERY.md).
+
 ## Routes
 
 | Route | Behavior |

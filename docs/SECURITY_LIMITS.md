@@ -1,6 +1,6 @@
 # Shared budgets and security verification
 
-The normal app uses Jikan v4, Groq, Neon PostgreSQL and Neon Managed Better Auth. Firebase credentials are unnecessary for startup, build, Search, manual entry or discovery. The standalone migration utilities remain separate and disabled by default. No paid limiter service or fallback model provider is used.
+The normal app uses the owner-selected Jikan Edge catalog service, Groq, Neon PostgreSQL and Neon Managed Better Auth. Jikan's original public API was retired on October 1, 2026; see [the maintainer notice](https://github.com/jikan-me/jikan-rest/issues/613). Existing `JIKAN_*` budgets now cover Edge traffic. Firebase credentials are unnecessary for startup, build, Search, manual entry or discovery. The standalone migration utilities remain separate and disabled by default. No paid limiter service or fallback model provider is used.
 
 ## Configured budgets
 
@@ -16,7 +16,7 @@ All windows below are rolling windows enforced atomically in the application dat
 | Auth writes per client IP | 10/minute | `AUTH_WRITE_RPM` |
 | Auth reads/session verification per client IP | 120/minute | `AUTH_READ_RPM` |
 
-Jikan's published [v4 documentation](https://docs.api.jikan.moe/) specifies 3 requests/second and 60/minute. Groq's [rate-limit documentation](https://console.groq.com/docs/rate-limits) lists the free `openai/gpt-oss-120b` budgets above; exact organization limits can differ and should be checked in its console. Groq limits are organization-wide. A separate application, developer tool, or preview database using the same Groq organization can consume quota outside this database's counters. Use appropriately partitioned lower budgets or one coordinated budget store for such callers; do not assume isolated Neon branches share counters.
+[Jikan Edge's documentation](https://jikan.lucashdo.com/docs) specifies 30 requests/10 seconds and 60/minute; the existing 3/second ceiling is conservative within that budget. Groq's [rate-limit documentation](https://console.groq.com/docs/rate-limits) lists the free `openai/gpt-oss-120b` budgets above; exact organization limits can differ and should be checked in its console. Groq limits are organization-wide. A separate application, developer tool, or preview database using the same Groq organization can consume quota outside this database's counters. Use appropriately partitioned lower budgets or one coordinated budget store for such callers; do not assume isolated Neon branches share counters.
 
 The auth IP key uses the client `x-forwarded-for` supplied by Vercel, following its [request-header contract](https://vercel.com/docs/headers/request-headers). Self-hosted requests use a conservative shared key because arbitrary forwarded headers are untrusted. Introducing another proxy requires reviewing its IP trust boundary. Keys hash IPs/internal user IDs; these hashes are pseudonymous rather than anonymous.
 

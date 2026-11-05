@@ -2,6 +2,8 @@
 
 Verified on 2026-11-05 on `feat/manga-shelf`. The approved Manga Shelf layout, colors, fonts, and existing design evidence are preserved. The original untracked `Manga-shelf-design/` folder and private `.env.local` are untouched. The owner will deploy to Vercel and complete live sign-in.
 
+**Subsequent catalog fix, 2026-11-05:** the original public Jikan host was [discontinued on October 1](https://github.com/jikan-me/jikan-rest/issues/613), which explains the timeout reported below. The owner selected Jikan Edge. The active shared client now uses its live endpoint and normalizes its different response schema; real search/details pass. See [the updated discovery notes](DISCOVERY.md). Historical verification below records the original run, not the current endpoint's status.
+
 ## Implemented gaps
 
 - Shared server-only Jikan v4 client for Search, Details, onboarding favorites, saves, and discovery: validated responses, normalized public cache keys, pagination, coalescing, metadata reuse, bounded requests, and distinct missing/empty/timeout/rate-limit states.

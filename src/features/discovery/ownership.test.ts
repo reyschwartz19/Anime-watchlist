@@ -12,6 +12,7 @@ let viewer = 'fixture-viewer';
 let failure: 'model' | 'catalog' | null = null;
 let rankingCalls = 0;
 let duringRanking: (() => Promise<void>) | null = null;
+let sparseSummaries = false;
 class ProviderError extends Error { constructor(public kind: 'catalog' | 'model', message: string) { super(message); } }
 mock.module('next/cache', { namedExports: { revalidatePath() {} } });
 mock.module('../../lib/current-user.ts', { namedExports: {
@@ -29,8 +30,13 @@ mock.module('../../lib/rate-limit.ts', { namedExports: {
 } });
 mock.module('../../lib/providers.ts', { namedExports: {
   ProviderError,
-  async retrieveCandidates() { if (failure === 'catalog') throw new ProviderError('catalog', 'Catalog fixture failure'); return fixtureCatalog().map((anime) => ({ ...anime, relationsVerified: true })); },
-  async verifyCandidates(values: Candidate[]) { return values; },
+  async retrieveCandidates() {
+    if (failure === 'catalog') throw new ProviderError('catalog', 'Catalog fixture failure');
+    return fixtureCatalog().map(anime => sparseSummaries ? { ...anime, genres: [], status: undefined, relationsVerified: false } : { ...anime, relationsVerified: true });
+  },
+  async verifyCandidates(values: Candidate[]) {
+    return sparseSummaries ? values.map(anime => ({ ...fixtureCatalog().find(item => item.mal_id === anime.mal_id)!, status: 'Finished Airing', relationsVerified: true })) : values;
+  },
   async rankCandidates({ candidates }: { candidates: Candidate[] }) {
     rankingCalls++;
     if (failure === 'model') throw new ProviderError('model', 'Model fixture failure');
@@ -42,7 +48,15 @@ const { generateRecommendations } = await import('./actions');
 const { actOnRecommendation, undoRecommendation, restoreHiddenTitle, getHiddenTitles, setFeedback } = await import('../feedback/actions');
 const request = (extra: object = {}) => ({ mode: 'new', request: '', sessionPassIds: [], requestId: randomUUID(), ...extra });
 
-beforeEach(() => { db = createFixtureDatabase(); viewer = 'fixture-viewer'; failure = null; rankingCalls = 0; duringRanking = null; });
+beforeEach(() => { db = createFixtureDatabase(); viewer = 'fixture-viewer'; failure = null; rankingCalls = 0; duringRanking = null; sparseSummaries = false; });
+
+test('sparse catalog summaries are hydrated before genre and completion constraints are enforced', async () => {
+  sparseSummaries = true;
+  const result = await generateRecommendations(request({ request: 'finished series, maximum 13 episodes, only Action' }));
+  if (!result.ok) return assert.fail(result.message);
+  assert.deepEqual(result.recommendations.map(pick => pick.anime.mal_id), [30276]);
+  assert.equal(rankingCalls, 1);
+});
 
 test('new mode excludes the whole library, and cached batches recheck durable dismissal', async () => {
   const input = request();

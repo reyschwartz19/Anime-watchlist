@@ -10,7 +10,7 @@ try {
   if (!page.items.some(anime => anime.mal_id === 205)) throw new Error('Expected stable ID missing');
   const title = await client.getAnimeDetails(205);
   if (!title?.relationsVerified) throw new Error('Full metadata missing');
-  console.log(`Live Jikan search + full-details smoke passed: stable MAL ID 205, validated pagination and prerequisites. No database writes.`);
+  console.log(`Live Jikan Edge search + full-details smoke passed: stable MAL ID 205, validated pagination and prerequisites. No database writes.`);
 } catch (error) {
   console.error(`Jikan smoke failed: ${error instanceof ProviderError ? error.message : 'The public catalog check could not complete.'}`);
   process.exitCode = 1;

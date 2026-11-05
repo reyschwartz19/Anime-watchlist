@@ -55,6 +55,6 @@ export function SearchPanel({ initialQuery, initialPage, initialResult, userId }
         <div className="result-copy"><p className="muted">{[anime.year, anime.type].filter(Boolean).join(' · ') || 'Year and format not listed'}</p><h2><Link href={`/anime/${anime.mal_id}?from=${encodeURIComponent(path)}`}>{anime.title}<ChevronRight size={20} aria-hidden="true" /></Link></h2>{anime.alternateTitle && <p className="muted">{anime.alternateTitle}</p>}<LibraryControls animeId={anime.mal_id} title={anime.title} initialStatus={status} compact /></div>
       </article>)}</div><nav className="row" aria-label="Search pages"><button type="button" disabled={pending || result.page <= 1} onClick={() => changePage(result.page - 1)}>Previous page</button><span>Page {result.page}</span><button type="button" disabled={pending || !result.hasNextPage || result.page >= 1000} onClick={() => changePage(result.page + 1)}>Next page</button></nav></>}
     </div>
-    <small className="muted">Catalog data from Jikan, the unofficial MyAnimeList API.</small>
+    <small className="muted">Catalog data via Jikan Edge, an unofficial MyAnimeList API.</small>
   </>;
 }

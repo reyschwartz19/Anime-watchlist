@@ -1,7 +1,7 @@
 import 'server-only';
 import { headers } from 'next/headers';
 import { animeIdSchema } from '@/features/library/model';
-import { diverseCandidates, mergeCandidateSources, type Candidate, type Constraints } from '@/features/discovery/engine';
+import { diverseCandidates, eligible, mergeCandidateSources, type Candidate, type Constraints, type Eligibility } from '@/features/discovery/engine';
 import { fixtureCatalog, previewEnabled, previewFailure } from './preview';
 import { ProviderError } from './provider-error';
 import { jikan } from './jikan';
@@ -84,11 +84,11 @@ export async function retrieveCandidates(interests: string[], constraints: Const
   return mergeCandidateSources(sources, 60);
 }
 
-export async function verifyCandidates(candidates: Candidate[]): Promise<Candidate[]> {
+export async function verifyCandidates(candidates: Candidate[], context?: Eligibility): Promise<Candidate[]> {
   const verified: Candidate[] = [];
   for (const candidate of mergeCandidateSources([candidates], 24)) {
     const anime = candidate.relationsVerified ? candidate : await getAnimeDetails(candidate.mal_id);
-    if (anime) verified.push(anime);
+    if (anime && (!context || eligible(anime, context)) && !anime.genres.some(genre => ['Hentai', 'Erotica'].includes(genre.name))) verified.push(anime);
     if (diverseCandidates(verified).length >= 18) break;
   }
   return diverseCandidates(verified);

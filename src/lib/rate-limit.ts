@@ -3,7 +3,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import { getDb } from './db';
 import { previewEnabled } from './preview';
 import { emptyBudget, observeBudgetHeaders, reserveBudget, type BudgetCost, type BudgetRule, type BudgetState } from './rate-limit-core';
-import { AuthRateLimitUnavailableError } from './operational-error';
+import { AuthRateLimitUnavailableError, type AuthDatabasePhase } from './operational-error';
+import { EnvironmentError } from './environment';
 
 export class RateLimitError extends Error {
   readonly status = 429;
@@ -20,7 +21,7 @@ function configured(name: string, fallback: number, maximum = 1_000_000): number
   const raw = process.env[name];
   if (raw === undefined || raw === '') return fallback;
   const value = Number(raw);
-  if (!Number.isSafeInteger(value) || value < 1 || value > maximum) throw new Error(`Set ${name} to a valid positive integer.`);
+  if (!Number.isSafeInteger(value) || value < 1 || value > maximum) throw new EnvironmentError(name, 'must be a valid positive integer.', 'positive-integer');
   return value;
 }
 
@@ -39,17 +40,25 @@ function scoped(kind: string, identifier: string): string {
   return `${kind}:${createHash('sha256').update(identifier).digest('hex')}`;
 }
 
-async function changeState<T>(key: string, operation: (state: BudgetState, now: number) => { state: BudgetState; result: T }): Promise<T> {
+type DiagnosticContext = { phase: AuthDatabasePhase };
+async function changeState<T>(key: string, operation: (state: BudgetState, now: number) => { state: BudgetState; result: T }, diagnostic?: DiagnosticContext): Promise<T> {
   // Production never uses process-local counters. The advisory transaction lock
   // serializes the entire decision + reservation across all Vercel instances.
-  const result = await getDb().$transaction(async tx => {
+  if (diagnostic) diagnostic.phase = 'database-initialization';
+  const db = getDb();
+  if (diagnostic) diagnostic.phase = 'transaction-start';
+  const result = await db.$transaction(async tx => {
+    if (diagnostic) diagnostic.phase = 'advisory-lock';
     const [{ now }] = await tx.$queryRaw<{ now: Date }[]>`WITH locked AS MATERIALIZED (SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))) SELECT clock_timestamp() AS now FROM locked`;
+    if (diagnostic) diagnostic.phase = 'budget-read';
     const row = await tx.rateLimitState.findUnique({ where: { key } });
     const previous = row && row.expiresAt > now ? row.value as unknown as BudgetState : emptyBudget();
     const { state, result } = operation(previous, +now);
     const expiresAt = new Date(Math.max(+now + 86_400_000, state.blockedUntil, ...state.leases.map(lease => lease.expiresAt)));
     const value = JSON.parse(JSON.stringify(state));
+    if (diagnostic) diagnostic.phase = 'budget-write';
     await tx.rateLimitState.upsert({ where: { key }, create: { key, value, expiresAt }, update: { value, expiresAt } });
+    if (diagnostic) diagnostic.phase = 'transaction-commit';
     return result;
   }, { maxWait: 5000, timeout: 10_000 });
   // Cleanup is outside the reservation transaction, so it never holds another
@@ -68,13 +77,13 @@ async function changeState<T>(key: string, operation: (state: BudgetState, now: 
 let nextCleanupAt = 0;
 
 type Reservation = (() => Promise<void>) & { settle?: (actualTokens: number) => Promise<void> };
-async function reserve(key: string, rules: BudgetRule[], cost: BudgetCost, lease?: { concurrency: number; durationMs: number }): Promise<Reservation> {
+async function reserve(key: string, rules: BudgetRule[], cost: BudgetCost, lease?: { concurrency: number; durationMs: number }, diagnostic?: DiagnosticContext): Promise<Reservation> {
   if (previewEnabled()) return async () => {};
   const id = randomUUID();
   const retryAfterMs = await changeState(key, (state, now) => {
     const decision = reserveBudget(state, rules, cost, now, lease ? { ...lease, id } : undefined);
     return { state: decision.state, result: decision.retryAfterMs };
-  });
+  }, diagnostic);
   if (retryAfterMs) throw new RateLimitError(retryAfterMs);
   let released = false;
   const release: Reservation = async () => {
@@ -138,10 +147,11 @@ export async function acquireGenerationLease(userId: string, requestId: string):
 }
 
 export async function enforceAuthLimit(identifier: string, sensitive: boolean): Promise<void> {
+  const diagnostic: DiagnosticContext = { phase: 'configuration' };
   try {
-    await reserve(scoped(sensitive ? 'auth:sensitive' : 'auth:read', identifier), [{ windowMs: 60_000, requests: configured(sensitive ? 'AUTH_WRITE_RPM' : 'AUTH_READ_RPM', sensitive ? 10 : 120) }], { requests: 1, tokens: 0 });
+    await reserve(scoped(sensitive ? 'auth:sensitive' : 'auth:read', identifier), [{ windowMs: 60_000, requests: configured(sensitive ? 'AUTH_WRITE_RPM' : 'AUTH_READ_RPM', sensitive ? 10 : 120) }], { requests: 1, tokens: 0 }, undefined, diagnostic);
   } catch (problem) {
     if (problem instanceof RateLimitError) throw problem;
-    throw new AuthRateLimitUnavailableError(problem);
+    throw new AuthRateLimitUnavailableError(problem, diagnostic.phase);
   }
 }

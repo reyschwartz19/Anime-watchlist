@@ -18,7 +18,7 @@ test('real authentication limiter fails closed on database authentication and co
     await assert.rejects(enforceAuthLimit('test-ip', false), AuthRateLimitUnavailableError);
     assert.equal(calls, 2);
     assert.match(messages[0], /DATABASE_AUTHENTICATION_FAILED/);
-    assert.match(messages[1], /DATABASE_UNAVAILABLE/);
+    assert.match(messages[1], /DATABASE_NETWORK_FAILED/);
     assert.doesNotMatch(messages.join(''), /secret-database-url/);
   } finally { logger.mock.restore(); }
 });

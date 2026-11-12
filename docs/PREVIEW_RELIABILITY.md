@@ -2,6 +2,8 @@
 
 Scope: `feat/manga-shelf`, reviewed 2026-11-12. Canonical Preview origin:
 
+**503 investigation update:** the later deployment's `DATABASE_UNAVAILABLE` is not evidence of invalid credentials. Current local Prisma queries, transactions and the complete auth limiter pass. See [the safe diagnostic investigation](verification/preview-503-diagnostics-2026-11-12.md). The P1000 findings below describe the earlier deployment, not a diagnosis of the later failure.
+
 `https://anime-watchlist-git-feat-manga-shelf-reyschwartz19s-projects.vercel.app`
 
 ## Confirmed causes and current limits

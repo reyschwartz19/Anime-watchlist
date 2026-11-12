@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { appOrigin, authConfiguration, databaseUrl, previewCanonicalOrigin, validatePreviewDatabasePair } from './environment';
+import { appOrigin, authConfiguration, databaseUrl, EnvironmentError, previewCanonicalOrigin, validatePreviewDatabasePair } from './environment';
 
 const env = {
   APP_URL: 'https://branch.example.test',
@@ -14,6 +14,23 @@ test('valid preview pair uses pooled app and direct migration connections', () =
   assert.doesNotThrow(() => validatePreviewDatabasePair(env));
   assert.equal(databaseUrl('DATABASE_URL', env), env.DATABASE_URL);
   assert.equal(authConfiguration(env).origin, env.APP_URL);
+});
+
+test('equivalent PostgreSQL credential encodings are the same Preview pair', () => {
+  const paired = {
+    ...env,
+    DATABASE_URL: env.DATABASE_URL.replace('role:', 'r%6fle:').replace('encoded%40password', 'a%2fb%40c'),
+    DATABASE_URL_UNPOOLED: env.DATABASE_URL_UNPOOLED.replace('encoded%40password', 'a%2Fb@c'),
+  };
+  assert.doesNotThrow(() => validatePreviewDatabasePair(paired));
+  assert.throws(() => validatePreviewDatabasePair({ ...paired, DATABASE_URL_UNPOOLED: paired.DATABASE_URL_UNPOOLED.replace('a%2Fb@c', 'different') }), (error: unknown) => error instanceof EnvironmentError && error.check === 'preview-password');
+});
+
+test('validation preserves the exact safe failure check instead of erasing required-value errors', () => {
+  for (const [value, check] of [[undefined, 'missing'], [' bad ', 'surrounding-whitespace'], ['"bad"', 'literal-quotes'], ['not-a-url', 'url-format']] as const) {
+    assert.throws(() => databaseUrl('DATABASE_URL', { DATABASE_URL: value }), (error: unknown) => error instanceof EnvironmentError && error.key === 'DATABASE_URL' && error.check === check);
+  }
+  assert.throws(() => validatePreviewDatabasePair({ ...env, DATABASE_URL_UNPOOLED: env.DATABASE_URL_UNPOOLED.replace('encoded%40password', 'bad%ZZ') }), (error: unknown) => error instanceof EnvironmentError && error.check === 'credential-encoding');
 });
 
 test('database validation rejects mismatched endpoint, role, password, database, TLS and literal quotes without leaking values', () => {

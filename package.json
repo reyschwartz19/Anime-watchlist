@@ -12,6 +12,7 @@
     "test:migration": "node --import tsx scripts/test.ts --migration-only",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
+    "preview:check": "node --import tsx scripts/check-preview.ts",
     "migration": "node --import tsx scripts/migration/cli.ts",
     "legacy:dev": "vite legacy/firebase --config legacy/firebase/vite.config.ts --host 127.0.0.1",
     "legacy:build": "vite build legacy/firebase --config legacy/firebase/vite.config.ts",

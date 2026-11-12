@@ -26,6 +26,14 @@ node scripts/browser/auth-journeys.mjs
 node scripts/browser/onboarding-journey.mjs
 ```
 
+Auth journeys also verify root routing, safe private return paths, legacy hashes,
+Google cancellation, profile retry without resubmitting credentials, duplicate
+submissions and operational 503 recovery. Set `ANIME_QA_OUTPUT_DIR` to an external
+directory (for example `/tmp/anime-preview-browser`) to preserve design evidence.
+Run the local build and fixture server sequentially because Next regenerates shared
+type-entry files. If Turbopack continuously reloads pages in the local environment,
+append `--webpack` to the fixture dev command; production builds remain unchanged.
+
 `ANIME_QA_BASE_URL` overrides the loopback app address. Every script owns and
 removes its Chrome profile; it does not attach to a personal browser. Stop only
 the review server you started afterward. Restarting it resets synthetic server

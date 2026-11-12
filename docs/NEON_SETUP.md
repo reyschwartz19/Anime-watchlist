@@ -1,5 +1,7 @@
 # Neon preview database and managed login setup
 
+For the current branch's credential failure, canonical URL strategy, exact Vercel corrections and runtime test checklist, use [Preview reliability handoff](PREVIEW_RELIABILITY.md).
+
 For normal use, create a fresh account, finish onboarding, and manually add titles from Search. Firebase and importer variables are optional and unrelated to normal startup/build. The owner handles Vercel deployment and live sign-in; current validation is recorded in [the catalog handoff](CATALOG_DISCOVERY_HANDOFF.md).
 
 Prepared against current official documentation and registry metadata on **2026-11-04**. The app uses **Neon's Managed Better Auth**, via pinned `@neon/auth` **0.8.2**. It does not run a self-hosted Better Auth instance, migrate Firebase passwords, or use the older Stack Auth integration. Earlier examples importing `@neondatabase/auth` are not the package used here. Sources: [current Next.js quick start](https://neon.com/docs/auth/quick-start/nextjs-api-only), [SDK package source](https://github.com/neondatabase/neon-pkgs/blob/main/packages/auth/package.json).

@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { getDb } from './db';
 import { previewEnabled } from './preview';
 import { emptyBudget, observeBudgetHeaders, reserveBudget, type BudgetCost, type BudgetRule, type BudgetState } from './rate-limit-core';
+import { AuthRateLimitUnavailableError } from './operational-error';
 
 export class RateLimitError extends Error {
   readonly status = 429;
@@ -137,5 +138,10 @@ export async function acquireGenerationLease(userId: string, requestId: string):
 }
 
 export async function enforceAuthLimit(identifier: string, sensitive: boolean): Promise<void> {
-  await reserve(scoped(sensitive ? 'auth:sensitive' : 'auth:read', identifier), [{ windowMs: 60_000, requests: configured(sensitive ? 'AUTH_WRITE_RPM' : 'AUTH_READ_RPM', sensitive ? 10 : 120) }], { requests: 1, tokens: 0 });
+  try {
+    await reserve(scoped(sensitive ? 'auth:sensitive' : 'auth:read', identifier), [{ windowMs: 60_000, requests: configured(sensitive ? 'AUTH_WRITE_RPM' : 'AUTH_READ_RPM', sensitive ? 10 : 120) }], { requests: 1, tokens: 0 });
+  } catch (problem) {
+    if (problem instanceof RateLimitError) throw problem;
+    throw new AuthRateLimitUnavailableError(problem);
+  }
 }

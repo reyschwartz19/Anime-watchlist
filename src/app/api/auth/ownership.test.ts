@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import test, { beforeEach, mock } from 'node:test';
 import { NextRequest } from 'next/server';
+import { AuthRateLimitUnavailableError } from '../../../lib/operational-error';
 
 let configured = true;
 let providerCalls = 0;
 let limitCalls = 0;
 let limited = false;
+let unavailable = false;
 let upstreamStatus = 200;
 let receivedBody = '';
 class TestLimitError extends Error { retryAfterSeconds = 17; }
@@ -19,7 +21,7 @@ mock.module('../../../lib/auth.ts', { namedExports: {
 } });
 mock.module('../../../lib/rate-limit.ts', { namedExports: {
   RateLimitError: TestLimitError,
-  enforceAuthLimit: async () => { limitCalls++; if (limited) throw new TestLimitError('Please try again in 17 seconds.'); },
+  enforceAuthLimit: async () => { limitCalls++; if (unavailable) throw new AuthRateLimitUnavailableError({ code: 'P1000' }); if (limited) throw new TestLimitError('Please try again in 17 seconds.'); },
 } });
 const { GET, POST } = await import('./[...path]/route');
 const context = () => ({ params: Promise.resolve({ path: ['sign-in', 'email'] }) });
@@ -27,7 +29,7 @@ const request = (body = '{}', origin = 'https://app.example.test', headers: Reco
 
 beforeEach(() => {
   process.env.APP_URL = 'https://app.example.test';
-  configured = true; providerCalls = 0; limitCalls = 0; limited = false; upstreamStatus = 200; receivedBody = '';
+  configured = true; providerCalls = 0; limitCalls = 0; limited = false; unavailable = false; upstreamStatus = 200; receivedBody = '';
 });
 
 test('auth writes reject a forged origin before calling budgets or provider', async () => {
@@ -80,4 +82,37 @@ test('unconfigured auth and malformed paths are contained without contacting pro
   configured = true;
   assert.equal((await GET(new NextRequest('https://app.example.test/api/auth/get-session'), { params: Promise.resolve({ path: ['..', 'bad'] }) })).status, 400);
   assert.equal(providerCalls, 0);
+});
+
+test('database failure in auth protection returns an operational 503 and never calls the provider', async () => {
+  unavailable = true;
+  const response = await POST(request(), context());
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error.code, 'AUTH_RATE_LIMIT_UNAVAILABLE');
+  assert.equal(providerCalls, 0);
+});
+
+test('Google initiation retains all canonical callbacks and challenge/session cookies', async () => {
+  const callbacks = { provider: 'google', callbackURL: 'https://app.example.test/auth/callback?returnTo=%2Fsearch', newUserCallbackURL: '/auth/callback', errorCallbackURL: '/auth/sign-in' };
+  const response = await POST(request(JSON.stringify(callbacks)), { params: Promise.resolve({ path: ['sign-in', 'social'] }) });
+  assert.equal(response.status, 200);
+  assert.deepEqual(JSON.parse(receivedBody), callbacks);
+  assert.match(response.headers.get('set-cookie') ?? '', /session_token=changed/);
+});
+
+test('deployment-specific auth API requests cannot mint cookies or forward callbacks off the canonical app', async () => {
+  const write = new NextRequest('https://deployment-team.vercel.app/api/auth/sign-in/social', { method: 'POST', headers: { Origin: 'https://deployment-team.vercel.app', 'Content-Type': 'application/json' }, body: '{}' });
+  const response = await POST(write, context());
+  assert.equal(response.status, 409);
+  assert.equal((await response.json()).error.code, 'CANONICAL_ORIGIN_REQUIRED');
+  assert.equal(providerCalls, 0); assert.equal(limitCalls, 0);
+});
+
+test('GET verification callbacks validate every redirect occurrence before forwarding', async () => {
+  const response = await GET(new NextRequest('https://app.example.test/api/auth/verify-email?callbackURL=https%3A%2F%2Fevil.test&callbackURL=%2Fauth%2Fcallback'), { params: Promise.resolve({ path: ['verify-email'] }) });
+  assert.equal(response.status, 400);
+  assert.equal(providerCalls, 0);
+  const valid = await GET(new NextRequest('https://app.example.test/api/auth/verify-email?callbackURL=%2Fauth%2Fcallback'), { params: Promise.resolve({ path: ['verify-email'] }) });
+  assert.equal(valid.status, 200);
+  assert.match(valid.headers.get('set-cookie') ?? '', /session_token=changed/);
 });

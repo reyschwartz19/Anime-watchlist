@@ -20,7 +20,7 @@ export function resolvedDestination(profile: ResolvedProfile, requested: unknown
   if (!profile.emailVerified) return `/auth/verify-email?${new URLSearchParams({ email: profile.email, returnTo: safeAuthDestination(requested) })}`;
   if (!profile.onboarded) return '/onboarding';
   const destination = safeAuthDestination(requested);
-  return ['/', '/onboarding', '/library'].includes(destination) ? '/recommendations' : destination;
+  return ['/', '/onboarding'].includes(new URL(destination, 'https://local.invalid').pathname) ? '/recommendations' : destination;
 }
 
 /** Only a 401 represents no session. A failed profile read never means new user. */
@@ -32,6 +32,7 @@ export async function resolveSession(requested: unknown, upstream: typeof fetch 
 }
 
 export function oauthErrorMessage(code: string | null): string {
+  if (code === 'restart_on_canonical_origin') return 'Sign in again on this stable app URL to complete the connection.';
   if (code === 'access_denied' || code === 'user_cancelled' || code === 'user_canceled') return 'Google sign-in was cancelled. Try again or continue with email.';
   return 'Google could not complete sign-in. Try again or continue with email.';
 }

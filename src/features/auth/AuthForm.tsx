@@ -31,6 +31,7 @@ export function AuthForm({ mode, verificationMethod = 'otp' }: { mode: AuthMode;
   const [emailExpanded, setEmailExpanded] = useState(mode !== 'sign-in' || Boolean(search.get('email')));
   const [verifiedNeedsSignIn, setVerifiedNeedsSignIn] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
+  const [sessionNeedsResolution, setSessionNeedsResolution] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const lock = useRef(false);
   const panel = useRef<HTMLElement>(null);
@@ -79,7 +80,11 @@ export function AuthForm({ mode, verificationMethod = 'otp' }: { mode: AuthMode;
           return;
         }
         requireSuccess(result);
-        if (!await continueFromServer()) throw new Error('The sign-in response did not establish a session. Try signing in again.');
+        setSessionNeedsResolution(true);
+        if (!await continueFromServer()) {
+          setSessionNeedsResolution(false);
+          throw new Error('The sign-in response did not establish a session. Try signing in again.');
+        }
       } else if (mode === 'sign-up') {
         const created = await authClient.signUp.email({ email: email.trim(), password, name: String(data.get('name') ?? '').trim(), callbackURL: `${window.location.origin}${callback}` });
         requireSuccess(created);
@@ -162,7 +167,7 @@ export function AuthForm({ mode, verificationMethod = 'otp' }: { mode: AuthMode;
       {googlePending && <p role="status">Opening Google sign-in…</p>}
       {!emailExpanded && <button className="secondary" type="button" onClick={() => setEmailExpanded(true)}><Mail size={22} aria-hidden="true" />Continue with email</button>}
     </>}
-    {(emailExpanded || mode !== 'sign-in') && !verifiedNeedsSignIn && !verificationComplete && <form onSubmit={submit} className="stack">
+    {(emailExpanded || mode !== 'sign-in') && !verifiedNeedsSignIn && !verificationComplete && !sessionNeedsResolution && <form method="post" onSubmit={submit} className="stack">
       <fieldset className="stack" disabled={pending}>
         <legend className="sr-only">{titles[mode]}</legend>
         {mode === 'sign-up' && <label htmlFor="auth-name">Display name<input id="auth-name" name="name" autoComplete="name" required maxLength={120} /></label>}
@@ -177,13 +182,13 @@ export function AuthForm({ mode, verificationMethod = 'otp' }: { mode: AuthMode;
     {error && <p id="auth-error" role="alert" tabIndex={-1} className="error"><AlertCircle size={18} aria-hidden="true" />{error}</p>}
     {message && <p role="status">{message}</p>}
     {verifiedNeedsSignIn && <Link className="button primary" href={authViewHref('sign-in', destination, email)}>Sign in to continue</Link>}
-    {verificationComplete && !verifiedNeedsSignIn && !pending && <button type="button" onClick={async () => {
+    {(verificationComplete || sessionNeedsResolution) && !verifiedNeedsSignIn && !pending && <button type="button" onClick={async () => {
       if (lock.current) return;
       lock.current = true; setPending(true); setError('');
-      try { if (!await continueFromServer()) { setVerifiedNeedsSignIn(true); setMessage('Your email is verified. Sign in once to continue.'); } }
-      catch { setError('Your profile could not be loaded. Retry to continue. Your email is already verified.'); }
+      try { if (!await continueFromServer()) { setVerifiedNeedsSignIn(true); setMessage('Sign in once to continue.'); } }
+      catch { setError('Your profile could not be loaded. Retry to continue. Your account has not been changed.'); }
       finally { lock.current = false; setPending(false); }
-    }}>Continue to my shelf</button>}
+    }}>Retry account lookup</button>}
     {mode === 'verify-email' && !verifiedNeedsSignIn && !verificationComplete && <div className="stack">
       <button className="secondary" type="button" onClick={resendVerification} disabled={pending || cooldown > 0}>{cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend verification'}</button>
       <Link href={authViewHref('sign-up', destination)}>Change email</Link>

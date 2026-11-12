@@ -5,10 +5,11 @@ import { openBrowser, pause } from './cdp.mjs';
 const base = process.env.ANIME_QA_BASE_URL ?? 'http://localhost:3067';
 const identity = await (await fetch(`${base}/api/me`)).json();
 if (identity.authProviderId !== 'fixture-viewer') throw new Error('Refusing auth fixtures against a non-fixture app.');
-const folder = resolve('docs/design/evidence/manga-shelf'); await mkdir(folder, { recursive: true });
+const folder = resolve(process.env.ANIME_QA_OUTPUT_DIR ?? 'docs/design/evidence/manga-shelf'); await mkdir(folder, { recursive: true });
 const b = await openBrowser(base);
 const checks = []; const requests = [];
 let validCode = false; let failureCode = 'INVALID_OTP'; let googleUser = 'new';
+let emailUser = 'viewer'; let authUnavailable = false;
 const assert = (value, message) => { if (!value) throw new Error(message); };
 async function check(name, run) {
   try { await run(); checks.push({ name, pass: true }); console.log(`PASS ${name}`); }
@@ -21,7 +22,10 @@ b.on('Fetch.requestPaused', async event => {
     requests.push({ path, callbackURL: data.callbackURL, newUserCallbackURL: data.newUserCallbackURL, errorCallbackURL: data.errorCallbackURL });
     let status = 200; let body;
     if (path.endsWith('/sign-up/email')) body = { token: null, user: { id: 'fixture-new', email: 'new@example.test', emailVerified: false, name: 'Remy' } };
-    else if (path.endsWith('/email-otp/verify-email')) {
+    else if (path.endsWith('/sign-in/email')) {
+      if (authUnavailable) { status = 503; body = { code: 'AUTH_RATE_LIMIT_UNAVAILABLE', message: 'Sign-in protection is temporarily unavailable.' }; }
+      else { await b.cookie('anime_preview_user', emailUser); body = { token: 'synthetic-token', user: { id: 'fixture-viewer', emailVerified: true } }; }
+    } else if (path.endsWith('/email-otp/verify-email')) {
       if (validCode) { await b.cookie('anime_preview_user', 'new'); body = { status: true, user: { id: 'fixture-new', email: 'new@example.test', emailVerified: true, name: 'Remy' } }; }
       else { status = 400; body = { code: failureCode, message: failureCode === 'OTP_EXPIRED' ? 'Fixture expired code' : 'Fixture invalid code' }; }
     } else if (path.endsWith('/email-otp/send-verification-otp')) body = { success: true };
@@ -67,6 +71,57 @@ try {
   await check('mocked Google onboarded-user response opens Discover', async () => {
     googleUser = 'viewer'; await b.cookie('anime_preview_user', 'anonymous'); await b.navigate('/auth/sign-in'); await b.clickText('Continue with Google');
     await b.wait('location.pathname==="/recommendations"');
+  });
+  await check('root resolves signed-out, new and returning users without private content or loops', async () => {
+    for (const [user, path] of [['anonymous', '/auth/sign-in'], ['new', '/onboarding'], ['viewer', '/recommendations']]) {
+      await b.cookie('anime_preview_user', user);
+      await b.send('Page.navigate', { url: `${base}/` });
+      await b.wait(`location.pathname===${JSON.stringify(path)}`);
+      await pause(250);
+      assert(await b.evaluate(`location.pathname===${JSON.stringify(path)}`), 'Entry route looped.');
+    }
+  });
+  await check('anonymous private route preserves a safe return destination', async () => {
+    await b.cookie('anime_preview_user', 'anonymous');
+    await b.send('Page.navigate', { url: `${base}/library?status=watching` });
+    await b.wait('location.pathname==="/auth/sign-in"');
+    assert(await b.evaluate('new URLSearchParams(location.search).get("returnTo")==="/library?status=watching"'), 'Private return path was lost.');
+  });
+  await check('legacy hash search survives root handoff and authentication', async () => {
+    await b.cookie('anime_preview_user', 'viewer');
+    await b.send('Page.navigate', { url: `${base}/#/search?q=Frieren` });
+    await b.wait('location.pathname==="/search" && new URLSearchParams(location.search).get("q")==="Frieren"');
+  });
+  await check('Google cancellation returns recoverable sign-in', async () => {
+    await b.navigate('/auth/sign-in?error=access_denied');
+    assert(/cancelled/i.test(await b.evaluate('document.body.innerText')), 'Cancellation recovery missing.');
+  });
+  await check('Google profile failure stays on callback and Retry resolves the server account', async () => {
+    googleUser = 'profile-error';
+    await b.navigate('/auth/sign-in'); await b.clickText('Continue with Google');
+    await b.wait('location.pathname==="/auth/callback" && /profile could not be loaded/i.test(document.body.innerText)');
+    await b.cookie('anime_preview_user', 'viewer'); await b.clickText('Retry');
+    await b.wait('location.pathname==="/recommendations"');
+  });
+  await check('email profile retry and repeated submits do not authenticate twice', async () => {
+    emailUser = 'profile-error';
+    await b.navigate('/auth/sign-in?email=viewer%40example.test');
+    await b.input('#auth-password', 'fixture-password-123');
+    const before = requests.filter(request => request.path.endsWith('/sign-in/email')).length;
+    await b.evaluate('(()=>{const f=document.querySelector("form");f.requestSubmit();f.requestSubmit()})()');
+    await b.wait('/Retry account lookup/i.test(document.body.innerText)');
+    assert(requests.filter(request => request.path.endsWith('/sign-in/email')).length === before + 1, 'Duplicate email request escaped lock.');
+    await b.cookie('anime_preview_user', 'viewer'); await b.clickText('Retry account lookup');
+    await b.wait('location.pathname==="/recommendations"');
+    assert(requests.filter(request => request.path.endsWith('/sign-in/email')).length === before + 1, 'Profile retry resubmitted credentials.');
+  });
+  await check('operational auth 503 retains email input and differs from request throttling', async () => {
+    authUnavailable = true;
+    await b.navigate('/auth/sign-in?email=viewer%40example.test'); await b.input('#auth-password', 'fixture-password-123');
+    await b.clickText('Sign in');
+    await b.wait('/protection.*unavailable/i.test(document.querySelector("[role=alert]")?.textContent ?? "")');
+    assert(await b.evaluate('document.querySelector("#auth-email").value==="viewer@example.test"'), 'Email input lost.');
+    assert(!/Too many/i.test(await b.evaluate('document.body.innerText')), 'Operational failure presented as throttling.');
   });
 } finally {
   await writeFile(`${folder}/auth-fixture-checks.json`, `${JSON.stringify({ testedAt: new Date().toISOString(), configuration: 'Browser-intercepted synthetic Better Auth responses and isolated server fixture identities. No real signup, email delivery, OTP, OAuth exchange, or live cookie/session establishment verified.', checks, requests }, null, 2)}\n`);

@@ -7,7 +7,10 @@ const profile = { internalUserId: 'user-a', email: 'viewer@example.test', emailV
 const response = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status });
 
 test('verified server profile sends onboarded users to Discover and incomplete users to onboarding', () => {
-  assert.equal(resolvedDestination(profile, '/library'), '/recommendations');
+  assert.equal(resolvedDestination(profile, undefined), '/recommendations');
+  assert.equal(resolvedDestination(profile, '/'), '/recommendations');
+  assert.equal(resolvedDestination(profile, '/onboarding?step=2'), '/recommendations');
+  assert.equal(resolvedDestination(profile, '/library'), '/library');
   assert.equal(resolvedDestination(profile, '/search?q=Frieren'), '/search?q=Frieren');
   assert.equal(resolvedDestination({ ...profile, onboarded: false }, '/search'), '/onboarding');
   assert.equal(resolvedDestination(profile, '//evil.test'), '/recommendations');

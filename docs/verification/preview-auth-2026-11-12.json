@@ -1,0 +1,99 @@
+{
+  "testedAt": "2026-11-12T14:30:17.922Z",
+  "configuration": "Browser-intercepted synthetic Better Auth responses and isolated server fixture identities. No real signup, email delivery, OTP, OAuth exchange, or live cookie/session establishment verified.",
+  "checks": [
+    {
+      "name": "mocked email signup automatically advances with address and resend cooldown",
+      "pass": true
+    },
+    {
+      "name": "mocked invalid OTP keeps address and offers retry",
+      "pass": true
+    },
+    {
+      "name": "mocked expired OTP distinguishes expiry and retains resend recovery",
+      "pass": true
+    },
+    {
+      "name": "mocked valid OTP resolves actual fixture server profile to onboarding",
+      "pass": true
+    },
+    {
+      "name": "mocked Google new-user response uses same-origin callback then server onboarding",
+      "pass": true
+    },
+    {
+      "name": "mocked Google onboarded-user response opens Discover",
+      "pass": true
+    },
+    {
+      "name": "root resolves signed-out, new and returning users without private content or loops",
+      "pass": true
+    },
+    {
+      "name": "anonymous private route preserves a safe return destination",
+      "pass": true
+    },
+    {
+      "name": "legacy hash search survives root handoff and authentication",
+      "pass": true
+    },
+    {
+      "name": "Google cancellation returns recoverable sign-in",
+      "pass": true
+    },
+    {
+      "name": "Google profile failure stays on callback and Retry resolves the server account",
+      "pass": true
+    },
+    {
+      "name": "email profile retry and repeated submits do not authenticate twice",
+      "pass": true
+    },
+    {
+      "name": "operational auth 503 retains email input and differs from request throttling",
+      "pass": true
+    }
+  ],
+  "requests": [
+    {
+      "path": "/api/auth/sign-up/email",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations&email=new%40example.test"
+    },
+    {
+      "path": "/api/auth/email-otp/verify-email"
+    },
+    {
+      "path": "/api/auth/email-otp/verify-email"
+    },
+    {
+      "path": "/api/auth/email-otp/verify-email"
+    },
+    {
+      "path": "/api/auth/sign-in/social",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations",
+      "newUserCallbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations",
+      "errorCallbackURL": "http://localhost:3067/auth/sign-in?returnTo=%2Frecommendations"
+    },
+    {
+      "path": "/api/auth/sign-in/social",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations",
+      "newUserCallbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations",
+      "errorCallbackURL": "http://localhost:3067/auth/sign-in?returnTo=%2Frecommendations"
+    },
+    {
+      "path": "/api/auth/sign-in/social",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations",
+      "newUserCallbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations",
+      "errorCallbackURL": "http://localhost:3067/auth/sign-in?returnTo=%2Frecommendations"
+    },
+    {
+      "path": "/api/auth/sign-in/email",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations&email=viewer%40example.test"
+    },
+    {
+      "path": "/api/auth/sign-in/email",
+      "callbackURL": "http://localhost:3067/auth/callback?returnTo=%2Frecommendations&email=viewer%40example.test"
+    }
+  ]
+}

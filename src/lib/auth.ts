@@ -6,25 +6,8 @@ import { fetchVerifiedAuthSession, hasNeonSessionCookie, type VerifiedAuthSessio
 import { previewEnabled, previewIdentity } from './preview';
 import { enforceAuthLimit } from './rate-limit';
 import { authRequestIdentity } from './auth-request';
+import { authConfiguration } from './environment';
 export { AuthenticationUnavailableError, type VerifiedAuthSession } from './auth-session';
-
-function authConfiguration() {
-  const baseUrl = process.env.NEON_AUTH_BASE_URL;
-  const secret = process.env.NEON_AUTH_COOKIE_SECRET;
-  if (!baseUrl || !secret || secret.length < 32) {
-    throw new Error('Set NEON_AUTH_BASE_URL and a NEON_AUTH_COOKIE_SECRET of at least 32 characters.');
-  }
-  const url = new URL(baseUrl);
-  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) {
-    throw new Error('NEON_AUTH_BASE_URL must be the HTTPS Auth URL copied from the Neon branch.');
-  }
-  const appUrl = new URL(process.env.APP_URL ?? '');
-  if (appUrl.username || appUrl.password || appUrl.pathname !== '/' || appUrl.search || appUrl.hash ||
-      (appUrl.protocol !== 'https:' && !(appUrl.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(appUrl.hostname)))) {
-    throw new Error('APP_URL must be this deployment’s exact HTTPS origin, or HTTP localhost for development.');
-  }
-  return { baseUrl: url.toString().replace(/\/$/, ''), secret, origin: appUrl.origin };
-}
 
 export function isAuthConfigured(): boolean {
   try {

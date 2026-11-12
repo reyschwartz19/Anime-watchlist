@@ -59,7 +59,7 @@ export async function fetchVerifiedAuthSession(
   } catch {
     throw new AuthenticationUnavailableError();
   }
-  if (response.status === 401 || response.status === 403) return null;
+  if (response.status === 401) return null;
   if (!response.ok) throw new AuthenticationUnavailableError();
 
   let value: unknown;

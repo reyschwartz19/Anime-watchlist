@@ -1,0 +1,75 @@
+{
+  "testedAt": "2026-11-05T12:00:35.917Z",
+  "configuration": "Isolated in-memory app fixtures. Auth callback and error states use fixture identities; no live OAuth/email or Groq result claimed.",
+  "checks": [
+    {
+      "name": "fixture Google cancellation has email/retry recovery",
+      "pass": true
+    },
+    {
+      "name": "fixture Google provider failure is distinct from cancellation",
+      "pass": true
+    },
+    {
+      "name": "fixture new-user callback resolves server session to onboarding",
+      "pass": true
+    },
+    {
+      "name": "fixture onboarded callback opens Discover",
+      "pass": true
+    },
+    {
+      "name": "fixture profile-read failure stays recoverable and never routes to onboarding",
+      "pass": true
+    },
+    {
+      "name": "new picks → duplicate Save clicks → title on My List",
+      "pass": true
+    },
+    {
+      "name": "permanent dismissal survives reload and generation; Profile restore works",
+      "pass": true
+    },
+    {
+      "name": "Not tonight lasts through reload in this browser session; Undo restores it",
+      "pass": true
+    },
+    {
+      "name": "Pick from my list contains only Plan to Watch entries",
+      "pass": true
+    },
+    {
+      "name": "Already watched records Completed, offers optional taste and does not add a favorite",
+      "pass": true
+    },
+    {
+      "name": "model failure preserves mood request and recovers",
+      "pass": true
+    },
+    {
+      "name": "catalog failure distinguished from zero search matches",
+      "pass": true
+    },
+    {
+      "name": "details retains originating search query and filter path",
+      "pass": true
+    },
+    {
+      "name": "second fixture account cannot see first account’s saved title or dismissal",
+      "pass": true
+    },
+    {
+      "name": "200% desktop zoom reflows vertically without clipped controls",
+      "pass": true
+    },
+    {
+      "name": "keyboard Escape closes Pass and restores trigger focus",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser runtime exceptions",
+      "pass": true,
+      "details": []
+    }
+  ]
+}

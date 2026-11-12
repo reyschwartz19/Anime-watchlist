@@ -1,0 +1,33 @@
+{
+  "configuration": "Local production build; signed-out HTTP guards only. No live login or provider requests.",
+  "checks": [
+    {
+      "name": "anonymous profile is private and returns401",
+      "pass": true
+    },
+    {
+      "name": "private Search redirects to sign-in",
+      "pass": true
+    },
+    {
+      "name": "fixture cookies cannot authorize production access",
+      "pass": true
+    },
+    {
+      "name": "auth writes reject a foreign origin",
+      "pass": true
+    },
+    {
+      "name": "auth rejects external callback destinations",
+      "pass": true
+    },
+    {
+      "name": "auth body cap enforced on production HTTP boundary",
+      "pass": true
+    },
+    {
+      "name": "security headers present",
+      "pass": true
+    }
+  ]
+}

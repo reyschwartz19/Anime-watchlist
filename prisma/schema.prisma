@@ -18,6 +18,16 @@ enum FeedbackValue {
   dislike
 }
 
+// Shared outbound budgets, per-user inbound windows and expiring concurrency
+// leases. Keys hash identity; values never contain prompts or authentication data.
+model RateLimitState {
+  key       String   @id
+  value     Json
+  expiresAt DateTime @db.Timestamptz(3)
+
+  @@index([expiresAt])
+}
+
 // Application identity stays stable if the managed auth identity changes.
 // The managed neon_auth schema belongs to Neon, never to this migration.
 model AppUser {
@@ -34,6 +44,8 @@ model AppUser {
   updatedAt        DateTime @updatedAt @db.Timestamptz(3)
   library          LibraryEntry[]
   feedback         Feedback[]
+  recommendationBatches RecommendationBatch[]
+  recommendationEvents RecommendationEvent[]
   migrationBinding MigrationBinding?
 }
 
@@ -60,12 +72,60 @@ model LibraryEntry {
 model Feedback {
   userId    String        @db.Uuid
   animeId   Int
-  value     FeedbackValue
+  // Explicit taste is separate from title eligibility. A reasonless dismissal
+  // must never become a blanket genre preference.
+  value     FeedbackValue?
+  reason    String?
+  likedAspects String?
+  dislikedAspects String?
+  visualStyle String?
+  dismissal String?
+  dismissalReason String?
+  title     String?
   createdAt DateTime      @default(now()) @db.Timestamptz(3)
   updatedAt DateTime      @updatedAt @db.Timestamptz(3)
   user      AppUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, animeId])
+}
+
+// A client-generated request ID makes a retry reuse the same ranked batch.
+// Stored pick snapshots retain the exact displayed ID, order and explanation.
+model RecommendationBatch {
+  id            String   @id @db.Uuid
+  userId        String   @db.Uuid
+  mode          String
+  request       String
+  constraints   Json
+  model         String
+  promptVersion String
+  picks         Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  user          AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events        RecommendationEvent[]
+
+  @@index([userId, createdAt])
+}
+
+// One operation ID per deliberate action. Its before-images support an owner-
+// scoped undo without conflating impressions, library status and explicit taste.
+model RecommendationEvent {
+  id               String   @id @db.Uuid
+  userId           String   @db.Uuid
+  batchId          String   @db.Uuid
+  animeId          Int
+  action           String
+  position         Int?
+  reason           String?
+  previousLibrary  Json?
+  previousFeedback Json?
+  undoTokenHash    String?
+  undoneAt         DateTime? @db.Timestamptz(3)
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  user             AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch            RecommendationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([userId, batchId, animeId])
 }
 
 // One Firebase source user can be bound to exactly one application user.

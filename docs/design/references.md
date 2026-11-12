@@ -1,78 +1,19 @@
-# Reference evidence
+# Evidence and decision register
+Primary visual authority: [Manga Shelf](manga-shelf.png). The left panel supplies the entrance composition, middle panel the selection grammar, and right panel the signed-in shell and featured work. Secondary references contribute only the decisions stated below. The supplemental board is an original proposal for review.
 
-Inspection date: **2026-11-04** (Africa/Douala). Desktop: **1440×1000**; phone: **390×844**, touch emulation. Native Chrome was driven through local DevTools. The textual extraction service could read content that the rendered browser could not. These are different evidence levels.
+|Reference and visible evidence|Decision and limit|
+|---|---|
+|[KH Design • Crunchyroll refresh](https://www.kholten.com/projects/crunchyroll-app), screen studies under Branding refresh, Architectural improvements and Search functionality bump; the designer links a Figma prototype. Use the embedded mobile screen studies and the linked Figma prototype.|On small screens maintain a stable destination bar. Use a common details/action drawer. Separate recent searches and title results. Borrow the task hierarchy; use Manga Shelf's four destinations and stationary lead story.|
+|[VIZ • Shonen Jump](https://www.viz.com/shonenjump), publisher page with heading Latest free chapters and repeated linked works beneath it.|Borrow recognition by work and compact repeatable entries for favorites/search/library. Keep titles readable independently of artwork. Chapter controls are out of scope.|
+|[Criterion • Seven Samurai](https://www.criterion.com/films/165-seven-samurai), title page with artwork, creator, synopsis and film information.|Details puts identity and artwork first, then a readable synopsis and secondary facts. Mobile/desktop sizes are our proposals.|
+|[GOV.UK • confirm an email address](https://design-system.service.gov.uk/patterns/confirm-an-email-address/), published confirmation example.|Verification identifies the destination email and supplies resend/change paths. Actual OTP vs link follows Neon configuration. Signup derives its visual form family from board panel one.|
+|[GOV.UK • check answers](https://design-system.service.gov.uk/patterns/check-answers/), rendered example of grouped values with contextual Change actions.|Profile uses labeled summary rows and section-local edits; choosing an edit returns focus to that row. Use for reviewing preferences and optional identity during onboarding.|
+|[Letterboxd • popular films](https://letterboxd.com/films/popular/) and [Criterion contributor list](https://www.criterion.com/current/top-10-lists/1022-julie-klausner-s-top-10).|Collection, rating, and commentary semantics only. Prior repo screenshots show security interstitials. They establish no fonts, grid dimensions or visual treatments.|
+|[Skip and Loafer • official key visual](https://skip-and-loafer.com/assets/top/vis-1.webp), direct illustration preview.|Reference for overlapping silhouettes and quiet negative space. Manga Shelf supersedes its watercolor palette.|
 
-## Rendered access matrix
-
-| Intended reference | Desktop evidence | Phone evidence | Result |
-| --- | --- | --- | --- |
-| [Criterion Top 10 index](https://www.criterion.com/current/top-10-lists) | [Screenshot](evidence/criterion-index-desktop.png), [DOM record](evidence/criterion-index-desktop.json) | [Screenshot](evidence/criterion-index-phone.png), [DOM record](evidence/criterion-index-phone.json) | Cloudflare verification screen; index layout unobserved |
-| [Julie Klausner's individual list](https://www.criterion.com/current/top-10-lists/1022-julie-klausner-s-top-10) | [Screenshot](evidence/criterion-contributor-desktop.png), [DOM record](evidence/criterion-contributor-desktop.json) | [Screenshot](evidence/criterion-contributor-phone.png), [DOM record](evidence/criterion-contributor-phone.json) | Cloudflare verification screen; contributor layout unobserved |
-| [Letterboxd popular films](https://letterboxd.com/films/popular/) | [Screenshot](evidence/letterboxd-popular-desktop.png), [DOM record](evidence/letterboxd-popular-desktop.json) | [Screenshot](evidence/letterboxd-popular-phone.png), [DOM record](evidence/letterboxd-popular-phone.json) | Security-check modal obscures the page; browsing and collection interactions unobserved |
-
-These six screenshots show access failures, not usable design references. No verification challenge was solved or bypassed. A blurred shell behind a security modal is insufficient evidence for typography, layout, posters, or controls.
-
-## What the text extraction establishes
-
-This section describes extracted content and labels, **not visual observations**. No spacing, color, font, grid, responsive behavior, hover behavior, or interaction result can be inferred from it.
-
-### Discover: Criterion index
-
-Page: https://www.criterion.com/current/top-10-lists
-
-Extracted elements: a Top 10 Lists heading, a result count, contributor-named list links, descriptive introductions, dates, and a Load More control. The chosen contributor is linked from the index.
-
-Application, decision **D1**: introduce recommendations with a comprehensible curatorial premise. The index's content supports presenting context before selection; it does not establish any card dimensions or grid. Contributor attribution must be real if introduced later; do not invent a human curator for AI recommendations.
-
-### Discover: one contributor's list
-
-Page: https://www.criterion.com/current/top-10-lists/1022-julie-klausner-s-top-10
-
-Extracted elements: contributor heading, biographical introduction, date, numbered film selections, director/title links, personal commentary, and Quick Shop links for several entries.
-
-Application, decision **D2**: pair the selected anime with a specific recommendation reason, distinct from its synopsis. The mockup's original example relates Mushi-Shi to a sample preference for Natsume's Book of Friends. No Criterion prose, contributor photograph, cover art, logo, or shop UI is copied.
-
-### My List: Letterboxd browsing and collection
-
-Page: https://letterboxd.com/films/popular/
-
-Extracted elements: Small/Large view labels, sorting options, service/genre/decade categories, visibility options, and account-filter labels for films in a watchlist. Extraction also includes form/modal text that may be hidden or account dependent.
-
-Application, decision **D3**: investigate compact collection browsing, status filters, and explicit saved state for My List. This remains a proposal. Hidden extracted text does not prove that a modal or control is visible, available while signed out, keyboard accessible, or functional. Poster hover, filter opening, collection editing, confirmation, and persistence were **not observed**. The prototype's save/feedback behavior is original (**D6**).
-
-## Missing views requested from the user
-
-Please provide screenshots of the actual content after ordinary access succeeds:
-
-1. Criterion index at desktop and phone widths, including the heading and first entries.
-2. Julie Klausner's individual list at desktop and phone widths: introduction plus at least one numbered film and its commentary. A second capture lower on the page helps verify repeated entries.
-3. Letterboxd popular films at desktop and phone widths: grid plus browsing toolbar; an open filter/sort menu; desktop poster hover controls and their phone equivalent.
-4. If accessible while signed in, the collection action open and its saved/unsaved confirmation state. Screenshots cannot establish persistence by themselves; describe what changed after saving or undoing. Account details can be cropped out.
-
-Until these arrive, no reference visual measurement or behavior is approved. Keep the mockup visibly provisional and leave the live app's styling in place.
-
-## Original study decisions
-
-The following are explicitly **Original**, with no observed reference-screen basis. They are not derived from the purple app.
-
-| ID | Original decision | Reason and application |
-| --- | --- | --- |
-| D4 | Neutral canvas, charcoal type, forest accent, plain text brand, minimal rules | Keep the anime title and recommendation reason prominent; all values are provisional |
-| D5 | Poster and reading column on desktop; compact poster/title row, then full-width reason and actions on phone | Make the requested single recommendation concrete and reviewable; corrected after rendered critique |
-| D6 | Labeled reversible save and two feedback buttons; inline sample list | Demonstrate collection state and preference feedback without an account or irreversible action |
-| D7 | Original geometric typographic Mushi-Shi poster | Populate the mockup without reproducing logos or proprietary artwork |
-| D8 | Semantic controls, visible focus, announced updates, reduced motion, dark theme | Establish testable interaction quality; verify using Vercel's installed skill |
-
-See the [root design contract](../../DESIGN.md) for tokens, interaction requirements, review boundary, and future implementation workflow.
-
-## Anime fixture and media provenance
-
-Mushi-Shi is an actual anime; this fixture refers to the first 26-episode series that began in 2005. Catalog link: https://myanimelist.net/anime/457/Mushishi . Episode cross-check: https://en.wikipedia.org/wiki/List_of_Mushishi_episodes . Jikan and catalog browser access were unavailable in this session; this is not a claim that their pages were visually inspected.
-
-The poster at [assets/mushishi-poster-study.svg](assets/mushishi-poster-study.svg) is original geometry and typography made for this study. It is visibly identified as unofficial. The recommendation reason, taste profile, and feedback state are illustrative. No ratings, popularity numbers, or claims about the user's actual watch history are invented.
-
-## Mockup and review evidence
-
-Source: [discover-mockup.html](discover-mockup.html), [CSS](discover-mockup.css), [JavaScript](discover-mockup.js). It is isolated from the React application, authentication, APIs, storage, and global styles. Reload resets its state.
-
-Rendered mockup captures and audit outcomes are recorded in [review.md](review.md). Installation READMEs, help output, exact commands, versions, upstream commits, and verified hashes are recorded in [workflow/installation.md](workflow/installation.md).
+## Verification of project and skills
+Reviewed a detached worktree of reyschwartz19/Anime-watchlist at 478a163e39d29768ac1c61dffb1982f6dd854565, shared by published develop and main at inspection. This checks committed installation, not unpublished laptop changes. Prior docs/design/workflow records describe an earlier design pass.
+- Impeccable 4.8.0: read .agents/skills/impeccable/SKILL.md and ran its project-local scripts/impeccable context from that worktree. It found an incumbent design and no PRODUCT.md. Applied board-first hierarchy here; no new browser polish/detector pass claimed.
+- Web Design Guidelines 1.0.0: invoked the installed instruction workflow manually: retrieved the current upstream command.md, inspected AuthForm.tsx and AnimeCard.tsx. Existing positives include one-time-code autocomplete, named inputs, pending buttons, explicit image dimensions and live status. AuthForm's verification response still asks the user to sign in; treat that as a journey requiring resolution and a live provider test. Full accessibility audit awaits implemented screens.
+- ux-usability-foundations: absent from the committed project skill directories. Read the published upstream SKILL.md from a separate research checkout and applied its goal/action/feedback/recovery method to flows.md. No project-local invocation claimed. On the laptop verify availability and if missing use: npx skills add https://github.com/hueyexe/frontend-agent-skills --skill ux-usability-foundations --agent codex
+- Final implementation must inspect the working checkout first and report divergence. No production actions were taken.

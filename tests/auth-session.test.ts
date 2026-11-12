@@ -69,6 +69,7 @@ test('a session tied to another user fails closed', async () => {
 test('upstream network errors and malformed/failed responses never become successful sessions', async () => {
   await assert.rejects(fetchVerifiedAuthSession(config, async () => { throw new Error('DNS error'); }), AuthenticationUnavailableError);
   await assert.rejects(fetchVerifiedAuthSession(config, async () => response({}, 503)), AuthenticationUnavailableError);
+  await assert.rejects(fetchVerifiedAuthSession(config, async () => response({ code: 'INVALID_ORIGIN' }, 403)), AuthenticationUnavailableError);
   await assert.rejects(fetchVerifiedAuthSession(config, async () => new Response('not JSON')), AuthenticationUnavailableError);
   await assert.rejects(fetchVerifiedAuthSession(config, async () => response({ user: fixture().user })), AuthenticationUnavailableError);
   const malformed = fixture();

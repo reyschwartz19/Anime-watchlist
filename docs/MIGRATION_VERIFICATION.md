@@ -1,5 +1,7 @@
 # Migration verification
 
+Manga Shelf follow-up on 2026-11-05: the importer now requires a private prior dry-run report for the exact source UID, verified destination and export digest before constructing the write client. Its destination backup also includes new recommendation batches and attributable events, alongside explicit taste and hidden-title state. The report is an operator review artifact, not a signed approval; current destination state is still checked transactionally. New guard tests reject a missing/mismatched plan before database access. `npm run test:migration` passed 3 files (10 cases), and `npm run test:postgres` passed all 12 scenarios after applying the ordered schema chain to a freshly owned, temporary loopback database. No personal export/import or Neon data operation ran. The earlier evidence below remains historical for the framework migration.
+
 Verified locally on 2026-11-05. No real Firebase export, Neon provisioning/login/import, production writes, hosting change, or cutover ran. Only synthetic fixtures and temporary loopback PostgreSQL/browser processes were used.
 
 ## Versions and official setup choices

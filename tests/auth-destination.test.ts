@@ -15,11 +15,16 @@ test('keeps intended private search path and query through all auth view links',
 
 test('auth destination rejects external origins, unknown paths, protocol-relative and backslash redirects', () => {
   for (const unsafe of ['https://evil.test/library', '//evil.test/library', '/\\evil.test/library', '/auth/sign-in', '/api/me', '/unknown', 'javascript:alert(1)', ['/', '/profile'], null, undefined]) {
-    assert.equal(safeAuthDestination(unsafe), '/library');
+    assert.equal(safeAuthDestination(unsafe), '/recommendations');
   }
 });
 
 test('permits known old entry paths without treating fragments as a destination', () => {
   for (const path of ['/', '/profile', '/onboarding', '/recommendations', '/library']) assert.equal(safeAuthDestination(path), path);
   assert.equal(safeAuthDestination('/search?q=anime#ignored'), '/search?q=anime');
+});
+
+test('preserves numeric details deep links through auth but rejects unrelated nested paths', () => {
+  assert.equal(safeAuthDestination('/anime/205?from=%2Fsearch%3Fq%3DSamurai'), '/anime/205?from=%2Fsearch%3Fq%3DSamurai');
+  for (const value of ['/anime/foo', '/anime/0', '/anime/205/edit', '/anime/9999999999999']) assert.equal(safeAuthDestination(value), '/recommendations');
 });

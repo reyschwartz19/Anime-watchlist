@@ -1,0 +1,14 @@
+{
+  "testedAt": "2026-11-05T11:06:14.051Z",
+  "configuration": "Real app UI and server actions against isolated in-memory fixture profile/catalog. No live providers or personal data.",
+  "checks": [
+    {
+      "name": "two title-ID favorites survive searches, catalog failure, Back and refresh",
+      "pass": true
+    },
+    {
+      "name": "finish is retry-safe, persists profile and opens Discover",
+      "pass": true
+    }
+  ]
+}

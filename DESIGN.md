@@ -1,81 +1,31 @@
-# Anime Watchlist design workflow
+# Manga Shelf • design review draft
+Authority in order: the approved [board](docs/design/manga-shelf.png), directly observed properties below, then the proposed specifications in this package. External examples supply interaction or content structure. Approve this bundle before implementing or replacing any existing design document.
 
-Status: **provisional Discover study; live-app restyling has not started**. Visual reference validation awaits user screenshots. See [reference evidence and decision provenance](docs/design/references.md).
+## Board evidence
+The 1536 × 1024 board contains three separate narrow screens. Sign-in uses an angled opening illustration; favorites uses a cropped eye strip, three progress marks and captioned tiles; Discover uses a single feature, two mode buttons and labeled bottom navigation. The paper, ink and red dominate even the illustrated covers. This corrects an earlier description of full-color artwork as a defining feature. Treat the fictionalized cover illustrations as composition studies.
 
-## Product and scope
+Three flat working tokens are medians sampled from the original PNG (coordinates from its top-left, in pixels). Paper #F9EBD7 at x850–949/y100–129; action #CF102C at x610–639/y944–969; ink #0F0F0B at x1080–1085/y117–144. The board has print variation. Use the flat values beneath UI. White #FFFFFF is the proposed on-action text and checkmark. Secondary controls use ink on paper. Show errors with text and icon. Reserve red for actions, selections, errors with labels, and artwork. No additional status palette.
 
-Help anime viewers choose what to watch and manage their collection. Discover should explain a recommendation; My List should make collection state easy to scan and change. Existing data has `watching`, `completed`, `plan_to_watch`, and `dropped` states. Keep those semantics when implementation reaches the live app.
+## Production translation • proposed for approval
+The lettering is visibly heavy, narrow and uppercase. Its source font cannot be identified from pixels. Use Anton Regular 400 for display, navigation labels and compact button text; use Source Sans 3 Regular 400, Semibold 600 and Bold 700 for reading and UI. Fallbacks: Impact then sans-serif for display; system-ui then sans-serif for body. Only the two-line ANIME WATCHLIST wordmark gets a slight forward slant and a red brush underline. Self-host licensed Latin WOFF2 subsets. Retain natural casing for titles in accessible names.
 
-The current deliverable is [one isolated Discover mockup](docs/design/discover-mockup.html). Its preferences, recommendation reason, and collection are sample data. It imports no application code and writes no account data. The existing purple app is not a visual source.
+|Role|Phone size/line-height in px|Desktop|
+|---|---|---|
+|Page title|40/42|56/58|
+|Featured anime|32/35|44/48|
+|Section heading|24/28|30/34|
+|Tile caption / primary action|18/22|20/24|
+|Body and inputs|16/24|18/26|
+|Metadata and navigation|14/20|14/20|
+Allow long titles to wrap; use a second caption line before truncating. Full title always available on details. Body text measure 60–68 characters.
 
-## Reference contract
+Spacing steps 4, 8, 12, 16, 24, 32, 48, 64 px. Page gutters 16 under 600px, 24 at 600–959, 32 from 960. Max content width 1200. Mobile single column; compact cover grids two columns, tablet three or four, desktop six. Desktop uses 12 equivalent tracks, 24px gutters. Use only the column splits in screens.md. At 200% zoom collapse naturally and keep scroll vertical.
 
-1. Inspect the actual Criterion index **and** a contributor list for Discover; inspect actual Letterboxd browsing **and** collection controls for My List.
-2. Inspect rendered desktop and phone views. Record URL, viewport, state, screenshot, and observations in `docs/design/references.md`. Text extraction proves content structure only.
-3. If blocked, capture the block and request the exact missing screenshots. Never promote extracted labels into claims about visible layout, hover, touch, responsiveness, or persistence.
-4. Connect each major choice to a reference page and observed element. Mark every unsourced choice **Original**. Treat unverified visual choices as provisional.
-5. Show reference evidence and the populated isolated mockup before changing live app styling. Incorporate the user's review before proceeding.
-6. After live implementation, run Impeccable critique on the changed surface and Vercel's interaction audit on its code. Fix material issues and verify the complete saved-state flow. The mockup has its own review in `docs/design/review.md`.
+Ink rules 1px, interactive outlines 1.5px, corners 3px. Paper surfaces, no elevated card shadows. Buttons min-height 44px with 16px horizontal padding and 8px icon gap. Primary red fill + white label, secondary paper + ink border, tertiary underlined text. Hover underline or thicken the visible edge without resizing; focus 2px ink outline with 3px paper separation. Pending retains width and shows a verb such as Saving…; announce completion to assistive technology. Inputs full width with persistent labels, search icon on left, clear on right, 44px minimum. Keep errors below the field and associate programmatically.
 
-This review boundary comes from the user's explicit request to see the mockup and evidence before app restyling.
+Cover tile: 1:1 art for favorites with focal-point cropping, then paper caption strip and border. Library/search use original 2:3 poster within its frame. Selected favorites show red square and white check at top right plus pressed state. Discover hero uses a near-square mobile crop; authentic catalog color is allowed. Never recolor third-party posters without permission. Header wordmark + optional profile shortcut. Signed-in mobile bottom bar: Discover, My List, Search, Profile; icon + text, current destination red and aria-current. Desktop header uses the same order. Omit bell unless backed by a real feature. Sign-in/onboarding use their own focused header.
 
-## Decision register
+Motion: 120ms button feedback, up to 180ms drawers and view transitions. Honor reduced motion with instant state changes. No autoplay. Decorative marks remain outside reading and control surfaces. Check WCAG AA contrast for actual combinations and keyboard focus on every surface.
 
-| ID | Reference page and element | Application | Authority |
-| --- | --- | --- | --- |
-| D1 | Criterion Top 10 index: contributor-titled entries with descriptive introductions, from text extraction | Discover provides a considered introduction, rather than an unexplained wall of titles | Content structure only; rendered layout blocked |
-| D2 | Julie Klausner's individual Criterion list: numbered film titles with personal commentary, from text extraction | Put a specific reason beside the recommendation; separate the reason from the anime synopsis | Content structure only; commentary is not copied |
-| D3 | Letterboxd popular films: Small/Large, genre/decade/sort labels and watchlist visibility choices, from text extraction | Future My List should support browsing and collection filters; map to the app's four real status values | Proposal pending rendered and interaction evidence; not implemented in this mockup |
-| D4 | **Original**; no reference visual observed | Pale neutral canvas, charcoal text, forest accent, restrained rules and plain text branding | Provisional; never extracted from the purple app |
-| D5 | **Original**; Criterion commentary gives content intent, not visual measurements | Large poster beside the reading column on desktop; compact poster/title row above full-width reason and actions on phone | Provisional; render and test independently |
-| D6 | **Original**; Letterboxd collection control behavior could not be inspected | Explicit “Plan to watch”, reversible save, count, and inline sample collection; two independent feedback choices | Prototype behavior, not a claim about Letterboxd |
-| D7 | **Original** | Geometric typographic Mushi-Shi poster, visibly labeled as an original study | No logos, reference artwork, or official anime artwork copied |
-| D8 | **Original** accessibility requirements; audit with installed Vercel skill | Semantic controls, 44px action targets, visible keyboard focus, announced results, reduced motion, automatic dark theme | Required for implementation; not claimed as reference observations |
-
-## Provisional visual system
-
-Use the mockup's CSS custom properties as the single source of values for this study, not as approved production tokens.
-
-| Token | Light | Dark |
-| --- | --- | --- |
-| Canvas | `#f6f7f3` | `#171e19` |
-| Text | `#202821` | `#e8ede5` |
-| Secondary text | `#596158` | `#adb8a9` |
-| Accent | `#234d39` | `#bad2ae` |
-| Rule | `#c7cec1` | `#4b594b` |
-| Subtle surface | `#e9ede4` | `#28352b` |
-
-Original layout: maximum content width 1184px, desktop 40px outer margins, phone 20px; 760px study breakpoint. Type is a dependency-free sans stack for the isolated prototype. A production font decision remains open. Keep functional body text readable and related controls grouped. No purple gradients, glowing surfaces, or ornamental icon tiles.
-
-Design read: editorial anime discovery within a task-oriented app. `DESIGN_VARIANCE: 5`, `MOTION_INTENSITY: 2`, `VISUAL_DENSITY: 4`. These are original study choices. Impeccable surface mode: **Operate**.
-
-## Interaction contract
-
-- Saving maps to `plan_to_watch`; saving again undoes it. The prototype changes only memory and resets on reload, as stated on screen.
-- “Fits my taste” and “Not for me” are mutually exclusive and reversible. In the prototype they demonstrate feedback selection; they do not train a recommender.
-- My List opens an inline sample list, moves focus to Close, and synchronizes `?panel=list` for direct links. Close and Escape restore focus to its toggle. Filter, view-density, and account persistence behavior await reference evidence and later implementation.
-- Production saving must report pending, success, and failure, preserve the previous state on failure, and offer recovery. Keep feedback selection separate from collection state.
-- Production Discover needs loading, empty, error/retry, saved, and feedback states. Verify with real fixtures and service failures before release; the single populated mockup is not evidence of those flows.
-- Keep the existing route paths, authentication, data model, and user data during visual implementation. Navigation labels shown in the study are proposals, not changes to live routes.
-
-## Assets
-
-The anime is real: Mushi-Shi, first series, 2005, 26 episodes, MAL ID 457. The recommendation copy and Natsume preference are illustrative. The poster is an original vector study and is explicitly not official artwork. Reference screenshots are research evidence only; do not use them as product assets or trace their logos. Use licensed or properly sourced catalog media only after an explicit production media decision.
-
-## Installed tools and repeatable checks
-
-See [installation provenance](docs/design/workflow/installation.md) and [machine-readable versions](docs/design/workflow/installed-skills.json). Both tools are installed at project scope, with hooks disabled:
-
-- `.agents/skills/impeccable/SKILL.md`: read this and the requested playbook, run its context command once per session, then follow its critique workflow on the actual surface. Current launcher: `.agents/skills/impeccable/scripts/impeccable`.
-- `.agents/skills/web-design-guidelines/SKILL.md`: fetch its current rules URL before each review, audit changed markup/styles/behavior, and record findings with file and line.
-
-Reload/restart Codex to refresh discovery of the newly installed skills. Their files can be read directly in the current session. Never enable hooks or install global copies as a side effect.
-
-For local review without app credentials:
-
-```sh
-python3 -m http.server 4173 --bind 127.0.0.1
-# Open http://127.0.0.1:4173/docs/design/discover-mockup.html
-```
-
-Stop the server with Ctrl-C. Check at 1440×1000, 390×844, a narrow 320px viewport, keyboard-only, and both color schemes. A successful app build does not prove that this standalone HTML file was inspected. Never claim a blocked reference or unavailable authenticated flow passed.
+## Handoff
+Read references.md, screens.md, flows.md, assets.md under docs/design before making UI changes. Preview on existing feature branch, preserving user edits. Keep Next.js, TypeScript, Prisma, Neon Postgres and Managed Better Auth; use migration-preview fixtures. The existing Firebase personal import has independent verification and authorization. Preserve ranker, Groq credentials boundary, ownership checks and recommendation exclusions. Never migrate personal data as part of design verification. Merge/deploy requires Remy's review.

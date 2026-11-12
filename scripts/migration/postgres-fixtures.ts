@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { Client } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
@@ -24,7 +24,14 @@ async function user(label: string) {
 try {
   const connection = new Client({ connectionString: databaseUrl });
   await connection.connect();
-  try { await connection.query(readFileSync(new URL('../../prisma/migrations/202611040001_initial/migration.sql', import.meta.url), 'utf8')); }
+  try {
+    // This is a freshly owned, disposable database. Exercise the actual ordered
+    // migration chain here; never apply these fixture commands to a Neon branch.
+    const migrations = new URL('../../prisma/migrations/', import.meta.url);
+    for (const directory of readdirSync(migrations, { withFileTypes: true }).filter(entry => entry.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) {
+      await connection.query(readFileSync(new URL(`${directory.name}/migration.sql`, migrations), 'utf8'));
+    }
+  }
   finally { await connection.end(); }
 
   await check('read-only dry run performs no writes and plans by anime ID', async () => {

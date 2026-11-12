@@ -23,13 +23,29 @@ test('feedback and profile mutations reject ownership and invalid URL payloads',
 test('old malformed anime displays safely without changing its original stored fields', () => {
   const raw = { title: '', progress: 7, unexpected: { kept: true }, images: { jpg: { image_url: 'javascript:alert(1)' } } };
   const before = structuredClone(raw);
-  assert.deepEqual(toAnimeView(raw, 457), { mal_id: 457, title: 'Anime #457', imageUrl: null, synopsis: '' });
+  assert.deepEqual(toAnimeView(raw, 457), { mal_id: 457, title: 'Anime #457', imageUrl: null, synopsis: '', year: null, type: null, episodes: null, genres: [] });
   assert.deepEqual(raw, before);
-  assert.deepEqual(toAnimeView(null, 42), { mal_id: 42, title: 'Anime #42', imageUrl: null, synopsis: '' });
+  assert.deepEqual(toAnimeView(null, 42), { mal_id: 42, title: 'Anime #42', imageUrl: null, synopsis: '', year: null, type: null, episodes: null, genres: [] });
 });
 
 test('catalog records with an unavailable synopsis remain searchable', () => {
   const parsed = animeSchema.parse({ mal_id: 457, title: 'Mushi-Shi', images: { jpg: { image_url: 'https://example.test/a.jpg', large_image_url: 'https://example.test/a.jpg' } }, synopsis: null, genres: null });
   assert.equal(parsed.synopsis, '');
   assert.deepEqual(parsed.genres, []);
+});
+
+test('missing artwork and alternate titles remain useful for season recognition', () => {
+  const parsed = animeSchema.parse({ mal_id: 34134, title: 'One Punch Man 2nd Season', title_english: 'One-Punch Man Season 2', year: 2019, type: 'TV', status: 'Finished Airing', images: { jpg: { image_url: null, large_image_url: null } }, synopsis: null });
+  const anime = toAnimeView(parsed, parsed.mal_id);
+  assert.equal(anime.imageUrl, null);
+  assert.equal(anime.alternateTitle, 'One-Punch Man Season 2');
+  assert.equal(anime.year, 2019);
+  assert.equal(anime.type, 'TV');
+});
+
+test('valid catalog artwork is shown even with the obsolete environment gate disabled', () => {
+  const previous = process.env.CATALOG_ARTWORK_CLEARED;
+  process.env.CATALOG_ARTWORK_CLEARED = '0';
+  try { assert.equal(toAnimeView({ title: 'Cover test', images: { jpg: { image_url: 'https://cdn.myanimelist.net/images/anime/1370/135212.jpg' } } }, 205).imageUrl, 'https://cdn.myanimelist.net/images/anime/1370/135212.jpg'); }
+  finally { if (previous === undefined) delete process.env.CATALOG_ARTWORK_CLEARED; else process.env.CATALOG_ARTWORK_CLEARED = previous; }
 });
